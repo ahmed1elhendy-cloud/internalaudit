@@ -1,0 +1,371 @@
+- recRCHeader:
+    Control: Rectangle
+    Properties:
+      X: =0
+      Y: =0
+      Width: =Parent.Width
+      Height: =90
+      Fill: =RGBA(31, 42, 68, 1)
+- lblRCTitle:
+    Control: Label
+    Properties:
+      Text: ="Resource Centre"
+      X: =16
+      Y: =24
+      Width: =500
+      Height: =40
+      Size: =22
+      FontWeight: =FontWeight.Bold
+      Color: =RGBA(255, 255, 255, 1)
+- btnRCBack:
+    Control: Classic/Button
+    Properties:
+      Text: ="< Back to Dashboard"
+      X: =1180
+      Y: =28
+      Width: =170
+      Height: =34
+      Size: =12
+      BorderThickness: =0
+      Fill: =RGBA(160, 124, 40, 1)
+      HoverFill: =RGBA(185, 145, 50, 1)
+      Color: =RGBA(255, 255, 255, 1)
+      OnSelect: =Navigate(scrDashboard, ScreenTransition.None)
+- lblRCGroup1:
+    Control: Label
+    Properties:
+      Text: ="GOVERNANCE"
+      X: =16
+      Y: =104
+      Width: =600
+      Height: =26
+      Size: =13
+      FontWeight: =FontWeight.Bold
+      Color: =RGBA(160, 124, 40, 1)
+- btnRC01:
+    Control: Classic/Button
+    Properties:
+      Text: |-
+        =With({r: LookUp('Knowledge Index', Title = "Internal Audit Charter")}, r.Title & Char(10) & r.Description)
+      X: =16
+      Y: =134
+      Width: =257
+      Height: =92
+      Size: =12
+      BorderThickness: =0
+      RadiusTopLeft: =10
+      RadiusTopRight: =10
+      RadiusBottomLeft: =10
+      RadiusBottomRight: =10
+      Fill: |-
+        =If(IsBlank(LookUp('Knowledge Index', Title = "Internal Audit Charter").DocLink), RGBA(110, 120, 145, 1), RGBA(31, 42, 68, 1))
+      HoverFill: =RGBA(52, 68, 108, 1)
+      Color: =RGBA(255, 255, 255, 1)
+      OnSelect: |-
+        =With({r: LookUp('Knowledge Index', Title = "Internal Audit Charter")}, If(IsBlank(r.DocLink), Notify("Coming soon - document not uploaded yet", NotificationType.Information), Launch(r.DocLink)))
+- btnRC02:
+    Control: Classic/Button
+    Properties:
+      Text: |-
+        =With({r: LookUp('Knowledge Index', Title = "Code of Ethics and Independence")}, r.Title & Char(10) & r.Description)
+      X: =285
+      Y: =134
+      Width: =257
+      Height: =92
+      Size: =12
+      BorderThickness: =0
+      RadiusTopLeft: =10
+      RadiusTopRight: =10
+      RadiusBottomLeft: =10
+      RadiusBottomRight: =10
+      Fill: |-
+        =If(IsBlank(LookUp('Knowledge Index', Title = "Code of Ethics and Independence").DocLink), RGBA(110, 120, 145, 1), RGBA(31, 42, 68, 1))
+      HoverFill: =RGBA(52, 68, 108, 1)
+      Color: =RGBA(255, 255, 255, 1)
+      OnSelect: |-
+        =With({r: LookUp('Knowledge Index', Title = "Code of Ethics and Independence")}, If(IsBlank(r.DocLink), Notify("Coming soon - document not uploaded yet", NotificationType.Information), Launch(r.DocLink)))
+- lblRCGroup2:
+    Control: Label
+    Properties:
+      Text: ="METHODOLOGY"
+      X: =16
+      Y: =240
+      Width: =600
+      Height: =26
+      Size: =13
+      FontWeight: =FontWeight.Bold
+      Color: =RGBA(160, 124, 40, 1)
+- btnRC03:
+    Control: Classic/Button
+    Properties:
+      Text: |-
+        =With({r: LookUp('Knowledge Index', Title = "Internal Audit Methodology")}, r.Title & Char(10) & r.Description)
+      X: =16
+      Y: =270
+      Width: =257
+      Height: =92
+      Size: =12
+      BorderThickness: =0
+      RadiusTopLeft: =10
+      RadiusTopRight: =10
+      RadiusBottomLeft: =10
+      RadiusBottomRight: =10
+      Fill: |-
+        =If(IsBlank(LookUp('Knowledge Index', Title = "Internal Audit Methodology").DocLink), RGBA(110, 120, 145, 1), RGBA(31, 42, 68, 1))
+      HoverFill: =RGBA(52, 68, 108, 1)
+      Color: =RGBA(255, 255, 255, 1)
+      OnSelect: |-
+        =With({r: LookUp('Knowledge Index', Title = "Internal Audit Methodology")}, If(IsBlank(r.DocLink), Notify("Coming soon - document not uploaded yet", NotificationType.Information), Launch(r.DocLink)))
+- btnRC04:
+    Control: Classic/Button
+    Properties:
+      Text: |-
+        =With({r: LookUp('Knowledge Index', Title = "Annual Audit Plan and Risk Assessment")}, r.Title & Char(10) & r.Description)
+      X: =285
+      Y: =270
+      Width: =257
+      Height: =92
+      Size: =12
+      BorderThickness: =0
+      RadiusTopLeft: =10
+      RadiusTopRight: =10
+      RadiusBottomLeft: =10
+      RadiusBottomRight: =10
+      Fill: |-
+        =If(IsBlank(LookUp('Knowledge Index', Title = "Annual Audit Plan and Risk Assessment").DocLink), RGBA(110, 120, 145, 1), RGBA(31, 42, 68, 1))
+      HoverFill: =RGBA(52, 68, 108, 1)
+      Color: =RGBA(255, 255, 255, 1)
+      OnSelect: |-
+        =With({r: LookUp('Knowledge Index', Title = "Annual Audit Plan and Risk Assessment")}, If(IsBlank(r.DocLink), Notify("Coming soon - document not uploaded yet", NotificationType.Information), Launch(r.DocLink)))
+- btnRC05:
+    Control: Classic/Button
+    Properties:
+      Text: |-
+        =With({r: LookUp('Knowledge Index', Title = "Audit Report Rating Guide")}, r.Title & Char(10) & r.Description)
+      X: =554
+      Y: =270
+      Width: =257
+      Height: =92
+      Size: =12
+      BorderThickness: =0
+      RadiusTopLeft: =10
+      RadiusTopRight: =10
+      RadiusBottomLeft: =10
+      RadiusBottomRight: =10
+      Fill: |-
+        =If(IsBlank(LookUp('Knowledge Index', Title = "Audit Report Rating Guide").DocLink), RGBA(110, 120, 145, 1), RGBA(31, 42, 68, 1))
+      HoverFill: =RGBA(52, 68, 108, 1)
+      Color: =RGBA(255, 255, 255, 1)
+      OnSelect: |-
+        =With({r: LookUp('Knowledge Index', Title = "Audit Report Rating Guide")}, If(IsBlank(r.DocLink), Notify("Coming soon - document not uploaded yet", NotificationType.Information), Launch(r.DocLink)))
+- btnRC06:
+    Control: Classic/Button
+    Properties:
+      Text: |-
+        =With({r: LookUp('Knowledge Index', Title = "Sampling Guide")}, r.Title & Char(10) & r.Description)
+      X: =823
+      Y: =270
+      Width: =257
+      Height: =92
+      Size: =12
+      BorderThickness: =0
+      RadiusTopLeft: =10
+      RadiusTopRight: =10
+      RadiusBottomLeft: =10
+      RadiusBottomRight: =10
+      Fill: |-
+        =If(IsBlank(LookUp('Knowledge Index', Title = "Sampling Guide").DocLink), RGBA(110, 120, 145, 1), RGBA(31, 42, 68, 1))
+      HoverFill: =RGBA(52, 68, 108, 1)
+      Color: =RGBA(255, 255, 255, 1)
+      OnSelect: |-
+        =With({r: LookUp('Knowledge Index', Title = "Sampling Guide")}, If(IsBlank(r.DocLink), Notify("Coming soon - document not uploaded yet", NotificationType.Information), Launch(r.DocLink)))
+- btnRC07:
+    Control: Classic/Button
+    Properties:
+      Text: |-
+        =With({r: LookUp('Knowledge Index', Title = "Working-paper Standards")}, r.Title & Char(10) & r.Description)
+      X: =1092
+      Y: =270
+      Width: =257
+      Height: =92
+      Size: =12
+      BorderThickness: =0
+      RadiusTopLeft: =10
+      RadiusTopRight: =10
+      RadiusBottomLeft: =10
+      RadiusBottomRight: =10
+      Fill: |-
+        =If(IsBlank(LookUp('Knowledge Index', Title = "Working-paper Standards").DocLink), RGBA(110, 120, 145, 1), RGBA(31, 42, 68, 1))
+      HoverFill: =RGBA(52, 68, 108, 1)
+      Color: =RGBA(255, 255, 255, 1)
+      OnSelect: |-
+        =With({r: LookUp('Knowledge Index', Title = "Working-paper Standards")}, If(IsBlank(r.DocLink), Notify("Coming soon - document not uploaded yet", NotificationType.Information), Launch(r.DocLink)))
+- lblRCGroup3:
+    Control: Label
+    Properties:
+      Text: ="SYSTEM AND TEMPLATES"
+      X: =16
+      Y: =376
+      Width: =600
+      Height: =26
+      Size: =13
+      FontWeight: =FontWeight.Bold
+      Color: =RGBA(160, 124, 40, 1)
+- btnRC08:
+    Control: Classic/Button
+    Properties:
+      Text: |-
+        =With({r: LookUp('Knowledge Index', Title = "IMS User Manual")}, r.Title & Char(10) & r.Description)
+      X: =16
+      Y: =406
+      Width: =257
+      Height: =92
+      Size: =12
+      BorderThickness: =0
+      RadiusTopLeft: =10
+      RadiusTopRight: =10
+      RadiusBottomLeft: =10
+      RadiusBottomRight: =10
+      Fill: |-
+        =If(IsBlank(LookUp('Knowledge Index', Title = "IMS User Manual").DocLink), RGBA(110, 120, 145, 1), RGBA(31, 42, 68, 1))
+      HoverFill: =RGBA(52, 68, 108, 1)
+      Color: =RGBA(255, 255, 255, 1)
+      OnSelect: |-
+        =With({r: LookUp('Knowledge Index', Title = "IMS User Manual")}, If(IsBlank(r.DocLink), Notify("Coming soon - document not uploaded yet", NotificationType.Information), Launch(r.DocLink)))
+- btnRC09:
+    Control: Classic/Button
+    Properties:
+      Text: |-
+        =With({r: LookUp('Knowledge Index', Title = "Quick-start Guide")}, r.Title & Char(10) & r.Description)
+      X: =285
+      Y: =406
+      Width: =257
+      Height: =92
+      Size: =12
+      BorderThickness: =0
+      RadiusTopLeft: =10
+      RadiusTopRight: =10
+      RadiusBottomLeft: =10
+      RadiusBottomRight: =10
+      Fill: |-
+        =If(IsBlank(LookUp('Knowledge Index', Title = "Quick-start Guide").DocLink), RGBA(110, 120, 145, 1), RGBA(31, 42, 68, 1))
+      HoverFill: =RGBA(52, 68, 108, 1)
+      Color: =RGBA(255, 255, 255, 1)
+      OnSelect: |-
+        =With({r: LookUp('Knowledge Index', Title = "Quick-start Guide")}, If(IsBlank(r.DocLink), Notify("Coming soon - document not uploaded yet", NotificationType.Information), Launch(r.DocLink)))
+- btnRC10:
+    Control: Classic/Button
+    Properties:
+      Text: |-
+        =With({r: LookUp('Knowledge Index', Title = "Questionnaire Templates")}, r.Title & Char(10) & r.Description)
+      X: =554
+      Y: =406
+      Width: =257
+      Height: =92
+      Size: =12
+      BorderThickness: =0
+      RadiusTopLeft: =10
+      RadiusTopRight: =10
+      RadiusBottomLeft: =10
+      RadiusBottomRight: =10
+      Fill: |-
+        =If(IsBlank(LookUp('Knowledge Index', Title = "Questionnaire Templates").DocLink), RGBA(110, 120, 145, 1), RGBA(31, 42, 68, 1))
+      HoverFill: =RGBA(52, 68, 108, 1)
+      Color: =RGBA(255, 255, 255, 1)
+      OnSelect: |-
+        =With({r: LookUp('Knowledge Index', Title = "Questionnaire Templates")}, If(IsBlank(r.DocLink), Notify("Coming soon - document not uploaded yet", NotificationType.Information), Launch(r.DocLink)))
+- lblRCGroup4:
+    Control: Label
+    Properties:
+      Text: ="REFERENCE"
+      X: =16
+      Y: =512
+      Width: =600
+      Height: =26
+      Size: =13
+      FontWeight: =FontWeight.Bold
+      Color: =RGBA(160, 124, 40, 1)
+- btnRC11:
+    Control: Classic/Button
+    Properties:
+      Text: |-
+        =With({r: LookUp('Knowledge Index', Title = "IIA Global Internal Audit Standards")}, r.Title & Char(10) & r.Description)
+      X: =16
+      Y: =542
+      Width: =257
+      Height: =92
+      Size: =12
+      BorderThickness: =0
+      RadiusTopLeft: =10
+      RadiusTopRight: =10
+      RadiusBottomLeft: =10
+      RadiusBottomRight: =10
+      Fill: |-
+        =If(IsBlank(LookUp('Knowledge Index', Title = "IIA Global Internal Audit Standards").DocLink), RGBA(110, 120, 145, 1), RGBA(31, 42, 68, 1))
+      HoverFill: =RGBA(52, 68, 108, 1)
+      Color: =RGBA(255, 255, 255, 1)
+      OnSelect: |-
+        =With({r: LookUp('Knowledge Index', Title = "IIA Global Internal Audit Standards")}, If(IsBlank(r.DocLink), Notify("Coming soon - document not uploaded yet", NotificationType.Information), Launch(r.DocLink)))
+- btnRC12:
+    Control: Classic/Button
+    Properties:
+      Text: |-
+        =With({r: LookUp('Knowledge Index', Title = "Glossary")}, r.Title & Char(10) & r.Description)
+      X: =285
+      Y: =542
+      Width: =257
+      Height: =92
+      Size: =12
+      BorderThickness: =0
+      RadiusTopLeft: =10
+      RadiusTopRight: =10
+      RadiusBottomLeft: =10
+      RadiusBottomRight: =10
+      Fill: |-
+        =If(IsBlank(LookUp('Knowledge Index', Title = "Glossary").DocLink), RGBA(110, 120, 145, 1), RGBA(31, 42, 68, 1))
+      HoverFill: =RGBA(52, 68, 108, 1)
+      Color: =RGBA(255, 255, 255, 1)
+      OnSelect: |-
+        =With({r: LookUp('Knowledge Index', Title = "Glossary")}, If(IsBlank(r.DocLink), Notify("Coming soon - document not uploaded yet", NotificationType.Information), Launch(r.DocLink)))
+- btnRC13:
+    Control: Classic/Button
+    Properties:
+      Text: |-
+        =With({r: LookUp('Knowledge Index', Title = "Contacts")}, r.Title & Char(10) & r.Description)
+      X: =554
+      Y: =542
+      Width: =257
+      Height: =92
+      Size: =12
+      BorderThickness: =0
+      RadiusTopLeft: =10
+      RadiusTopRight: =10
+      RadiusBottomLeft: =10
+      RadiusBottomRight: =10
+      Fill: |-
+        =If(IsBlank(LookUp('Knowledge Index', Title = "Contacts").DocLink), RGBA(110, 120, 145, 1), RGBA(31, 42, 68, 1))
+      HoverFill: =RGBA(52, 68, 108, 1)
+      Color: =RGBA(255, 255, 255, 1)
+      OnSelect: |-
+        =With({r: LookUp('Knowledge Index', Title = "Contacts")}, If(IsBlank(r.DocLink), Notify("Coming soon - document not uploaded yet", NotificationType.Information), Launch(r.DocLink)))
+- btnRC14:
+    Control: Classic/Button
+    Properties:
+      Text: |-
+        =With({r: LookUp('Knowledge Index', Title = "What's New")}, r.Title & Char(10) & r.Description)
+      X: =823
+      Y: =542
+      Width: =257
+      Height: =92
+      Size: =12
+      BorderThickness: =0
+      RadiusTopLeft: =10
+      RadiusTopRight: =10
+      RadiusBottomLeft: =10
+      RadiusBottomRight: =10
+      Fill: |-
+        =If(IsBlank(LookUp('Knowledge Index', Title = "What's New").DocLink), RGBA(110, 120, 145, 1), RGBA(31, 42, 68, 1))
+      HoverFill: =RGBA(52, 68, 108, 1)
+      Color: =RGBA(255, 255, 255, 1)
+      OnSelect: |-
+        =With({r: LookUp('Knowledge Index', Title = "What's New")}, If(IsBlank(r.DocLink), Notify("Coming soon - document not uploaded yet", NotificationType.Information), Launch(r.DocLink)))

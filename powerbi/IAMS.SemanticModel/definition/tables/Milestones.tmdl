@@ -1,0 +1,60 @@
+table Milestones
+
+	/// Status Late, or not completed and past due.
+	measure 'Late Milestones' = COUNTROWS(FILTER(Milestones, Milestones[Status] = "Late" || (ISBLANK(Milestones[Completed Date]) && Milestones[Due Date] < TODAY())))
+		formatString: #,0
+		displayFolder: Process
+
+	column ID
+		dataType: int64
+		isKey
+		isHidden
+		sourceColumn: ID
+		summarizeBy: none
+
+	column Milestone
+		dataType: string
+		sourceColumn: Milestone
+		summarizeBy: none
+
+	column 'Engagement Key'
+		dataType: int64
+		isHidden
+		sourceColumn: Engagement Key
+		summarizeBy: none
+
+	column Type
+		dataType: string
+		sourceColumn: Type
+		summarizeBy: none
+
+	column 'Due Date'
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		sourceColumn: Due Date
+		summarizeBy: none
+
+	column 'Completed Date'
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		sourceColumn: Completed Date
+		summarizeBy: none
+
+	column Status
+		dataType: string
+		sourceColumn: Status
+		summarizeBy: none
+
+	partition Milestones = m
+		mode: import
+		source =
+				let
+				ListName = "Engagement Milestones",
+				Items = fnListItems(ListName),
+				Sel = Table.SelectColumns(Items, {"ID", "Milestone", "Engagement", "Type", "Due Date", "Completed Date", "Status"}, MissingField.UseNull),
+				Eid = fnJoinLkp(Sel, ListName, "Engagement", "Engagement Key"),
+				NoLk = Table.RemoveColumns(Eid, {"Engagement"}),
+				Typed = Table.TransformColumnTypes(NoLk, {{"ID", Int64.Type}, {"Due Date", type date}, {"Completed Date", type date}, {"Milestone", type text}, {"Type", type text}, {"Status", type text}})
+				in
+					Typed
+

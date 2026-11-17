@@ -1,0 +1,107 @@
+table Actions
+
+	/// Due date passed and action not completed.
+	measure 'Overdue Actions' = CALCULATE(COUNTROWS(Actions), FILTER(Actions, Actions[Due Date] < TODAY() && NOT (Actions[Status] IN {"Completed", "Complete", "Closed", "Complete - Awaiting Validation", "Validated"})))
+		formatString: #,0
+		displayFolder: Process
+
+	/// Average Completion % across actions. If it shows 0-1 as 100%, the source stores fractions; if it looks too small, the source stores 0-100 and the format should change.
+	measure 'Action Completion %' = AVERAGE(Actions[Completion %])
+		formatString: 0%
+		displayFolder: Process
+
+	measure 'Validation Backlog' = COALESCE(CALCULATE(COUNTROWS(Actions), Actions[Validation Status] IN {"Submitted", "Under Review"}), 0)
+		formatString: #,0
+		displayFolder: Process
+
+	measure 'Total Actions' = COUNTROWS(Actions)
+		formatString: #,0
+		displayFolder: Process
+
+	column ID
+		dataType: int64
+		isKey
+		isHidden
+		sourceColumn: ID
+		summarizeBy: none
+
+	column 'Action ID'
+		dataType: string
+		sourceColumn: Action ID
+		summarizeBy: none
+
+	column 'Action Title'
+		dataType: string
+		sourceColumn: Action Title
+		summarizeBy: none
+
+	column 'Finding Key'
+		dataType: int64
+		isHidden
+		sourceColumn: Finding Key
+		summarizeBy: none
+
+	column Entity
+		dataType: string
+		sourceColumn: Entity
+		summarizeBy: none
+
+	column 'Due Date'
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		sourceColumn: Due Date
+		summarizeBy: none
+
+	column 'Completion %'
+		dataType: double
+		formatString: 0%
+		sourceColumn: Completion %
+		summarizeBy: none
+
+	column 'Evidence Uploaded'
+		dataType: boolean
+		sourceColumn: Evidence Uploaded
+		summarizeBy: none
+
+	column 'Validation Status'
+		dataType: string
+		sourceColumn: Validation Status
+		summarizeBy: none
+
+	column Status
+		dataType: string
+		sourceColumn: Status
+		summarizeBy: none
+
+	column 'Finding Rating'
+		dataType: string
+		sourceColumn: Finding Rating
+		summarizeBy: none
+
+	column 'Actual Completion Date'
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		sourceColumn: Actual Completion Date
+		summarizeBy: none
+
+	column ExtensionCount
+		dataType: int64
+		formatString: 0
+		sourceColumn: ExtensionCount
+		summarizeBy: none
+
+	partition Actions = m
+		mode: import
+		source =
+				let
+				ListName = "Corrective Action Tracker",
+				Items = fnListItems(ListName),
+				Sel = Table.SelectColumns(Items, {"ID", "Action ID", "Action Title", "Finding", "Entity", "Due Date", "Completion %", "Evidence Uploaded", "Validation Status", "Status", "Finding Rating", "Actual Completion Date", "ExtensionCount"}, MissingField.UseNull),
+				Fid = fnJoinLkp(Sel, ListName, "Finding", "Finding Key"),
+				Lk = fnJoinLkp(Fid, ListName, "Entity", null),
+				NoLk = Table.RemoveColumns(Lk, {"Finding"}),
+				Typed = Table.TransformColumnTypes(NoLk, {{"ID", Int64.Type}, {"Due Date", type date}, {"Actual Completion Date", type date}, {"Completion %", type number}, {"Evidence Uploaded", type logical}, {"ExtensionCount", Int64.Type}, {"Action ID", type text}, {"Action Title", type text}, {"Validation Status", type text}, {"Status", type text}, {"Finding Rating", type text}}),
+				Scaled = Table.TransformColumns(Typed, {{"Completion %", each if _ = null then null else _ / 100, type number}})
+				in
+					Scaled
+

@@ -1,0 +1,26 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+
+ref table Plan
+ref table PlanEntities
+ref table Engagements
+ref table EngagementEntities
+ref table Findings
+ref table Actions
+ref table Milestones
+ref table Risks
+ref table Questionnaires
+ref table Entities
+ref table Date
+
+ref expression SiteUrl
+ref expression fnLkpValue
+ref expression fnLkpId
+ref expression fnLkpList
+ref expression fnListItems
+ref expression fnLkpRest
+ref expression fnJoinLkp
+ref expression fnEntityRows
+ref expression fnPerson

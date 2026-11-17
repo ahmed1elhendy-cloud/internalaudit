@@ -1,0 +1,140 @@
+table Findings
+
+	/// Findings identified.
+	measure 'Total Findings' = COUNTROWS(Findings)
+		formatString: #,0
+		displayFolder: KPIs
+
+	measure 'Open Findings' = CALCULATE([Total Findings], Findings[Status] IN {"Open", "In Progress", "Pending Validation", "Re-opened"})
+		formatString: #,0
+		displayFolder: KPIs
+
+	measure 'Resolved Findings' = COALESCE(CALCULATE([Total Findings], Findings[Status] IN {"Closed", "Risk Accepted"}), 0)
+		formatString: #,0
+		displayFolder: KPIs
+
+	/// Compliant / (Compliant + Non-compliant) findings.
+	measure 'Compliance Rate' = DIVIDE(CALCULATE([Total Findings], Findings[Compliance Result] = "Compliant"), CALCULATE([Total Findings], Findings[Compliance Result] IN {"Compliant", "Non-compliant"}))
+		formatString: 0.0%
+		displayFolder: KPIs
+
+	/// Findings by the month they were closed (uses Closed Date).
+	measure 'Findings Closed in Period' = CALCULATE([Total Findings], USERELATIONSHIP(Findings[Closed Date], 'Date'[Date]))
+		formatString: #,0
+		displayFolder: Trend
+
+	measure 'Findings % of Total' = DIVIDE([Total Findings], CALCULATE([Total Findings], ALLSELECTED(Findings)))
+		formatString: 0.0%
+		displayFolder: Trend
+
+	measure 'Avg Age of Open Findings (days)' = COALESCE(AVERAGEX(FILTER(Findings, Findings[Status] IN {"Open", "In Progress", "Pending Validation", "Re-opened"} && NOT ISBLANK(Findings[Date Issued])), DATEDIFF(Findings[Date Issued], TODAY(), DAY)), 0)
+		formatString: 0
+		displayFolder: Process
+
+	/// Findings whose due date was extended at least once.
+	measure 'Findings with Extensions' = COALESCE(CALCULATE([Total Findings], Findings[Extension Count] > 0), 0)
+		formatString: #,0
+		displayFolder: Process
+
+	column ID
+		dataType: int64
+		isKey
+		isHidden
+		sourceColumn: ID
+		summarizeBy: none
+
+	column 'Finding ID'
+		dataType: string
+		sourceColumn: Finding ID
+		summarizeBy: none
+
+	column 'Finding Title'
+		dataType: string
+		sourceColumn: Finding Title
+		summarizeBy: none
+
+	column 'Engagement Key'
+		dataType: int64
+		isHidden
+		sourceColumn: Engagement Key
+		summarizeBy: none
+
+	column Entity
+		dataType: string
+		sourceColumn: Entity
+		summarizeBy: none
+
+	column Department
+		dataType: string
+		sourceColumn: Department
+		summarizeBy: none
+
+	column 'Risk Category'
+		dataType: string
+		sourceColumn: Risk Category
+		summarizeBy: none
+
+	column Rating
+		dataType: string
+		sourceColumn: Rating
+		summarizeBy: none
+
+	column 'Workflow Stage'
+		dataType: string
+		sourceColumn: Workflow Stage
+		summarizeBy: none
+
+	column Status
+		dataType: string
+		sourceColumn: Status
+		summarizeBy: none
+
+	column 'Date Issued'
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		sourceColumn: Date Issued
+		summarizeBy: none
+
+	column 'Closed Date'
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		sourceColumn: Closed Date
+		summarizeBy: none
+
+	column 'Original Due Date'
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		sourceColumn: Original Due Date
+		summarizeBy: none
+
+	column 'Current Due Date'
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		sourceColumn: Current Due Date
+		summarizeBy: none
+
+	column 'Extension Count'
+		dataType: int64
+		formatString: 0
+		sourceColumn: Extension Count
+		summarizeBy: none
+
+	column 'Compliance Result'
+		dataType: string
+		sourceColumn: Compliance Result
+		summarizeBy: none
+
+	partition Findings = m
+		mode: import
+		source =
+				let
+				ListName = "Audit Findings Register",
+				Items = fnListItems(ListName),
+				Sel = Table.SelectColumns(Items, {"ID", "Finding ID", "Finding Title", "Engagement", "Entity", "Department", "Risk Category", "Rating", "Workflow Stage", "Status", "Date Issued", "Closed Date", "Original Due Date", "Current Due Date", "Extension Count", "Compliance Result"}, MissingField.UseNull),
+				EngId = fnJoinLkp(Sel, ListName, "Engagement", "Engagement Key"),
+				Lk = fnJoinLkp(fnJoinLkp(EngId, ListName, "Entity", null), ListName, "Department", null),
+				NoLk = Table.RemoveColumns(Lk, {"Engagement"}),
+				Typed = Table.TransformColumnTypes(NoLk, {{"ID", Int64.Type}, {"Date Issued", type date}, {"Closed Date", type date}, {"Original Due Date", type date}, {"Current Due Date", type date}, {"Extension Count", Int64.Type}, {"Finding ID", type text}, {"Finding Title", type text}, {"Risk Category", type text}, {"Rating", type text}, {"Workflow Stage", type text}, {"Status", type text}, {"Compliance Result", type text}})
+				in
+					Typed
+

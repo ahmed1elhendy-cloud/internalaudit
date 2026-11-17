@@ -1,0 +1,86 @@
+table Engagements
+
+	/// Engagements in the current filter. Uses the entity bridge so the Entity slicer applies.
+	measure 'Total Audits' = CALCULATE(DISTINCTCOUNT(Engagements[ID]), USERELATIONSHIP(EngagementEntities[Entity], Entities[Entity]))
+		formatString: #,0
+		displayFolder: KPIs
+
+	/// Engagements with Overall Opinion Satisfactory / engagements with an opinion.
+	measure 'Satisfactory %' = VAR rated = CALCULATE(COUNTROWS(FILTER(Engagements, NOT ISBLANK(Engagements[Overall Opinion]))), USERELATIONSHIP(EngagementEntities[Entity], Entities[Entity])) VAR sat = CALCULATE(COUNTROWS(FILTER(Engagements, Engagements[Overall Opinion] = "Satisfactory")), USERELATIONSHIP(EngagementEntities[Entity], Entities[Entity])) RETURN DIVIDE(sat, rated)
+		formatString: 0%
+		displayFolder: KPIs
+
+	/// Average of End Date minus Start Date.
+	measure 'Avg Audit Duration (days)' = CALCULATE(AVERAGEX(FILTER(Engagements, NOT ISBLANK(Engagements[Start Date]) && NOT ISBLANK(Engagements[End Date])), DATEDIFF(Engagements[Start Date], Engagements[End Date], DAY)), USERELATIONSHIP(EngagementEntities[Entity], Entities[Entity]))
+		formatString: 0
+		displayFolder: KPIs
+
+	column ID
+		dataType: int64
+		isKey
+		isHidden
+		sourceColumn: ID
+		summarizeBy: none
+
+	column 'Engagement ID'
+		dataType: string
+		sourceColumn: Engagement ID
+		summarizeBy: none
+
+	column 'Engagement Title'
+		dataType: string
+		sourceColumn: Engagement Title
+		summarizeBy: none
+
+	column 'Start Date'
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		sourceColumn: Start Date
+		summarizeBy: none
+
+	column 'End Date'
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		sourceColumn: End Date
+		summarizeBy: none
+
+	column Stage
+		dataType: string
+		sourceColumn: Stage
+		summarizeBy: none
+
+	column 'Overall Opinion'
+		dataType: string
+		sourceColumn: Overall Opinion
+		summarizeBy: none
+
+	column 'Engagement Type'
+		dataType: string
+		sourceColumn: Engagement Type
+		summarizeBy: none
+
+	column 'Lead Auditor'
+		dataType: string
+		sourceColumn: Lead Auditor
+		summarizeBy: none
+
+	column 'Plan ID'
+		dataType: int64
+		isHidden
+		sourceColumn: Plan ID
+		summarizeBy: none
+
+	partition Engagements = m
+		mode: import
+		source =
+				let
+				ListName = "Audit Engagements",
+				Items = fnListItems(ListName),
+				Sel = Table.SelectColumns(Items, {"ID", "Engagement ID", "Engagement Title", "Audit Plan Item", "Start Date", "End Date", "Stage", "Overall Opinion", "Engagement Type", "Lead Auditor"}, MissingField.UseNull),
+				PlanId = fnJoinLkp(Sel, ListName, "Audit Plan Item", "Plan ID"),
+				Lead = fnJoinLkp(PlanId, ListName, "Lead Auditor", null),
+				NoLk = Table.RemoveColumns(Lead, {"Audit Plan Item"}),
+				Typed = Table.TransformColumnTypes(NoLk, {{"ID", Int64.Type}, {"Start Date", type date}, {"End Date", type date}, {"Engagement ID", type text}, {"Engagement Title", type text}, {"Stage", type text}, {"Overall Opinion", type text}, {"Engagement Type", type text}})
+				in
+					Typed
+

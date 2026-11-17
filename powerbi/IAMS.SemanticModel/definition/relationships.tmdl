@@ -1,0 +1,59 @@
+relationship r01
+	fromColumn: Findings.'Engagement Key'
+	toColumn: Engagements.ID
+
+relationship r02
+	fromColumn: Actions.'Finding Key'
+	toColumn: Findings.ID
+
+relationship r03
+	fromColumn: Engagements.'Plan ID'
+	toColumn: Plan.ID
+
+relationship r04
+	fromColumn: Milestones.'Engagement Key'
+	toColumn: Engagements.ID
+
+relationship r05
+	fromColumn: Questionnaires.'Engagement Key'
+	toColumn: Engagements.ID
+
+relationship r06
+	fromColumn: Findings.Entity
+	toColumn: Entities.Entity
+
+relationship r07
+	fromColumn: Actions.Entity
+	toColumn: Entities.Entity
+	isActive: false
+
+relationship r08
+	fromColumn: Risks.Entity
+	toColumn: Entities.Entity
+
+relationship r09
+	fromColumn: PlanEntities.'Plan ID'
+	toColumn: Plan.ID
+
+relationship r10
+	fromColumn: PlanEntities.Entity
+	toColumn: Entities.Entity
+	isActive: false
+
+relationship r11
+	fromColumn: EngagementEntities.'Engagement ID Key'
+	toColumn: Engagements.ID
+
+relationship r12
+	fromColumn: EngagementEntities.Entity
+	toColumn: Entities.Entity
+	isActive: false
+
+relationship r13
+	fromColumn: Findings.'Date Issued'
+	toColumn: 'Date'.Date
+
+relationship r14
+	fromColumn: Findings.'Closed Date'
+	toColumn: 'Date'.Date
+	isActive: false

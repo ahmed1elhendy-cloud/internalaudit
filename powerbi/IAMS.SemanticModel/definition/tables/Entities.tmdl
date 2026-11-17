@@ -1,0 +1,25 @@
+table Entities
+
+	column ID
+		dataType: int64
+		isHidden
+		sourceColumn: ID
+		summarizeBy: none
+
+	column Entity
+		dataType: string
+		sourceColumn: Entity
+		summarizeBy: none
+
+	partition Entities = m
+		mode: import
+		source =
+				let
+				Source = SharePoint.Tables(SiteUrl, [ApiVersion = 15]),
+				Items = Source{[Title = "Entities"]}[Items],
+				Sel = Table.SelectColumns(Items, {"ID", "Title"}, MissingField.UseNull),
+				Ren = Table.RenameColumns(Sel, {{"Title", "Entity"}}),
+				Typed = Table.TransformColumnTypes(Ren, {{"ID", Int64.Type}, {"Entity", type text}})
+				in
+					Typed
+

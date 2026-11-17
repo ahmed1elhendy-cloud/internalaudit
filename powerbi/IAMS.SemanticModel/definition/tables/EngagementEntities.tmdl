@@ -1,0 +1,23 @@
+table EngagementEntities
+
+	column 'Engagement ID Key'
+		dataType: int64
+		isHidden
+		sourceColumn: Engagement ID Key
+		summarizeBy: none
+
+	column Entity
+		dataType: string
+		sourceColumn: Entity
+		summarizeBy: none
+
+	partition EngagementEntities = m
+		mode: import
+		source =
+				let
+				Src = fnEntityRows("Audit Engagements"),
+				Ren = Table.RenameColumns(Src, {{"ID", "Engagement ID Key"}}),
+				Typed = Table.TransformColumnTypes(Ren, {{"Engagement ID Key", Int64.Type}, {"Entity", type text}})
+				in
+					Typed
+

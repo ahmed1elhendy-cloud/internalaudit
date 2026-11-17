@@ -1,0 +1,91 @@
+expression SiteUrl = "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest" meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = "Text"]
+	lineageTag: 697198b2-ad46-4be6-8f9d-9547d8818160
+
+expression fnLkpValue =
+		(v as any) as nullable text =>
+			if v = null then null
+			else if v is record then (let x = Record.FieldOrDefault(v, "Value", null) in if x = null then null else Text.From(x))
+			else if v is table then Text.Combine(List.Transform(Table.ToRecords(v), each Text.From(Record.FieldOrDefault(_, "Value", ""))), "; ")
+			else if v is list then Text.Combine(List.Transform(v, each if _ is record then Text.From(Record.FieldOrDefault(_, "Value", "")) else Text.From(_)), "; ")
+			else Text.From(v)
+	lineageTag: ac4a095c-b0ca-42e0-a2c9-b07a7789953e
+
+expression fnLkpId =
+		(v as any) as nullable number =>
+			if v = null then null
+			else if v is record then Record.FieldOrDefault(v, "Id", null)
+			else if v is number then v
+			else null
+	lineageTag: 855dc0f9-6f36-4018-92cd-a6b9405aec8b
+
+expression fnLkpList =
+		(v as any) as list =>
+			if v = null then {null}
+			else if v is record then {Record.FieldOrDefault(v, "Value", null)}
+			else if v is table then (if Table.RowCount(v) = 0 then {null} else List.Transform(Table.ToRecords(v), each Record.FieldOrDefault(_, "Value", null)))
+			else if v is list then (if List.Count(v) = 0 then {null} else List.Transform(v, each if _ is record then Record.FieldOrDefault(_, "Value", null) else _))
+			else {Text.From(v)}
+	lineageTag: 77a0fb41-cbaf-4f55-82ce-4371b506faa1
+
+expression fnListItems =
+		(listTitle as text) as table =>
+			let
+				Source = SharePoint.Tables(SiteUrl, [ApiVersion = 15]),
+				Items = Source{[Title = listTitle]}[Items],
+				Fields = Json.Document(Web.Contents(SiteUrl, [RelativePath = "_api/web/lists/getbytitle('" & listTitle & "')/fields", Query = [#"$select" = "Title,InternalName", #"$filter" = "Hidden eq false"], Headers = [Accept = "application/json;odata=nometadata"]]))[value],
+				Cols = Table.ColumnNames(Items),
+				Cand = List.Select(List.Transform(Fields, each {[InternalName], [Title]}), each List.Contains(Cols, _{0}) and _{0} <> _{1} and not Text.StartsWith(_{0}, "Link") and not List.Contains(Cols, _{1})),
+				Uniq = List.Distinct(Cand, each _{1}),
+				Result = Table.RenameColumns(Items, Uniq, MissingField.Ignore)
+			in
+				Result
+	lineageTag: 0f08cd46-b8d0-45b5-9367-efa2f101f195
+
+expression fnLkpRest =
+		(listTitle as text, displayName as text) as table =>
+			let
+				Fields = Json.Document(Web.Contents(SiteUrl, [RelativePath = "_api/web/lists/getbytitle('" & listTitle & "')/fields", Query = [#"$select" = "Title,InternalName", #"$filter" = "Hidden eq false"], Headers = [Accept = "application/json;odata=nometadata"]]))[value],
+				Match = List.Select(Fields, each [Title] = displayName and not Text.StartsWith([InternalName], "Link")),
+				Internal = if List.Count(Match) = 0 then displayName else Match{0}[InternalName],
+				Src = Json.Document(Web.Contents(SiteUrl, [RelativePath = "_api/web/lists/getbytitle('" & listTitle & "')/items", Query = [#"$select" = "ID," & Internal & "/Id," & Internal & "/Title", #"$expand" = Internal, #"$top" = "5000"], Headers = [Accept = "application/json;odata=nometadata"]]))[value],
+				T = Table.FromList(Src, Splitter.SplitByNothing(), {"R"}),
+				Parsed = Table.AddColumn(T, "P", each let e = Record.FieldOrDefault([R], Internal, null), l = if e = null then {} else if e is list then e else {e} in [ID = [R][ID], Key = if List.Count(l) = 0 then null else l{0}[Id], Value = if List.Count(l) = 0 then null else Text.Combine(List.Transform(l, each Text.From(_[Title])), "; ")]),
+				Out = Table.FromRecords(Table.Column(Parsed, "P"), type table [ID = Int64.Type, Key = Int64.Type, Value = text])
+			in
+				Out
+	lineageTag: d9827eab-b787-48c6-8a7c-7e23c5951946
+
+expression fnJoinLkp =
+		(t as table, listTitle as text, displayName as text, keyName as nullable text) as table =>
+			let
+				L = fnLkpRest(listTitle, displayName),
+				Dropped = Table.RemoveColumns(t, {displayName}, MissingField.Ignore),
+				J = Table.NestedJoin(Dropped, {"ID"}, L, {"ID"}, "LK", JoinKind.LeftOuter),
+				E = Table.ExpandTableColumn(J, "LK", {"Key", "Value"}, {"__Key", "__Value"}),
+				R1 = Table.RenameColumns(E, {{"__Value", displayName}}),
+				Final = if keyName = null then Table.RemoveColumns(R1, {"__Key"}) else Table.RenameColumns(R1, {{"__Key", keyName}})
+			in
+				Final
+	lineageTag: 56924501-490c-4f32-a580-b584b8402e68
+
+expression fnEntityRows =
+		(listTitle as text) as table =>
+			let
+				Src = Json.Document(Web.Contents(SiteUrl, [RelativePath = "_api/web/lists/getbytitle('" & listTitle & "')/items", Query = [#"$select" = "ID,Entity/Title", #"$expand" = "Entity", #"$top" = "5000"], Headers = [Accept = "application/json;odata=nometadata"]])),
+				T = Table.FromList(Src[value], Splitter.SplitByNothing(), {"R"}),
+				Names = Table.AddColumn(T, "Entity", each let e = Record.FieldOrDefault([R], "Entity", null) in if e = null then {null} else if e is list then (if List.Count(e) = 0 then {null} else List.Transform(e, each Record.FieldOrDefault(_, "Title", null))) else {Record.FieldOrDefault(e, "Title", null)}),
+				Ids = Table.AddColumn(Names, "ID", each [R][ID], Int64.Type),
+				Keep = Table.SelectColumns(Ids, {"ID", "Entity"}),
+				Exp = Table.ExpandListColumn(Keep, "Entity")
+			in
+				Exp
+	lineageTag: dcb4a18a-9d65-417f-b94f-0c5f467c4095
+
+expression fnPerson =
+		(v as any) as nullable text =>
+			if v = null then null
+			else if v is record then (let t = Record.FieldOrDefault(v, "Title", null) in if t = null then Record.FieldOrDefault(v, "DisplayName", null) else t)
+			else if v is table then Text.Combine(List.Transform(Table.ToRecords(v), each Text.From(Record.FieldOrDefault(_, "Title", ""))), "; ")
+			else Text.From(v)
+	lineageTag: 307bb969-d9bc-48e0-8885-16d6adce2fb8
+

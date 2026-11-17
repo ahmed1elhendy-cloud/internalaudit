@@ -1,0 +1,105 @@
+table Plan
+
+	measure 'Plan Items' = COUNTROWS(Plan)
+		formatString: #,0
+		displayFolder: Audit plan
+
+	measure 'Budget Hours Total' = SUM(Plan[Budget Hours])
+		formatString: #,0
+		displayFolder: Audit plan
+
+	measure 'Actual Hours Total' = SUM(Plan[Actual Hours])
+		formatString: #,0
+		displayFolder: Audit plan
+
+	/// Actual hours as a share of budget hours.
+	measure 'Hours Used %' = DIVIDE([Actual Hours Total], [Budget Hours Total])
+		formatString: 0%
+		displayFolder: Audit plan
+
+	column ID
+		dataType: int64
+		isKey
+		isHidden
+		sourceColumn: ID
+		summarizeBy: none
+
+	column 'Audit Title'
+		dataType: string
+		sourceColumn: Audit Title
+		summarizeBy: none
+
+	column 'Audit Ref'
+		dataType: string
+		sourceColumn: Audit Ref
+		summarizeBy: none
+
+	column 'Plan Year'
+		dataType: int64
+		formatString: 0
+		sourceColumn: Plan Year
+		summarizeBy: none
+
+	column 'Audit Type'
+		dataType: string
+		sourceColumn: Audit Type
+		summarizeBy: none
+
+	column 'Audit Area'
+		dataType: string
+		sourceColumn: Audit Area
+		summarizeBy: none
+
+	column 'Planned Start'
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		sourceColumn: Planned Start
+		summarizeBy: none
+
+	column 'Planned Finish'
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		sourceColumn: Planned Finish
+		summarizeBy: none
+
+	column 'Risk Score'
+		dataType: double
+		formatString: 0.0
+		sourceColumn: Risk Score
+		summarizeBy: none
+
+	column 'Budget Hours'
+		dataType: double
+		formatString: #,0
+		sourceColumn: Budget Hours
+		summarizeBy: none
+
+	column 'Actual Hours'
+		dataType: double
+		formatString: #,0
+		sourceColumn: Actual Hours
+		summarizeBy: none
+
+	column 'Audit Status'
+		dataType: string
+		sourceColumn: Audit Status
+		summarizeBy: none
+
+	column 'Approval Status'
+		dataType: string
+		sourceColumn: Approval Status
+		summarizeBy: none
+
+	partition Plan = m
+		mode: import
+		source =
+				let
+				ListName = "Annual Audit Plan",
+				Items = fnListItems(ListName),
+				Sel = Table.SelectColumns(Items, {"ID", "Audit Title", "Audit Ref", "Plan Year", "Audit Type", "Audit Area", "Planned Start", "Planned Finish", "Risk Score", "Budget Hours", "Actual Hours", "Audit Status", "Approval Status", "Entity"}, MissingField.UseNull),
+				Area = fnJoinLkp(Sel, ListName, "Audit Area", null),
+				NoEnt = Table.RemoveColumns(Area, {"Entity"}),
+				Typed = Table.TransformColumnTypes(NoEnt, {{"ID", Int64.Type}, {"Plan Year", Int64.Type}, {"Planned Start", type date}, {"Planned Finish", type date}, {"Risk Score", type number}, {"Budget Hours", type number}, {"Actual Hours", type number}, {"Audit Title", type text}, {"Audit Ref", type text}, {"Audit Type", type text}, {"Audit Status", type text}, {"Approval Status", type text}})
+				in
+					Typed
+

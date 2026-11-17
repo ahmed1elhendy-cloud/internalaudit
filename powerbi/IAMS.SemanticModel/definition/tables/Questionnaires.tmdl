@@ -1,0 +1,68 @@
+table Questionnaires
+
+	measure Questionnaires = COUNTROWS(Questionnaires)
+		formatString: #,0
+		displayFolder: Questionnaires
+
+	measure 'Questionnaires To Review' = CALCULATE(COUNTROWS(Questionnaires), Questionnaires[Status] IN {"Under Review", "Returned", "In Progress", "Issued"})
+		formatString: #,0
+		displayFolder: Questionnaires
+
+	column ID
+		dataType: int64
+		isKey
+		isHidden
+		sourceColumn: ID
+		summarizeBy: none
+
+	column 'Questionnaire ID'
+		dataType: string
+		sourceColumn: Questionnaire ID
+		summarizeBy: none
+
+	column 'Questionnaire Name'
+		dataType: string
+		sourceColumn: Questionnaire Name
+		summarizeBy: none
+
+	column 'Engagement Key'
+		dataType: int64
+		isHidden
+		sourceColumn: Engagement Key
+		summarizeBy: none
+
+	column 'Audit Type'
+		dataType: string
+		sourceColumn: Audit Type
+		summarizeBy: none
+
+	column Status
+		dataType: string
+		sourceColumn: Status
+		summarizeBy: none
+
+	column 'Issued Date'
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		sourceColumn: Issued Date
+		summarizeBy: none
+
+	column 'Question Count'
+		dataType: int64
+		formatString: 0
+		sourceColumn: Question Count
+		summarizeBy: none
+
+	partition Questionnaires = m
+		mode: import
+		source =
+				let
+				ListName = "Audit Questionnaires",
+				Items = fnListItems(ListName),
+				Sel = Table.SelectColumns(Items, {"ID", "Questionnaire ID", "Questionnaire Name", "Engagement", "Audit Type", "Status", "Issued Date", "Question Count"}, MissingField.UseNull),
+				Eid = fnJoinLkp(Sel, ListName, "Engagement", "Engagement Key"),
+				NoLk = Table.RemoveColumns(Eid, {"Engagement"}),
+				Typed = Table.TransformColumnTypes(NoLk, {{"ID", Int64.Type}, {"Issued Date", type date}, {"Question Count", Int64.Type}, {"Questionnaire ID", type text}, {"Questionnaire Name", type text}, {"Audit Type", type text}, {"Status", type text}})
+				in
+					Typed
+

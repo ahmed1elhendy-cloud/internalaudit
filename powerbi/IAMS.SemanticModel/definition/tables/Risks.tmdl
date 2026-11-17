@@ -1,0 +1,80 @@
+table Risks
+
+	measure 'Max Risk Score' = MAX(Risks[Risk Score])
+		formatString: 0
+		displayFolder: Risk
+
+	column ID
+		dataType: int64
+		isKey
+		isHidden
+		sourceColumn: ID
+		summarizeBy: none
+
+	column 'Risk ID'
+		dataType: string
+		sourceColumn: Risk ID
+		summarizeBy: none
+
+	column 'Risk Title'
+		dataType: string
+		sourceColumn: Risk Title
+		summarizeBy: none
+
+	column 'Audit Area'
+		dataType: string
+		sourceColumn: Audit Area
+		summarizeBy: none
+
+	column Entity
+		dataType: string
+		sourceColumn: Entity
+		summarizeBy: none
+
+	column 'Risk Category'
+		dataType: string
+		sourceColumn: Risk Category
+		summarizeBy: none
+
+	column Likelihood
+		dataType: double
+		formatString: 0
+		sourceColumn: Likelihood
+		summarizeBy: none
+
+	column Impact
+		dataType: double
+		formatString: 0
+		sourceColumn: Impact
+		summarizeBy: none
+
+	column 'Control Rating'
+		dataType: double
+		formatString: 0
+		sourceColumn: Control Rating
+		summarizeBy: none
+
+	column Status
+		dataType: string
+		sourceColumn: Status
+		summarizeBy: none
+
+	column 'Risk Score'
+		dataType: double
+		formatString: 0
+		sourceColumn: Risk Score
+		summarizeBy: none
+
+	partition Risks = m
+		mode: import
+		source =
+				let
+				ListName = "Risk Register",
+				Items = fnListItems(ListName),
+				Sel = Table.SelectColumns(Items, {"ID", "Risk ID", "Risk Title", "Audit Area", "Entity", "Risk Category", "Likelihood", "Impact", "Control Rating", "Status"}, MissingField.UseNull),
+				Lk = fnJoinLkp(fnJoinLkp(Sel, ListName, "Audit Area", null), ListName, "Entity", null),
+				Typed = Table.TransformColumnTypes(Lk, {{"ID", Int64.Type}, {"Likelihood", type number}, {"Impact", type number}, {"Control Rating", type number}, {"Risk ID", type text}, {"Risk Title", type text}, {"Risk Category", type text}, {"Status", type text}}),
+				Score = Table.AddColumn(Typed, "Risk Score", each if [Likelihood] = null or [Impact] = null then null else [Likelihood] * [Impact], type number)
+				in
+					Score
+

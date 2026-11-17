@@ -1,0 +1,33 @@
+{
+  "name": "IAMS Navy",
+  "dataColors": [
+    "#0A2A66",
+    "#1F6FD6",
+    "#5AA2F0",
+    "#A9BCD6",
+    "#143D85",
+    "#F6C026",
+    "#E53935",
+    "#2E9E6B"
+  ],
+  "background": "#FFFFFF",
+  "foreground": "#1B2A41",
+  "tableAccent": "#0A2A66",
+  "textClasses": {
+    "title": {
+      "fontFace": "Segoe UI Semibold",
+      "color": "#0A2A66",
+      "fontSize": 12
+    },
+    "label": {
+      "fontFace": "Segoe UI",
+      "color": "#1B2A41",
+      "fontSize": 9
+    },
+    "callout": {
+      "fontFace": "Segoe UI Semibold",
+      "color": "#0A2A66",
+      "fontSize": 28
+    }
+  }
+}

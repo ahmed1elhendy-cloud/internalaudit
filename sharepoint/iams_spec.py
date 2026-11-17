@@ -1,0 +1,303 @@
+"""Single source of truth for the MHAO IAMS data model."""
+
+RISK_CAT = ["Strategic", "Operational", "Financial", "Compliance", "IT & Cyber", "Fraud", "Reputational", "HSE"]
+RATING = ["Critical", "High", "Medium", "Low"]
+FREQ = ["Annual", "18 Months", "2 Years", "3 Years"]
+AUDIT_STATUS = ["Planned", "In Progress", "Fieldwork", "Reporting", "Completed", "Deferred", "Cancelled"]
+STAGE = ["Planning", "Fieldwork", "Testing", "Reporting", "Closed"]
+AUDIT_TYPE = ["Financial", "Operational", "Compliance", "IT", "Special Investigation", "Follow-up", "Advisory"]
+
+# column: (internal, display, type, opts)
+# types: text note choice number date bool user usermulti lookup calc url
+# opts: required, choices, default, min, max, list (lookup target), indexed, formula, refs, result, note
+def C(i, d, t, **o):
+    return (i, d, t, o)
+
+LISTS = [
+ dict(name="IA_Entities", title="Entities", purpose="Group companies / subsidiaries. Drives multi-entity filtering, escalation targets and security.",
+  title_display="Entity Name", cols=[
+   C("EntityCode", "Entity Code", "text", required=True, indexed=True),
+   C("EntityType", "Entity Type", "choice", choices=["Parent", "Subsidiary", "Associate", "Joint Venture"]),
+   C("Country", "Country", "text"),
+   C("EntityHead", "Entity Head / MD", "user"),
+   C("EntityCEO", "Entity CEO (escalation L2)", "user"),
+   C("Active", "Active", "bool", default="1"),
+ ]),
+ dict(name="IA_Departments", title="Departments", purpose="Departments per entity. Department Head is escalation level 1.",
+  title_display="Department Name", cols=[
+   C("Entity", "Entity", "lookup", list="IA_Entities", required=True, indexed=True),
+   C("DepartmentHead", "Department Head", "user"),
+   C("Active", "Active", "bool", default="1"),
+ ]),
+ dict(name="IA_AuditUniverse", title="Audit Universe", purpose="Master list of all auditable entities / processes.",
+  title_display="Auditable Area", cols=[
+   C("AuditAreaID", "Audit Area ID", "text", indexed=True, note="Flow-generated: AU-0001"),
+   C("Entity", "Entity", "lookup", list="IA_Entities", required=True, indexed=True),
+   C("Department", "Department", "lookup", list="IA_Departments", indexed=True),
+   C("ProcessCategory", "Process Category", "choice", choices=["Finance", "Procurement", "HR & Payroll", "IT", "Sales", "Operations", "Legal & Compliance", "Projects", "Treasury", "Other"]),
+   C("ProcessOwner", "Process Owner", "user"),
+   C("RiskRating", "Risk Rating", "choice", choices=RATING, indexed=True),
+   C("RiskScore", "Risk Score (1-25)", "number", min=1, max=25),
+   C("LastAuditDate", "Last Audit Date", "date"),
+   C("AuditFrequency", "Audit Frequency", "choice", choices=FREQ),
+   C("NextAuditDate", "Next Audit Date", "date", note="Set by flow: LastAuditDate + Frequency; editable override"),
+   C("UniverseStatus", "Status", "choice", choices=["Active", "Retired", "On Hold"], default="Active"),
+ ]),
+ dict(name="IA_RiskRegister", title="Risk Register", purpose="Risks per auditable area, scored for audit planning.",
+  title_display="Risk Title", cols=[
+   C("RiskID", "Risk ID", "text", indexed=True, note="Flow-generated: RSK-0001"),
+   C("RiskDescription", "Risk Description", "note"),
+   C("AuditArea", "Audit Area", "lookup", list="IA_AuditUniverse", required=True, indexed=True),
+   C("Entity", "Entity", "lookup", list="IA_Entities", indexed=True),
+   C("RiskCategory", "Risk Category", "choice", choices=RISK_CAT),
+   C("Likelihood", "Likelihood", "number", min=1, max=5, required=True, note="Scale 1-5"),
+   C("ImpactScore", "Impact", "number", min=1, max=5, required=True),
+   C("InherentRisk", "Inherent Risk", "calc", result="Number", formula="=[Likelihood]*[ImpactScore]", refs=["Likelihood", "ImpactScore"]),
+   C("ControlRating", "Control Rating", "number", min=1, max=5, required=True, note="1 = strong controls, 5 = weak controls"),
+   C("ResidualRisk", "Residual Risk", "calc", result="Number", formula="=ROUND([InherentRisk]*[ControlRating]/5,1)", refs=["InherentRisk", "ControlRating"]),
+   C("RiskOwner", "Risk Owner", "user"),
+   C("RiskStatus", "Status", "choice", choices=["Open", "Mitigated", "Accepted", "Closed"], default="Open"),
+ ]),
+ dict(name="IA_AuditPlan", title="Annual Audit Plan", purpose="Planned audits per year with approval and resourcing.",
+  title_display="Audit Title", cols=[
+   C("AuditRef", "Audit Ref", "text", indexed=True, note="Flow-generated: IA-2026-001"),
+   C("PlanYear", "Plan Year", "number", min=2020, max=2100, indexed=True),
+   C("AuditArea", "Audit Area", "lookup", list="IA_AuditUniverse", required=True, indexed=True),
+   C("Entity", "Entity", "lookup", list="IA_Entities", indexed=True),
+   C("AuditType", "Audit Type", "choice", choices=AUDIT_TYPE),
+   C("PlannedStart", "Planned Start", "date", required=True),
+   C("PlannedFinish", "Planned Finish", "date", required=True),
+   C("RiskScore", "Risk Score", "number"),
+   C("AssignedAuditor", "Assigned Auditor", "user"),
+   C("AuditManager", "Audit Manager", "user"),
+   C("BudgetHours", "Budget Hours", "number", min=0),
+   C("ActualHours", "Actual Hours", "number", min=0),
+   C("AuditStatus", "Audit Status", "choice", choices=AUDIT_STATUS, default="Planned", indexed=True),
+   C("ApprovalStatus", "Approval Status", "choice", choices=["Draft", "Pending Manager Review", "Pending Owner Approval", "Approved", "Rejected"], default="Draft", indexed=True),
+   C("DeferralReason", "Deferral / Cancellation Reason", "note"),
+ ]),
+ dict(name="IA_Engagements", title="Audit Engagements", purpose="One record per audit engagement (working-paper register header).",
+  title_display="Engagement Title", cols=[
+   C("EngagementID", "Engagement ID", "text", indexed=True, note="Flow-generated: ENG-2026-001"),
+   C("AuditPlanItem", "Audit Plan Item", "lookup", list="IA_AuditPlan", required=True, indexed=True),
+   C("Entity", "Entity", "lookup", list="IA_Entities", indexed=True),
+   C("EngagementScope", "Engagement Scope", "note"),
+   C("AuditObjective", "Audit Objective", "note"),
+   C("LeadAuditor", "Lead Auditor", "user", indexed=True),
+   C("TeamMembers", "Team Members", "usermulti"),
+   C("ActualStart", "Start Date", "date"),
+   C("ActualEnd", "End Date", "date"),
+   C("Stage", "Stage", "choice", choices=STAGE, default="Planning", indexed=True),
+   C("OverallOpinion", "Overall Opinion", "choice", choices=["Satisfactory", "Needs Improvement", "Unsatisfactory", "Not Rated"]),
+   C("EngagementFolderUrl", "Engagement Folder", "url"),
+ ]),
+ dict(name="IA_Milestones", title="Engagement Milestones", purpose="Milestones/tasks per engagement (created by Audit Initiation flow).",
+  title_display="Milestone", cols=[
+   C("Engagement", "Engagement", "lookup", list="IA_Engagements", required=True, indexed=True),
+   C("MilestoneType", "Type", "choice", choices=["Kick-off", "Walkthroughs", "Fieldwork Complete", "Draft Report", "Management Responses", "Final Report", "Closure"]),
+   C("DueDate", "Due Date", "date", required=True),
+   C("CompletedDate", "Completed Date", "date"),
+   C("MilestoneOwner", "Owner", "user"),
+   C("MilestoneStatus", "Status", "choice", choices=["Not Started", "In Progress", "Complete", "Late"], default="Not Started"),
+ ]),
+ dict(name="IA_Findings", title="Audit Findings Register", purpose="Findings with workflow stage, ratings and management response.",
+  title_display="Finding Title", cols=[
+   C("FindingID", "Finding ID", "text", indexed=True, note="Flow-generated: FND-2026-0001"),
+   C("Engagement", "Engagement", "lookup", list="IA_Engagements", required=True, indexed=True),
+   C("Entity", "Entity", "lookup", list="IA_Entities", indexed=True),
+   C("Department", "Department", "lookup", list="IA_Departments", indexed=True),
+   C("Observation", "Observation", "note"),
+   C("RootCause", "Root Cause", "note"),
+   C("RiskCategory", "Risk Category", "choice", choices=RISK_CAT),
+   C("ImpactDescription", "Impact", "note"),
+   C("Recommendation", "Recommendation", "note"),
+   C("Rating", "Rating", "choice", choices=RATING, required=True, indexed=True),
+   C("WorkflowStage", "Workflow Stage", "choice", choices=["Draft", "Manager Review", "Management Response", "Audit Review", "HoIA Approval", "Issued", "Closed"], default="Draft", indexed=True),
+   C("AgreementStatus", "Management Agreement", "choice", choices=["Pending", "Agreed", "Partially Agreed", "Disagreed"], default="Pending"),
+   C("ManagementResponse", "Management Response", "note"),
+   C("ResponsibleManager", "Responsible Manager", "user", indexed=True),
+   C("DateIssued", "Date Issued", "date"),
+   C("OriginalDueDate", "Original Due Date", "date"),
+   C("DueDate", "Current Due Date", "date", indexed=True),
+   C("ExtensionCount", "Extension Count", "number", min=0, default="0"),
+   C("FindingStatus", "Status", "choice", choices=["Open", "In Progress", "Pending Validation", "Closed", "Re-opened", "Risk Accepted"], default="Open", indexed=True),
+   C("ClosedDate", "Closed Date", "date"),
+   C("LastProcessedStage", "Last Processed Stage", "text", note="Written by WF3 to prevent re-trigger loops"),
+ ]),
+ dict(name="IA_ActionPlans", title="Corrective Action Tracker", purpose="CAPA actions, one or more per finding.",
+  title_display="Action Title", cols=[
+   C("CAPAID", "CAPA ID", "text", indexed=True, note="Flow-generated: CAPA-2026-0001"),
+   C("Finding", "Finding", "lookup", list="IA_Findings", required=True, indexed=True),
+   C("Entity", "Entity", "lookup", list="IA_Entities", indexed=True),
+   C("ActionDescription", "Action Description", "note"),
+   C("ActionOwner", "Owner", "user", required=True, indexed=True),
+   C("DueDate", "Due Date", "date", required=True, indexed=True),
+   C("CompletionPct", "Completion %", "number", min=0, max=100, default="0"),
+   C("EvidenceUploaded", "Evidence Uploaded", "bool", default="0"),
+   C("ValidationStatus", "Validation Status", "choice", choices=["Not Started", "Submitted", "Under Review", "Validated", "Rejected"], default="Not Started", indexed=True),
+   C("FollowUpAuditor", "Follow-up Auditor", "user"),
+   C("FindingRating", "Finding Rating", "choice", choices=RATING, indexed=True, note="Copied from the parent finding (app on create; WF0 fallback) to allow delegable filtering"),
+   C("ActionStatus", "Status", "choice", choices=["Open", "In Progress", "Complete - Awaiting Validation", "Closed", "Overdue"], default="Open", indexed=True),
+   C("ReminderStage", "Reminder Stage", "choice", choices=["None", "Reminder 30d", "Reminder 15d", "Escalated - Dept Head", "Escalated - CEO"], default="None"),
+   C("CompletedDate", "Actual Completion Date", "date"),
+ ]),
+ dict(name="IA_FollowUps", title="Follow-Up Reviews", purpose="Validation reviews of implemented actions.",
+  title_display="Review Title", cols=[
+   C("Finding", "Finding", "lookup", list="IA_Findings", required=True, indexed=True),
+   C("Action", "Action", "lookup", list="IA_ActionPlans", indexed=True),
+   C("Reviewer", "Reviewer", "user", required=True),
+   C("ReviewDate", "Review Date", "date"),
+   C("Outcome", "Outcome", "choice", choices=["Implemented", "Partially Implemented", "Not Implemented", "Re-opened", "Closed"]),
+   C("TestingNotes", "Testing Notes", "note"),
+   C("ValidationDocUrl", "Validation Document", "url"),
+ ]),
+ dict(name="IA_CSARegister", title="Self Assessment Register", purpose="Control self-assessment submissions from Microsoft Forms.",
+  title_display="Form Name", cols=[
+   C("CSAID", "CSA ID", "text", indexed=True, note="Flow-generated: CSA-2026-0001"),
+   C("Entity", "Entity", "lookup", list="IA_Entities", indexed=True),
+   C("Department", "Department", "lookup", list="IA_Departments", indexed=True),
+   C("AssessmentPeriod", "Assessment Period", "text"),
+   C("SubmissionDate", "Submission Date", "date"),
+   C("SubmittedBy", "Submitted By", "user"),
+   C("Score", "Score", "number", min=0, max=100),
+   C("Result", "Result", "choice", choices=["Satisfactory", "Needs Attention", "Unsatisfactory"]),
+   C("FormResponseId", "Forms Response ID", "text", indexed=True),
+   C("RelatedAudit", "Related Audit", "lookup", list="IA_AuditPlan"),
+   C("AttachmentsUrl", "Attachments Folder", "url"),
+ ]),
+ dict(name="IA_AuditLog", title="Audit Trail", purpose="Append-only log of status changes, approvals and extensions (written by flows).",
+  title_display="Event", cols=[
+   C("SourceList", "Source List", "text", indexed=True),
+   C("SourceItemId", "Source Item ID", "number", indexed=True),
+   C("EventType", "Event Type", "choice", choices=["Created", "Stage Change", "Approval", "Rejection", "Due Date Extension", "Closure", "Re-open", "Escalation"]),
+   C("EventBy", "By", "user"),
+   C("EventDetails", "Details", "note"),
+ ]),
+ dict(name="IA_Config", title="IA Configuration", purpose="Key/value settings read by flows and apps (reminder days, CEO fallback, URLs).",
+  title_display="Key", cols=[
+   C("ConfigValue", "Value", "text", required=True),
+   C("ConfigDescription", "Description", "text"),
+ ]),
+]
+
+CONFIG_SEED = [
+ ("ReminderDays1", "30", "First reminder: days before due date"),
+ ("ReminderDays2", "15", "Second reminder: days before due date"),
+ ("EscalateCEOAfterDays", "30", "Days overdue before CEO escalation"),
+ ("GroupCEOEmail", "", "Fallback CEO email if entity CEO is blank"),
+ ("HeadOfIAEmail", "", "Group Head of Internal Audit email"),
+]
+
+LIBRARIES = [
+ dict(name="IA_WorkingPapers", title="Audit Working Papers", purpose="Working papers by engagement. Folder per engagement.", cols=[
+   C("Engagement", "Engagement", "lookup", list="IA_Engagements", required=True, indexed=True),
+   C("Entity", "Entity", "lookup", list="IA_Entities", indexed=True),
+   C("FinancialYear", "Financial Year", "text", indexed=True),
+   C("AuditType", "Audit Type", "choice", choices=AUDIT_TYPE),
+   C("WPNumber", "Working Paper Number", "text"),
+   C("PreparedBy", "Prepared By", "user"),
+   C("ReviewedBy", "Reviewed By", "user"),
+   C("ReviewStatus", "Review Status", "choice", choices=["Draft", "Prepared", "Reviewed", "Cleared"], default="Draft"),
+ ]),
+ dict(name="IA_Evidence", title="Evidence Repository", purpose="Evidence by engagement; subfolders Planning/Walkthroughs/Samples/Testing/Reports/Management Evidence.", cols=[
+   C("Engagement", "Engagement", "lookup", list="IA_Engagements", required=True, indexed=True),
+   C("Finding", "Finding", "lookup", list="IA_Findings", indexed=True),
+   C("Action", "Action", "lookup", list="IA_ActionPlans"),
+   C("EvidenceType", "Evidence Type", "choice", choices=["Planning", "Walkthrough", "Sample", "Testing", "Management Evidence", "Validation"]),
+   C("UploadedByUser", "Uploaded By", "user"),
+ ]),
+ dict(name="IA_Reports", title="Reports Library", purpose="Draft/final/follow-up/Audit Committee reports.", cols=[
+   C("Engagement", "Engagement", "lookup", list="IA_Engagements", indexed=True),
+   C("Entity", "Entity", "lookup", list="IA_Entities"),
+   C("ReportType", "Report Type", "choice", choices=["Draft Report", "Final Report", "Follow-Up Report", "Quarterly IA Report", "Annual IA Report", "Outstanding Findings Report", "Audit Plan Status"], required=True, indexed=True),
+   C("ReportPeriod", "Report Period", "text"),
+   C("VersionLabel", "Version", "text"),
+   C("ReportStatus", "Report Status", "choice", choices=["Draft", "In Review", "Approved", "Issued"], default="Draft"),
+ ]),
+]
+
+EVIDENCE_SUBFOLDERS = ["Planning", "Walkthroughs", "Samples", "Testing", "Reports", "Management Evidence"]
+
+GROUPS = ["IA_Owners", "IA_Managers", "IA_Auditors", "IA_ActionOwners", "IA_Executives", "IA_BUHeads", "IA_DepartmentHeads"]
+GROUP_LABEL = {"IA_Owners": "Group Head of IA", "IA_Managers": "Audit Managers", "IA_Auditors": "Auditors",
+               "IA_ActionOwners": "Action Owners / Management", "IA_Executives": "Executives / Audit Committee",
+               "IA_BUHeads": "Business Unit Heads", "IA_DepartmentHeads": "Department Heads"}
+
+# permission matrix: object -> (Owners, Managers, Auditors, ActionOwners, Executives, BUHeads, DepartmentHeads)
+# Unqualified values (Full Control / Edit / Contribute / Read) become list-level SharePoint permissions in the script.
+# Qualified values (assigned, own..., respond, issued only, via Forms) are applied at folder/item level by the flows.
+PERMS = [
+ ("IA_Entities / IA_Departments", "Full Control", "Edit", "Read", "Read", "Read", "Read", "Read"),
+ ("IA_AuditUniverse", "Full Control", "Edit", "Read", "Read (own area)", "Read", "Read (own entity)", "Read (own department)"),
+ ("IA_RiskRegister", "Full Control", "Edit", "Contribute", "Read (own area)", "Read", "Read (own entity)", "Read (own department)"),
+ ("IA_AuditPlan", "Full Control (final approval)", "Edit (review)", "Read (assigned)", "No access", "Read", "No access", "No access"),
+ ("IA_Engagements / IA_Milestones", "Full Control", "Edit", "Contribute (assigned)", "No access", "Read", "No access", "No access"),
+ ("IA_Findings", "Full Control (final approval)", "Edit (review/approve)", "Contribute (create + edit)", "Read + respond (own department)", "Read (all)", "Read + respond (own department)", "Read + respond (own department)"),
+ ("IA_ActionPlans", "Full Control", "Edit", "Contribute (create + edit)", "Edit own actions", "Read", "Read (own department)", "Read (own department)"),
+ ("IA_FollowUps", "Full Control", "Edit", "Contribute (create + edit)", "No access", "Read", "Read (own department)", "Read (own department)"),
+ ("IA_CSARegister", "Full Control", "Edit", "Read", "Contribute (via Forms flow)", "Read", "Contribute (via Forms flow)", "Contribute (via Forms flow)"),
+ ("IA_AuditLog", "Read", "Read", "No access", "No access", "No access (flows write via service account)", "No access", "No access"),
+ ("IA_Config", "Full Control", "Edit", "No access", "No access", "No access", "No access", "No access"),
+ ("IA_WorkingPapers", "Full Control", "Edit", "Contribute", "No access", "No access", "No access", "No access"),
+ ("IA_Evidence", "Full Control", "Edit", "Contribute", "Contribute (own finding evidence)", "No access", "Contribute (own finding evidence)", "Contribute (own finding evidence)"),
+ ("IA_Reports", "Full Control", "Edit", "Read", "Read (issued only)", "Read", "Read (issued only)", "Read (issued only)"),
+ ("Power BI", "All data", "All data", "All data", "Own department (RLS)", "All data", "Own entity (RLS)", "Own department (RLS)"),
+]
+
+WORKFLOWS = [
+ ("WF0 Reference Generator", "When item created in Plan/Engagements/Findings/Actions/CSA/Universe/Risks", "Build reference from prefix + year + padded list item ID; write back", "All main lists", "SharePoint has no native auto-number and ID cannot be used in a calculated column on create, so a flow sets the ref. Gaps in sequence are possible."),
+ ("WF1 Audit Initiation", "IA_AuditPlan.ApprovalStatus = Approved (set by WF1a)", "Create Engagement item -> create folders in IA_WorkingPapers and IA_Evidence (+ subfolders) -> break folder permissions to Lead Auditor/Team/Managers/Owners -> create Milestones -> Teams notification/Planner tasks to team", "IA_Engagements, IA_Milestones, libraries, IA_AuditLog", "Idempotency check: skip if engagement already exists for the plan item."),
+ ("WF1a Plan Approval", "IA_AuditPlan.ApprovalStatus changes to Pending Manager Review", "Approval to Audit Manager -> if approved set Pending Owner Approval and send approval to Group Head of IA -> if approved set ApprovalStatus = Approved (starts WF1). Rejection at either step: set Draft and notify the planner with the comment. Log each step in IA_AuditLog.", "IA_AuditPlan, IA_AuditLog", "Added Oct 2026 for the two-step approval (Manager review, Owner final)."),
+ ("WF2 Questionnaire Distribution", "Manual (app button) or scheduled; Forms 'When a new response is submitted'", "Pick Entity/Department -> email Forms link to Department Head -> on response get details + attachments -> store in IA_Evidence/CSA folder -> create IA_CSARegister item -> score -> if Unsatisfactory notify Audit Manager", "IA_CSARegister, IA_Reports/Evidence", "Use Forms response ID for dedupe."),
+ ("WF3 Findings Approval", "IA_Findings.WorkflowStage changes", "Draft -> Manager Review (approval) -> Management Response (task to Responsible Manager, SLA 10 working days) -> Audit Review -> HoIA Approval -> Issued (set DateIssued, notify, create/unlock Action Plans)", "IA_Findings, IA_AuditLog", "Rejections return to Draft with comment. Log every transition."),
+ ("WF4 Action Reminders & Escalation", "Scheduled daily 07:00 (Gulf Standard Time)", "Query open actions: due in 30d -> Reminder 1; due in 15d -> Reminder 2; overdue -> escalate to Department Head; 30d overdue -> escalate to Entity CEO (fallback GroupCEOEmail). Update ReminderStage so each stage fires once.", "IA_ActionPlans, IA_Departments, IA_Entities, IA_Config, IA_AuditLog", "Use OData filter on indexed DueDate and ReminderStage."),
+ ("WF5 Follow-Up Review", "IA_ActionPlans.CompletionPct = 100 or ActionStatus = Complete - Awaiting Validation", "Assign validation review to Follow-up Auditor -> create IA_FollowUps item -> evidence review -> if Implemented: close action; when all actions closed close Finding; else reopen and notify owner", "IA_FollowUps, IA_ActionPlans, IA_Findings", "Finding closes only when ALL its actions are Validated."),
+ ("WF6 Due-Date Extension", "App submits extension request", "Approval by Audit Manager (and HoIA for Critical/High) -> update DueDate, increment ExtensionCount, keep OriginalDueDate", "IA_Findings, IA_ActionPlans, IA_AuditLog", "Added: the original design had no extension control."),
+ ("WF7 Universe Refresh", "Scheduled monthly", "Recalculate NextAuditDate/RiskScore from Risk Register residual risk; flag overdue-for-audit areas to Plan", "IA_AuditUniverse, IA_RiskRegister", "Optional."),
+]
+
+POWERAPPS = [
+ ("1 Executive Dashboard", "KPI tiles + navigation for Head of IA", "IA_AuditPlan, IA_Findings, IA_ActionPlans, IA_Engagements",
+  "KPI tiles: use embedded Power BI tiles (CountRows is not delegable and caps at 2000 rows). Small bounded counts (e.g. my open actions) may use CountRows(Filter(...))."),
+ ("2 Annual Audit Plan", "Add/schedule audits, risk scoring, resource allocation; calendar/gantt/list views", "IA_AuditPlan, IA_AuditUniverse, IA_Entities",
+  "Gallery filtered by PlanYear (indexed). Resource view: SumBy auditor of BudgetHours. Use Calendar control or embedded Power BI gantt."),
+ ("3 Engagement Management", "Engagement header, scope, team, milestones, working papers", "IA_Engagements, IA_Milestones, IA_WorkingPapers",
+  "Working papers via SharePoint link to the engagement folder (EngagementFolderUrl); avoid loading library items into the app."),
+ ("4 Fieldwork Module (mobile)", "Observations, evidence upload, walkthrough and sample testing records", "IA_Findings, IA_Evidence, IA_WorkingPapers",
+  "Phone layout. Evidence upload via Attachments control -> Power Automate (PowerApps V2 trigger) places file in engagement subfolder."),
+ ("5 Findings Management", "Create/review/respond/approve findings", "IA_Findings, IA_ActionPlans, IA_AuditLog",
+  "Stage buttons visible by role (see Security). Stage changes patch WorkflowStage and the flow handles approvals."),
+ ("6 Action Tracking", "Traffic-light list of actions with filters", "IA_ActionPlans, IA_Findings, IA_Entities, IA_Departments",
+  "Light: If(ActionStatus.Value=\"Closed\",Green, DueDate<Today(),Red, DueDate<=DateAdd(Today(),30,TimeUnit.Days),Yellow, Green). Filter on Entity.Id, ActionOwner.Email, Finding rating."),
+ ("7 Follow-Up Reviews", "Validate implementation, upload testing, close/re-open", "IA_FollowUps, IA_ActionPlans, IA_Findings, IA_Evidence",
+  "Close/re-open buttons call WF5 via flow with item ID."),
+ ("8 Audit Committee Reporting", "One-click report generation", "IA_Reports, Power BI export / Power Automate",
+  "Button triggers a flow that renders Word template (Populate a Microsoft Word template) or Power BI paginated report export to IA_Reports."),
+]
+
+GAPS = [
+ ("Multi-entity model", "Original design had only a Business Unit choice field. MHAO is a Group, so Entities and Departments are now lists, and Entity is on every operational record. This gives clean filtering, entity-level CEO escalation, and RLS."),
+ ("Auto Number", "Not native to SharePoint. Reference IDs (AuditRef, FindingID, etc.) are set by a flow (WF0) from the item ID. Do not rely on calculated columns using [ID]."),
+ ("Risk scoring", "Likelihood x Impact gives Inherent; Control Rating (1 strong - 5 weak) scales Residual. Confirm MHAO's risk methodology/rating matrix before go-live; the formulas are easy to change."),
+ ("Audit trail", "Added IA_AuditLog because finding approvals, extensions and closures need evidence for external auditors/Audit Committee."),
+ ("Due-date extensions", "Added OriginalDueDate, ExtensionCount and WF6, otherwise overdue statistics can be gamed."),
+ ("Milestones", "Original 'Create Tasks' step had no home. Added IA_Milestones (also feeds Gantt and Planner tasks)."),
+ ("Finding vs action status", "A finding can have several actions. Finding closes only when all actions are validated (WF5)."),
+ ("Auditor access", "Decision (Oct 2026): auditors see all audits, working papers, evidence and Power BI data, so they get list-level Contribute on Working Papers, Evidence, Findings, Actions and Follow-Ups. Engagements and the Plan stay assigned-only (item/folder level by WF1). SharePoint cannot limit edit to own items without also blocking Action Owners from editing items auditors created, so auditors edit own/assigned items is enforced in the app (button visibility), not in SharePoint."),
+ ("Roles (agreed Oct 2026)", "Seven roles: Owner, Manager, Auditor, ActionOwner, Executive, BUHead, DepartmentHead, mapped to SharePoint groups IA_Owners, IA_Managers, IA_Auditors, IA_ActionOwners, IA_Executives, IA_BUHeads, IA_DepartmentHeads. Action Owner was formerly Process Owner. A department is a function (Finance, IT, HR), so no separate function level exists."),
+ ("Multiple roles per person", "Decision: the role flow returns ALL of a person's roles (comma list); the app checks each role separately. This matches SharePoint, where permissions from several groups add up."),
+ ("Scope of own data", "BU Head: own business unit (entity) and all its departments. Department Head: own department(s). Action Owner: findings and actions assigned to them within their department. Access is granted at item level by the flows (WF3 on issue) using the Responsible Manager, the Department Head and the Entity head from the Departments and Entities lists. These emails must be filled before real users are placed in IA_ActionOwners, IA_BUHeads or IA_DepartmentHeads."),
+ ("Plan approval", "Two steps (decision 1b): Draft -> Pending Manager Review (Audit Manager approves) -> Pending Owner Approval (Group Head of IA gives final approval) -> Approved. Rejection at either step returns the plan to Draft. WF1 starts only on Approved."),
+ ("IA Configuration", "Managers can edit IA_Config (decision 3). It holds escalation emails and thresholds, so changes are logged in IA_AuditLog."),
+ ("Delegation / list threshold", "Indexed columns are flagged in the Columns sheet. In Power Apps use Filter with =, <, > on indexed columns, filter lookups by .Id, avoid In/Search on large lists. Keep default 500 limit raised to 2000."),
+ ("Overdue / aging", "Calculated columns cannot use TODAY() reliably. Compute overdue/aging in Power Apps and Power BI (DAX), not in SharePoint."),
+ ("Scale option", "If the Group exceeds ~100k findings/actions or needs real row-level security and relational integrity, move to Dataverse. The data model here maps 1:1 to Dataverse tables."),
+ ("Licensing", "SharePoint + Standard connectors only (no Premium) with this design. Power BI Pro/PPU needed for viewers unless Premium capacity is available."),
+ ("Data classification", "Apply a sensitivity label (e.g. Confidential - Internal Audit) to the site, disable external sharing, and restrict download from unmanaged devices."),
+]
+
+RELATIONSHIPS = []
+for L in LISTS + LIBRARIES:
+    for (i, d, t, o) in L["cols"]:
+        if t == "lookup":
+            RELATIONSHIPS.append((L["name"], d, o["list"], "Many-to-one"))

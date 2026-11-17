@@ -1,0 +1,23 @@
+table PlanEntities
+
+	column 'Plan ID'
+		dataType: int64
+		isHidden
+		sourceColumn: Plan ID
+		summarizeBy: none
+
+	column Entity
+		dataType: string
+		sourceColumn: Entity
+		summarizeBy: none
+
+	partition PlanEntities = m
+		mode: import
+		source =
+				let
+				Src = fnEntityRows("Annual Audit Plan"),
+				Ren = Table.RenameColumns(Src, {{"ID", "Plan ID"}}),
+				Typed = Table.TransformColumnTypes(Ren, {{"Plan ID", Int64.Type}, {"Entity", type text}})
+				in
+					Typed
+

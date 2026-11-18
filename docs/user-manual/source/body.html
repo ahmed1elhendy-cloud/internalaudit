@@ -1,0 +1,384 @@
+<h1 id="s0" class="sec">About this manual</h1>
+<p>The <b>MHAO Internal Audit Portal</b> is the system the Group Internal Audit team, management and executives use to plan audits, run engagements, issue findings, track corrective actions and exchange control questionnaires. This manual explains every screen, button and email you will meet, in the order you meet them in the app.</p>
+<h3>Who should read what</h3>
+<table>
+<tr><th>If you are</th><th>Read first</th></tr>
+<tr><td>Head of Internal Audit or Audit Manager</td><td>Sections 1 to 12 and 15 (access and administration)</td></tr>
+<tr><td>Auditor</td><td>Sections 1 to 12; section 10 (questionnaires) in full</td></tr>
+<tr><td>Action Owner, Department Head, BU Head</td><td>Sections 1, 2, 7 (management response), 8 (actions and evidence), 10.3 (answering a questionnaire), 13 and 16</td></tr>
+<tr><td>Executive or Audit Committee member</td><td>Sections 1 to 3, 11 (Power BI) and 13</td></tr>
+</table>
+<h3>Conventions used</h3>
+<ul>
+<li><b>Bold</b> text is a button, tab or field name exactly as it appears on screen.</li>
+<li><i>Italic</i> text is a status value or a message shown by the app.</li>
+<li>"Who:" lines say which roles can use a screen. A tab or button that is missing for you is hidden on purpose because your role does not allow it.</li>
+<li><span class="tag">Test mode</span> marks behaviour that applies while the system is being tested (see section 1.4).</li>
+</ul>
+
+<h1 id="s1" class="sec">1. Before you start</h1>
+<h2>1.1 Opening the app</h2>
+<p>Open the link you were sent for <i>MHAO Internal Audit Portal</i> (a Power Apps canvas app). Sign in with your MHAO Microsoft 365 account. The first time, Power Apps asks permission to use the app's connections (SharePoint, Outlook, Power Automate). Choose <b>Allow</b>. Use a current version of Edge or Chrome on a computer; the app is laid out for a wide screen.</p>
+<h2>1.2 What you see depends on your role</h2>
+<p>When the app opens it reads your email address against the role lists held in the SharePoint list <i>IA Configuration</i>. It then shows only the screens and buttons your role may use. If you hold no role you see the <i>No Access</i> screen: ask the Head of Internal Audit to add you, then close and reopen the app.</p>
+<table>
+<tr><th style="width:17%">Role</th><th style="width:25%">Who</th><th>What you can do</th></tr>
+<tr><td>Owner</td><td>Group Head of Internal Audit</td><td>Everything: final plan approval, approving High and Critical extensions, issuing findings, deleting records.</td></tr>
+<tr><td>Manager</td><td>Audit managers</td><td>Create and edit plans, engagements, findings and actions; review and approve plans and extensions; issue findings.</td></tr>
+<tr><td>Auditor</td><td>Audit team</td><td>Work on assigned engagements; create findings, actions, follow-ups and fieldwork notes; upload evidence; manage questionnaires; use the Resource Centre.</td></tr>
+<tr><td>Action Owner</td><td>Management who respond to findings and own actions</td><td>See and update the findings and actions assigned to them; upload evidence; request extensions; answer questionnaires.</td></tr>
+<tr><td>Executive</td><td>Executives, Audit Committee</td><td>Read-only view of the main screens and the Power BI report.</td></tr>
+<tr><td>BU Head</td><td>Heads of business units</td><td>Read and respond for their own business unit.</td></tr>
+<tr><td>Department Head</td><td>Heads of departments</td><td>Read and respond for their own department.</td></tr>
+</table>
+<p>A person can hold more than one role; the app combines them.</p>
+<h2>1.3 Which tabs each role sees</h2>
+<table class="small">
+<tr><th>Tab</th><th>Owner / Manager / Auditor</th><th>Executive</th><th>Action Owner / auditee</th><th>BU / Department Head</th></tr>
+<tr><td>Dashboard</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>Plan</td><td>Yes</td><td>Yes (read)</td><td>No</td><td>No</td></tr>
+<tr><td>Engagements</td><td>Yes</td><td>Yes (read)</td><td>No</td><td>No</td></tr>
+<tr><td>Questionnaires</td><td>Yes</td><td>Yes (read)</td><td>No</td><td>No</td></tr>
+<tr><td>My Questionnaires</td><td>Yes (Auditor)</td><td>No</td><td>Yes</td><td>No</td></tr>
+<tr><td>Fieldwork</td><td>Yes (Auditor)</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>Findings</td><td>Yes</td><td>Yes</td><td>Yes (own)</td><td>Yes</td></tr>
+<tr><td>Actions</td><td>Yes</td><td>Yes</td><td>Yes (own)</td><td>Yes</td></tr>
+<tr><td>Follow-Up</td><td>Yes</td><td>Yes (read)</td><td>No</td><td>Yes (read)</td></tr>
+<tr><td>Reports</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>Resource Centre</td><td>Yes (audit team)</td><td>No</td><td>No</td><td>No</td></tr>
+</table>
+<p class="note">Management roles land on <b>Actions</b> when the app opens; the audit team and executives land on the <b>Dashboard</b>.</p>
+<h2>1.4 Test mode</h2>
+<p><span class="tag">Test mode</span> During testing, every email and approval request is sent to the Head of Internal Audit (ahmed.elhendy@mhao.ae) instead of the real recipient, and the email says who the real recipient would have been. At go-live these are routed to the real people.</p>
+<h2>1.5 Your name and the Refresh icon</h2>
+<p>Your name appears at the top right of the navy header on every main screen. Under it is a small gold <b>reload icon</b> (tooltip <i>Refresh data</i>). Select it to re-read all SharePoint lists into the app; a green message <i>Data refreshed</i> confirms. Use it when someone else has just changed a record, or after an automatic step (an email, an approval) that updates a record behind the scenes. Refresh only pulls data into the app; anything you typed is saved with <b>Save</b> or <b>Submit</b>, not by Refresh.</p>
+
+<h1 id="s2" class="sec">2. Finding your way around</h1>
+<h2>2.1 The navigation bar</h2>
+<p>A dark navigation bar runs along the top of every screen. It shows only the tabs your role may use, always in this order:</p>
+<p class="tabs">Dashboard &nbsp;|&nbsp; Plan &nbsp;|&nbsp; Engagements &nbsp;|&nbsp; Questionnaires &nbsp;|&nbsp; My Questionnaires &nbsp;|&nbsp; Fieldwork &nbsp;|&nbsp; Findings &nbsp;|&nbsp; Actions &nbsp;|&nbsp; Follow-Up &nbsp;|&nbsp; Reports &nbsp;|&nbsp; Resource Centre</p>
+<p>The tab for the screen you are on is highlighted. Select a tab to go there. Moving between tabs does not save anything, so save a form before you leave it.</p>
+<h2>2.2 Common controls</h2>
+<ul>
+<li><b>Search and filters</b> at the top of a list narrow it (for example by year, entity, rating or status).</li>
+<li><b>Select a row</b> to see its detail on the right or below. Most screens have an <b>EDIT</b> or <b>OPEN</b> button for the full form.</li>
+<li><b>+ NEW</b> (shown only to roles allowed to create) opens a blank form.</li>
+<li><b>SAVE / SUBMIT</b> stores your changes. A green banner confirms; a red banner explains what is wrong, usually a required field that is empty.</li>
+<li><b>CANCEL</b> or <b>BACK</b> returns to the list without saving.</li>
+<li>Required fields are marked with a red asterisk. The form will not save until they are filled.</li>
+<li>Greyed fields are filled in by the system (for example references, status stamps and entity) and cannot be typed into.</li>
+</ul>
+<h2>2.3 Messages you may see</h2>
+<table class="small">
+<tr><th>Message colour</th><th>Meaning</th></tr>
+<tr><td>Green banner</td><td>The action worked (saved, submitted, data refreshed).</td></tr>
+<tr><td>Blue / grey banner</td><td>Information, for example <i>Coming soon - document not uploaded yet</i> in the Resource Centre.</td></tr>
+<tr><td>Red banner</td><td>Something is missing or not allowed. Read it and correct the field.</td></tr>
+</table>
+<h2>2.4 Dates and people</h2>
+<p>For date fields use the calendar pop-up rather than typing; typed dates may not be accepted. Person fields (Lead Auditor, Owner, Assigned Auditor, Audit Manager) are pickers: start typing a name and choose the person from the list. The list shows display names, not account numbers.</p>
+
+<h1 id="s3" class="sec">3. Dashboard</h1>
+<p><b>Who:</b> Owners, Managers, Auditors, Executives, Department Heads and BU Heads.</p>
+<p>The Dashboard is the landing screen for the audit team and executives. It has:</p>
+<ul>
+<li><b>Five tiles:</b> open findings, critical open findings, open actions, overdue actions and questionnaires to review. Counts refresh when you select the Refresh icon.</li>
+<li><b>Needs attention - overdue actions:</b> actions past their due date and not closed, oldest first. Select a row to open the action.</li>
+<li><b>Insights:</b> open findings by rating (Critical, High, Medium, Low), actions due in the next 30 days, and findings closed out of the total.</li>
+<li><b>Open Power BI report</b> (top right): opens the Power BI report described in section 11.1, once the report link has been set up by the administrator.</li>
+</ul>
+<p>Management roles see only the records they have been granted access to.</p>
+
+<h1 id="s4" class="sec">4. Annual audit plan (Plan)</h1>
+<p><b>Who:</b> Owner and Manager create and edit; Auditors and Executives read.</p>
+<h2>4.1 Reading the plan</h2>
+<p>Open <b>Plan</b> and choose the <b>Plan Year</b> (and, if needed, the entity filter). Each row shows the audit reference (IA-year-nnnn), the audit area, entity, assigned auditor, planned dates, budget hours and the approval status. A plan item saved without a Plan Year will not appear under the year filter, so always set the year.</p>
+<h2>4.2 Creating or editing a plan item</h2>
+<ol>
+<li>Select <b>+ NEW</b> (or select a row and <b>EDIT</b>).</li>
+<li>Pick the <b>Audit Area</b> from the Audit Universe. The risk score and rating fill in by themselves.</li>
+<li>Choose the <b>Plan Year</b>, <b>Entity</b>, planned start and finish, <b>Assigned Auditor</b>, <b>Audit Manager</b> and <b>Budget Hours</b>.</li>
+<li>Select <b>SAVE</b> to keep the item as a <i>Draft</i> (nothing is sent), or <b>SUBMIT FOR APPROVAL</b> (green) to start approval.</li>
+</ol>
+<p>The <b>Approval Status</b> card is read-only. The <b>SUBMIT FOR APPROVAL</b> button is visible only on a new item or an item that is <i>Draft</i> or <i>Rejected</i>; it is hidden once the item is awaiting approval or approved.</p>
+<h2>4.3 The approval route</h2>
+<table class="small">
+<tr><th>Step</th><th>What happens</th><th>Status shown</th></tr>
+<tr><td>1</td><td>You select <b>SUBMIT FOR APPROVAL</b>. The message <i>Submitted for approval. You will be notified by email.</i> appears.</td><td>Pending Manager Review</td></tr>
+<tr><td>2</td><td>The Audit Manager receives an approval request by email and in Power Automate Approvals. Approve or Reject with a comment.</td><td>Pending Owner Approval (if approved)</td></tr>
+<tr><td>3</td><td>The Head of Internal Audit receives the second, final request.</td><td>Approved (if approved)</td></tr>
+<tr><td>4</td><td>On final approval the engagement is created automatically (section 5).</td><td>Approved / Planned</td></tr>
+</table>
+<p>If either approver <b>rejects</b>, the item goes back to <i>Draft</i>, an entry is written to the audit trail and the planner receives an email with the reviewer's comment. Correct the item and submit again.</p>
+
+<h1 id="s5" class="sec">5. Engagements</h1>
+<p><b>Who:</b> Owner and Manager create and edit; Auditors edit engagements assigned to them; Executives read.</p>
+<h2>5.1 What is created automatically</h2>
+<p>When a plan item is fully approved the system creates the engagement (reference <b>ENG-year-nnnn</b>), its working-paper and evidence folders in SharePoint (Planning, Walkthroughs, Samples, Testing, Reports, Management Evidence), the standard milestones, and notifies the lead auditor.</p>
+<h2>5.2 The Engagements screen</h2>
+<p>Select an engagement to see its scope, team, stage, milestones and a line such as <i>Findings: 3 | Hours: 120 / 160</i>. If actual hours exceed the budget the line adds <i>(OVER BUDGET)</i>. From here you can mark a milestone complete, open the working-paper folder in SharePoint, and select <b>EDIT</b> for the full form.</p>
+<h2>5.3 The engagement form</h2>
+<table class="small">
+<tr><th style="width:24%">Field</th><th>Notes</th></tr>
+<tr><td>Planning Type</td><td><i>Planned</i> (from the annual plan) or <i>Unplanned</i> (requested during the year). Planned needs a plan item; Unplanned does not, but needs budgeted hours.</td></tr>
+<tr><td>Audit Plan Item</td><td>Dropdown showing "Audit Ref &middot; Audit Area &middot; Entity". Lists only items of the current plan year that are not Cancelled or Deferred. Required for Planned engagements.</td></tr>
+<tr><td>Engagement Title, Scope, Objective</td><td>What the audit covers and why.</td></tr>
+<tr><td>Entity</td><td>Required.</td></tr>
+<tr><td>Audit Manager, Lead Auditor, Team Members</td><td>Person pickers. The Audit Manager belongs to the engagement.</td></tr>
+<tr><td>Start Date, End Date</td><td>Use the calendar.</td></tr>
+<tr><td>Budgeted Hours</td><td>Copied from the plan item and editable. Mandatory for Unplanned engagements.</td></tr>
+<tr><td>Actual Hours</td><td>The total hours the auditors have spent on the engagement. Type the running total as it changes.</td></tr>
+<tr><td>Stage</td><td>Planning, Kick-off, Walkthroughs, Fieldwork, Fieldwork Complete, Testing, Draft Report, Management Responses, Reporting, Final Report, Closed.</td></tr>
+<tr><td>Overall Opinion</td><td>Satisfactory, Needs Improvement, Unsatisfactory or Not Rated. Set when the engagement concludes.</td></tr>
+</table>
+<p>Save validates the required fields and tells you what is missing.</p>
+<h2>5.4 The information line on other screens</h2>
+<p>When you choose an engagement on the Finding form, the Fieldwork screen or the Action form, a read-only line appears: <i>Audit Type: ... | Audit Manager: ... | Lead Auditor: ...</i>. It is blank until you make a choice.</p>
+
+<h1 id="s6" class="sec">6. Fieldwork</h1>
+<p><b>Who:</b> Owner, Manager, Auditor.</p>
+<p>Use <b>Fieldwork</b> during an audit to record observations quickly. Choose the <b>Engagement</b> (the information line shows its type, manager and lead auditor), enter the title, observation, root cause and a provisional rating, and save with <b>SAVE AS DRAFT</b>. The observation is stored as a <i>Draft</i> finding that you complete later in Findings. <b>NEW WORK PAPER</b> starts a working-paper record. Draft observations are listed on the right.</p>
+
+<h1 id="s7" class="sec">7. Findings</h1>
+<p>Every finding follows the same route: <b>Draft &rarr; Manager Review &rarr; Management Response &rarr; Audit Review &rarr; Head of IA approval &rarr; Issued &rarr; Closed.</b> Finding references look like <b>FND-year-nnnn</b>.</p>
+<h2>7.1 For auditors</h2>
+<ol>
+<li>Open <b>Findings</b>, filter by rating, engagement or status, and select <b>+ NEW</b> (or open a Draft created in Fieldwork or from a questionnaire).</li>
+<li>Choose the <b>Engagement</b>. The Entity fills in from it and is then read-only. The information line shows the audit type, manager and lead auditor.</li>
+<li>Complete title, department, observation, root cause, risk, recommendation and <b>Rating</b> (Critical, High, Medium, Low). Save.</li>
+<li>Set the stage to <b>Manager Review</b>. The Audit Manager approves or rejects by email and Approvals. A rejection returns the finding to Draft with comments.</li>
+</ol>
+<h2>7.2 Management response fields</h2>
+<p>The auditor records management's position on the Finding form after discussing it with management:</p>
+<table class="small">
+<tr><th style="width:28%">Field</th><th>Values / use</th></tr>
+<tr><td>Management Response</td><td>Free text: management's reply to the finding.</td></tr>
+<tr><td>Agreement Status</td><td>Agreed or Disagreed.</td></tr>
+<tr><td>Management Acceptance</td><td>Pending, Accepted, Partially Accepted, Not Accepted.</td></tr>
+<tr><td>Response Date</td><td>When management responded.</td></tr>
+<tr><td>Acceptance Comments</td><td>Reasons for partial or non-acceptance.</td></tr>
+</table>
+<h2>7.3 For management (Action Owner, BU Head, Department Head)</h2>
+<ol>
+<li>You are emailed when a finding needs your response. Open <b>Findings</b> and select it.</li>
+<li>Give your response and your agreement, and propose the action owner and due date. The finding moves to Audit Review.</li>
+<li>After audit review and final approval by the Head of Internal Audit the finding is <b>Issued</b>; you, your Department Head and your BU Head are notified and receive access to it.</li>
+</ol>
+<p>Only Managers and Owners can move a finding to <i>Issued</i>; the system re-checks this. A finding <b>closes automatically</b> when all of its actions have been validated: when the last open action is closed, the finding is closed and its closure date is stamped.</p>
+
+<h1 id="s8" class="sec">8. Corrective actions (Actions)</h1>
+<p>Action references look like <b>CAPA-year-nnnn</b> and are assigned automatically.</p>
+<h2>8.1 Reading the list</h2>
+<p>Each action shows a traffic light: green (on track or closed), amber (due within 30 days) and red (overdue), plus text such as <i>Due in 12d</i> or <i>Overdue 5d</i>. Use the filters for entity, department and rating, and the <i>show closed</i> toggle. Action Owners see only their own actions.</p>
+<h2>8.2 Creating an action (Auditor and above)</h2>
+<ol>
+<li>From a finding select <b>Add action</b>, or select <b>+ NEW</b> in Actions.</li>
+<li>Choose the <b>Finding</b>. The Entity fills in from it and the information line appears.</li>
+<li>Enter the action title and description, choose the <b>Owner</b> (required person picker), the <b>Follow-up Auditor</b> and the <b>Due Date</b>. Save.</li>
+</ol>
+<h2>8.3 Updating an action (Action Owner)</h2>
+<p>Open the action, update the <b>completion percentage</b> and notes, and save. The status moves through <i>Open</i>, <i>In Progress</i>, <i>Complete - Awaiting Validation</i> and <i>Closed</i>. <i>Closed</i> is set by the follow-up validation (section 9); do not set it by hand.</p>
+<h2>8.4 Uploading evidence</h2>
+<ol>
+<li>Open the action and attach one or more files with the attachment control.</li>
+<li>Select <b>UPLOAD ATTACHMENTS AS EVIDENCE</b>. The files are filed in the engagement's <i>Management Evidence</i> folder and the action is marked <i>Evidence uploaded</i>.</li>
+</ol>
+<p><b>Allowed types:</b> pdf, docx, xlsx, pptx, jpg, png, msg, csv, zip. Keep each file under about 20 MB; larger evidence goes directly into the SharePoint evidence folder. The attachment box lists characters that are not allowed in file names (such as # % &amp; * : &lt; &gt; ? / \ | and quotation marks). The app does <b>not</b> rename files for you: rename the file first if it contains one.</p>
+<h2>8.5 Marking an action complete</h2>
+<p>Set the status to <b>Complete - Awaiting Validation</b>. This works only if evidence has been uploaded. If there is none, the system puts the action back to <i>In Progress</i> and emails you that evidence is required. With evidence, a follow-up review is created and the follow-up auditor is notified. The action stays <i>Complete - Awaiting Validation</i> until the auditor records an outcome.</p>
+<h2>8.6 Requesting a due-date extension</h2>
+<ol>
+<li>Open the action (it must already be saved) and select <b>EXTEND DUE DATE</b>.</li>
+<li>Choose a new date later than the current one, enter the reason and select <b>SUBMIT FOR APPROVAL</b>. A message confirms the request.</li>
+<li>The Audit Manager approves or rejects. For High and Critical findings the Head of Internal Audit must approve as well.</li>
+<li>If approved, the due date changes, the extension count rises by one, reminders restart and you are emailed. If rejected you are emailed the reason.</li>
+</ol>
+<h2>8.7 Reminders and escalation</h2>
+<p>A daily check (07:00 Dubai time) emails the action owner 30 days and 15 days before the due date. A late action becomes <b>Overdue</b> and is escalated to the Department Head; at 30 or more days late it is escalated to the CEO. The Head of Internal Audit receives a daily digest whenever escalations occur.</p>
+
+<h1 id="s9" class="sec">9. Follow-up reviews</h1>
+<p><b>Who:</b> Auditors and above work them; Executives, BU Heads and Department Heads read.</p>
+<p>A follow-up review is created automatically when an action is marked <i>Complete - Awaiting Validation</i>. Until the auditor records an outcome it is shown as <b>Open</b> (amber chip) and the detail says <i>Outcome - Open (awaiting auditor testing)</i>. The counter <i>Actions awaiting validation</i> at the top shows how many reviews are still open.</p>
+<ol>
+<li>Open <b>Follow-Up</b>. Your pending reviews are listed; Managers see all.</li>
+<li>Select a review and <b>EDIT</b>. Check the action's evidence and enter your testing notes.</li>
+<li>Choose the <b>Outcome</b>: <b>Implemented</b>, <b>Partially Implemented</b>, <b>Not Implemented</b> (a note is required to re-open an action).</li>
+</ol>
+<table class="small">
+<tr><th style="width:30%">Outcome</th><th>Result</th></tr>
+<tr><td>Implemented</td><td>The action is closed. If all the finding's actions are closed, the finding closes too.</td></tr>
+<tr><td>Partially Implemented</td><td>The action returns to In Progress and the owner is emailed.</td></tr>
+<tr><td>Not Implemented / Re-opened</td><td>The action is reopened and the Department Head is notified.</td></tr>
+</table>
+<p>While the outcome is still blank nothing changes on the action; the action only moves when an outcome is chosen.</p>
+
+<h1 id="s10" class="sec">10. Control questionnaires</h1>
+<p>Questionnaires let Internal Audit send a control self-assessment to a department, collect answers by section, review them and turn exceptions into draft findings. Each questionnaire has a reference <b>QST-year-nnnn</b>. Answers are Yes or No, with an explanation and evidence where required.</p>
+<h2>10.1 Creating a questionnaire (Auditor and above)</h2>
+<p><b>Option A - upload an Excel questionnaire.</b></p>
+<ol>
+<li>Open <b>Questionnaires</b>. Select <b>DOWNLOAD TEMPLATE</b> to get the MHAO Excel template and complete it (questions are on the <i>tblQuestions</i> table).</li>
+<li>Select <b>+ UPLOAD QUESTIONNAIRE</b>. Enter the <b>Upload Title</b> (required), choose the <b>Engagement</b>, and use <b>Attach file</b> for the completed Excel file.</li>
+<li>Select <b>UPLOAD QUESTIONNAIRE</b>. A message confirms the upload started; sections and questions are created automatically and you are emailed when processing ends. If the file is invalid you receive an email explaining the problem. <b>BACK</b> returns without uploading.</li>
+</ol>
+<p><b>Option B</b> - create the questionnaire and its sections manually from the Questionnaires screen.</p>
+<h2>10.2 Assigning and issuing</h2>
+<ol>
+<li>In <b>Questionnaires</b> select <b>OPEN &rarr;</b> on the questionnaire. Sections and their questions are listed on the left; the status (Draft, Issued, Returned, Accepted) is at the top right; <b>&larr; BACK</b> returns to the list.</li>
+<li>Select a section. Under <i>Assign selected section</i> enter the <b>AUDITEE EMAIL (MHAO)</b> and the <b>DUE DATE</b>, then <b>SAVE ASSIGNMENT</b>. Repeat for each section.</li>
+<li>When every section is assigned select <b>ISSUE TO AUDITEES</b>. The assignees are emailed and the questionnaire appears in their My Questionnaires.</li>
+</ol>
+<p>In the section rows the question text has the widest column; the evidence rule, the status pill and the <b>OPEN</b> button are on the far right.</p>
+<h2>10.3 Answering a questionnaire (assignees)</h2>
+<ol>
+<li>Open <b>My Questionnaires</b>. Your sections are listed with due date and status.</li>
+<li>Select a section, then <b>OPEN SELECTED</b>.</li>
+<li>Answer each question Yes or No, add explanations and attach evidence where asked. <b>SAVE FOR LATER</b> keeps your progress; <b>SUBMIT SECTION</b> locks the section and notifies the auditor.</li>
+<li>If the auditor returns an answer, correct it using their comment and submit again.</li>
+</ol>
+<h2>10.4 Reviewing (Auditor and above)</h2>
+<ol>
+<li>Open the questionnaire and select <b>OPEN REVIEW &rarr;</b>.</li>
+<li>For each answer select <b>ACCEPT</b>, or type a comment and select <b>RETURN</b> (a comment is required). <b>EVIDENCE</b> requests evidence.</li>
+<li>Select <b>RAISE FINDING</b> where the control is not working. A pre-filled <b>Draft finding</b> is created for you to complete under Findings.</li>
+<li>When some answers are returned select <b>RETURN TO AUDITEE</b> (one email is sent). When every answer is accepted select <b>ACCEPT QUESTIONNAIRE</b>. Once accepted the questionnaire is complete; there is no separate Close step.</li>
+</ol>
+
+<h1 id="s11" class="sec">11. Reports and Power BI</h1>
+<p>The <b>Reports</b> screen shows summary cards for the annual report, the quarterly report, outstanding findings and audit plan status, with <b>EXPORT COMMITTEE PACK</b> and <b>EXPORT FINDINGS</b> buttons. Executives, BU Heads and Department Heads see issued reports only; Auditors, Managers and Owners also see drafts. The <i>Generate</i> buttons marked <i>needs report flow</i> are not active: reports are produced from the Power BI report instead.</p>
+<h2>11.1 Power BI dashboard and report</h2>
+<p>The <b>MHAO Internal Audit Power BI report</b> gives management a visual view of the same data the app holds. It reads the SharePoint lists directly and has three pages:</p>
+<ul>
+<li><b>Overview:</b> KPI cards (Total Audits, Findings Identified, Resolved Findings, Open Findings, Compliance Rate, Satisfactory Engagements, Average Audit Duration), findings trend, findings by category, entity, risk level, department and compliance status, top key risks, and audit status by engagement type.</li>
+<li><b>Findings and Actions:</b> overdue actions, average age of open findings, due-date extensions, action completion %, validation backlog, late milestones, actual vs budget hours, the findings register, corrective actions and questionnaire status.</li>
+<li><b>Reports:</b> a print-ready Internal Audit Report page.</li>
+</ul>
+<p><b>Filters.</b> The Year, Entity, Audit Type and Status filters at the top apply to every page; use the left sidebar to move between pages.</p>
+<p><b>Generating a report.</b> Set the filters, select <b>Download Report</b> (this opens the Reports page), then <b>Export &gt; PDF</b> in the Power BI service (or <b>File &gt; Export &gt; PDF</b> in Power BI Desktop). Send the PDF to the Audit Committee or management.</p>
+<p><b>Opening the report from the portal.</b> Use <b>Open Power BI report</b> on the Dashboard. Until the report is published to the MHAO Power BI workspace and its link added to the app, the button only shows a message that the link is not available yet.</p>
+<p><b>Data refresh.</b> The report shows data as of its last refresh. Blank cards or empty tables mean there is no data yet for that measure.</p>
+
+<h1 id="s12" class="sec">12. Resource Centre</h1>
+<p><b>Who:</b> the audit team (Owners, Managers and Auditors). The tab is the last one on the navigation bar.</p>
+<p>The Resource Centre is the audit team's library of reference documents, arranged in four groups of tiles:</p>
+<table class="small">
+<tr><th style="width:24%">Group</th><th>Tiles</th></tr>
+<tr><td>Governance</td><td>Internal Audit Charter; Code of Ethics and Independence</td></tr>
+<tr><td>Methodology</td><td>Internal Audit Methodology; Annual Audit Plan and Risk Assessment; Audit Report Rating Guide; Sampling Guide; Working-paper Standards</td></tr>
+<tr><td>System and templates</td><td>IMS User Manual (this manual); Quick-start Guide; Questionnaire Templates</td></tr>
+<tr><td>Reference</td><td>IIA Global Internal Audit Standards; Glossary; Contacts; What's New</td></tr>
+</table>
+<ul>
+<li>A <b>dark navy tile</b> has a document or web page behind it. Select it and the document opens in a new browser tab (Word, PDF, Excel or PowerPoint files open in their own viewer).</li>
+<li>A <b>grey tile</b> means the document has not been uploaded yet. Selecting it shows <i>Coming soon - document not uploaded yet</i>.</li>
+<li><b>&lt; Back to Dashboard</b> (gold button, top right) returns to the Dashboard.</li>
+</ul>
+<p>Administrators maintain the tiles without touching the app; see section 15.3.</p>
+
+<h1 id="s13" class="sec">13. Emails and approvals you will receive</h1>
+<p>System messages come from Power Automate. Approval requests also appear under <i>Approvals</i> in Power Automate (make.powerautomate.com) and in Outlook.</p>
+<table class="small">
+<tr><th style="width:28%">You receive</th><th style="width:32%">When</th><th>What to do</th></tr>
+<tr><td>Approval request: audit plan</td><td>Plan submitted for approval (Manager, then Head of IA)</td><td>Open the request, choose Approve or Reject, add a comment, Confirm.</td></tr>
+<tr><td>Plan rejected</td><td>An approver rejected your plan item</td><td>Read the comment, correct the item, submit again.</td></tr>
+<tr><td>Approval request: due-date extension</td><td>An action owner submits an extension</td><td>Approve or Reject; High and Critical items go to the Head of IA as well.</td></tr>
+<tr><td>Finding approval / response request</td><td>Finding moves to Manager Review or needs management response</td><td>Approve or Reject; management gives the response.</td></tr>
+<tr><td>Action reminder (30 and 15 days)</td><td>Before an action's due date</td><td>Complete the action or request an extension.</td></tr>
+<tr><td>Overdue or escalation notice</td><td>Action past due; 30+ days past due</td><td>Complete the action urgently.</td></tr>
+<tr><td>Evidence required</td><td>You marked an action complete without evidence</td><td>Upload evidence, then mark complete again.</td></tr>
+<tr><td>Questionnaire issued / returned / uploaded</td><td>The matching step happens</td><td>Open My Questionnaires or the Questionnaires screen.</td></tr>
+<tr><td>Daily escalation digest (Head of IA)</td><td>Escalations happened that day</td><td>Review the overdue list.</td></tr>
+<tr><td>Monthly Audit Universe summary (Head of IA)</td><td>1st of each month</td><td>Review areas whose risk rating or next audit date changed.</td></tr>
+</table>
+<p><b>How to respond to an approval.</b> Open the email or the Approvals page, select the request, choose <b>Approve</b> or <b>Reject</b>, add a comment (always add one when rejecting) and select <b>Confirm</b>.</p>
+
+<h1 id="s14" class="sec">14. How the Audit Universe risk rating works</h1>
+<p>Once a month the system recalculates each audit area. The area's risk score is the highest inherent risk among its active risks. The rating is <b>Critical</b> at 15 or more, <b>High</b> at 10 or more, <b>Medium</b> at 5 or more and <b>Low</b> below 5. The next audit date is set from the audit frequency: Annual (12 months), 18 Months, 2 Years (24 months), otherwise 36 months.</p>
+
+<h1 id="s15" class="sec">15. Administration (Head of Internal Audit and site owners)</h1>
+<h2>15.1 Giving a new user access</h2>
+<p>A person needs three things before they can use the portal:</p>
+<ol>
+<li><b>SharePoint site.</b> Open the Internal Audit site, select Settings (gear) &gt; Site permissions &gt; Share site, and add the person as <b>Owner</b> (full access, for a tester) or <b>Member</b> (normal use).</li>
+<li><b>Power Apps portal.</b> In make.powerapps.com open Apps &gt; MHAO Internal Audit Portal &gt; Share and add the person. Tick <b>Co-owner</b> only if they must edit the app.</li>
+<li><b>Role in the portal.</b> Open the SharePoint list <b>IA Configuration</b>, find the item for the role (Role.Owner, Role.Manager, Role.Auditor, Role.ActionOwner, Role.Executive, Role.BUHead or Role.DepartmentHead) and add the person's work email to its <i>ConfigValue</i> field. Emails are separated by semicolons with a semicolon at both ends, for example <span class="mono">;a@mhao.ae;b@mhao.ae;</span>. The app reads the list when it starts, so the person must close and reopen the app.</li>
+</ol>
+<h2>15.2 Good to know</h2>
+<ul>
+<li><b>Permissions are role-based.</b> What each role may see and do is fixed in the app. You control a person's access by choosing which role or roles they hold. To change what a role itself may do, the app must be edited in Power Apps Studio.</li>
+<li><b>Power BI:</b> the person needs a Power BI Pro licence and access to the workspace once the report is published.</li>
+<li><b>Flows:</b> Power Automate flows run when the person uses the app. Add people as flow co-owners only if they must edit the flows.</li>
+<li><b>Stage and Overall Opinion lists</b> on the engagement form are typed into the app. If a new choice is added in SharePoint, the two lists in the app must be edited too.</li>
+</ul>
+<h2>15.3 Maintaining the Resource Centre</h2>
+<ol>
+<li>Upload or replace the document in the SharePoint library <b>Knowledge Documents</b>, in the folder for its group (Governance, Methodology, System and templates, Reference).</li>
+<li>Open the list <b>Knowledge Index</b> and find the document's row (Title, DocGroup, Description, DocLink, SortOrder, Version, ReviewDate).</li>
+<li>Paste the document's link into <b>DocLink</b> and save. The tile turns navy and opens the document. Clear DocLink to show <i>Coming soon</i> again.</li>
+<li>Use <b>SortOrder</b> to change the order inside a group, <b>Version</b> and <b>ReviewDate</b> to track updates. New documents are added as new rows. Press the Refresh icon in the app, or reopen it, to see the change.</li>
+</ol>
+<p>Library permissions: IA_Owners Full Control, IA_Managers Edit, IA_Auditors Read.</p>
+<h2>15.4 Publishing app changes</h2>
+<p>Changes saved in Power Apps Studio are not visible to users until the app is <b>published</b>. Test on the published app, not only in Studio preview.</p>
+
+<h1 id="s16" class="sec">16. Troubleshooting and FAQ</h1>
+<table class="small">
+<tr><th style="width:36%">Problem</th><th>What to do</th></tr>
+<tr><td>I see the No Access screen</td><td>You hold no role. Ask the Head of Internal Audit to add you in IA Configuration, then reopen the app.</td></tr>
+<tr><td>A tab or button is missing</td><td>Your role does not allow it. This is by design.</td></tr>
+<tr><td>The Resource Centre tab is missing</td><td>It is shown to the audit team only. If you are on the audit team, check that you hold the Owner, Manager or Auditor role.</td></tr>
+<tr><td>The app shows old screens or buttons</td><td>Close the browser tab and reopen the app link; add <span class="mono">?cache=1</span> to the end of the address if needed.</td></tr>
+<tr><td>A record I expected is not there / data looks old</td><td>Select the Refresh icon at the top right.</td></tr>
+<tr><td>Mark complete reverted to In Progress</td><td>No evidence is filed for the action. Upload evidence first.</td></tr>
+<tr><td>Extension: new date must be later</td><td>Pick a date after the current due date.</td></tr>
+<tr><td>EXTEND DUE DATE says save the action first</td><td>The action is new and unsaved. Save it, then request the extension.</td></tr>
+<tr><td>Upload button does nothing</td><td>Attach at least one file of an allowed type under about 20 MB, and check the file name for unsupported characters.</td></tr>
+<tr><td>Questionnaire upload failed</td><td>Check the email you received; usually the file is not the MHAO template or tblQuestions is missing.</td></tr>
+<tr><td>SUBMIT FOR APPROVAL is not on my plan item</td><td>It shows only for new, Draft or Rejected items. An item already submitted is waiting for its approvers.</td></tr>
+<tr><td>My plan item is not in the list</td><td>Check the Plan Year filter and that the item has a Plan Year.</td></tr>
+<tr><td>The engagement dropdown does not list a plan item</td><td>Only plan items of the current year that are not Cancelled or Deferred are listed.</td></tr>
+<tr><td>I did not get an approval email</td><td>Check Junk, then Approvals in Power Automate. In test mode all approvals go to the Head of IA.</td></tr>
+<tr><td>A Resource Centre tile says Coming soon</td><td>The document has not been uploaded yet. Ask the Head of Internal Audit.</td></tr>
+<tr><td>I can see someone else's record</td><td>Report it to the Head of Internal Audit at once; access should be limited to your department.</td></tr>
+</table>
+<p>For support contact the Head of Internal Audit, ahmed.elhendy@mhao.ae.</p>
+
+<h1 id="sA" class="sec">Appendix A. Status values</h1>
+<table class="small">
+<tr><th style="width:26%">Record</th><th>Statuses</th></tr>
+<tr><td>Plan item approval</td><td>Draft, Pending Manager Review, Pending Owner Approval, Approved, Rejected (returns to Draft)</td></tr>
+<tr><td>Plan item audit status</td><td>Planned, In Progress, Completed, Deferred, Cancelled</td></tr>
+<tr><td>Engagement stage</td><td>Planning, Kick-off, Walkthroughs, Fieldwork, Fieldwork Complete, Testing, Draft Report, Management Responses, Reporting, Final Report, Closed</td></tr>
+<tr><td>Finding</td><td>Draft, Manager Review, Management Response, Audit Review, Pending Head of IA approval, Issued, Closed</td></tr>
+<tr><td>Finding rating</td><td>Critical, High, Medium, Low</td></tr>
+<tr><td>Management acceptance</td><td>Pending, Accepted, Partially Accepted, Not Accepted</td></tr>
+<tr><td>Action</td><td>Open, In Progress, Complete - Awaiting Validation, Overdue, Closed</td></tr>
+<tr><td>Follow-up outcome</td><td>Open (blank), Implemented, Partially Implemented, Not Implemented</td></tr>
+<tr><td>Questionnaire</td><td>Draft, Issued, Returned, Accepted</td></tr>
+</table>
+<h1 id="sB" class="sec">Appendix B. Reference numbers</h1>
+<table class="small">
+<tr><th style="width:26%">Prefix</th><th>Record</th></tr>
+<tr><td>IA-2026-nnnn</td><td>Audit plan item</td></tr>
+<tr><td>ENG-2026-nnnn</td><td>Engagement</td></tr>
+<tr><td>FND-2026-nnnn</td><td>Finding</td></tr>
+<tr><td>CAPA-2026-nnnn</td><td>Corrective action</td></tr>
+<tr><td>QST-2026-nnnn</td><td>Control questionnaire</td></tr>
+</table>
+<p>References are assigned automatically a few seconds after a record is first saved. Numbers may skip; this is not an error.</p>
+<h1 id="sC" class="sec">Appendix C. Quick answers</h1>
+<table class="small">
+<tr><th style="width:42%">I want to...</th><th>Go to</th></tr>
+<tr><td>Add an audit to the annual plan</td><td>Plan &rarr; + NEW &rarr; SUBMIT FOR APPROVAL</td></tr>
+<tr><td>Record an observation in the field</td><td>Fieldwork</td></tr>
+<tr><td>Issue a finding</td><td>Findings &rarr; Manager Review (Manager or Owner issues)</td></tr>
+<tr><td>Respond to a finding</td><td>Findings &rarr; open the finding</td></tr>
+<tr><td>Show I have fixed an action</td><td>Actions &rarr; attach evidence &rarr; Complete - Awaiting Validation</td></tr>
+<tr><td>Ask for more time</td><td>Actions &rarr; EXTEND DUE DATE</td></tr>
+<tr><td>Validate a completed action</td><td>Follow-Up &rarr; EDIT &rarr; Outcome</td></tr>
+<tr><td>Send a control questionnaire</td><td>Questionnaires &rarr; + UPLOAD QUESTIONNAIRE &rarr; assign &rarr; ISSUE TO AUDITEES</td></tr>
+<tr><td>Answer a questionnaire</td><td>My Questionnaires &rarr; OPEN SELECTED</td></tr>
+<tr><td>See management charts or print the committee report</td><td>Dashboard &rarr; Open Power BI report</td></tr>
+<tr><td>Find the audit methodology or this manual</td><td>Resource Centre</td></tr>
+<tr><td>See the latest data</td><td>Refresh icon (top right)</td></tr>
+</table>

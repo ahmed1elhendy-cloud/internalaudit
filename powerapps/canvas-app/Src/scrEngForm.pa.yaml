@@ -1376,6 +1376,8 @@ Screens:
                         ChevronHoverFill: =RGBA(50, 49, 48, 1)
                         Color: =RGBA(50, 49, 48, 1)
                         DefaultSelectedItems: =Parent.Default
+                        DisplayFields: =["Value"]
+                        SearchFields: =["Value"]
                         DisabledBorderColor: =RGBA(0, 0, 0, 0)
                         DisabledColor: =RGBA(161, 159, 157, 1)
                         DisabledFill: =RGBA(242, 242, 241, 0)
@@ -1491,6 +1493,8 @@ Screens:
                         ChevronHoverFill: =RGBA(50, 49, 48, 1)
                         Color: =RGBA(50, 49, 48, 1)
                         DefaultSelectedItems: =Parent.Default
+                        DisplayFields: =["Value"]
+                        SearchFields: =["Value"]
                         DisabledBorderColor: =RGBA(0, 0, 0, 0)
                         DisabledColor: =RGBA(161, 159, 157, 1)
                         DisabledFill: =RGBA(242, 242, 241, 0)

@@ -1,0 +1,116 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "mhao_sharedsharepointonline_iams"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "When_an_item_is_created": {
+          "recurrence": {
+            "interval": 1,
+            "frequency": "Minute"
+          },
+          "splitOn": "@triggerOutputs()?['body/value']",
+          "metadata": {
+            "operationMetadataId": "12e15dc4-f8a7-4bdb-9d4a-25e9e6d4eb57"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+              "table": "@@LIST:IA_ActionPlans@@"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "operationId": "GetOnNewItems",
+              "connectionName": "shared_sharepointonline"
+            }
+          },
+          "runtimeConfiguration": {
+            "concurrency": {
+              "runs": 1
+            }
+          }
+        }
+      },
+      "actions": {
+        "Compose_Ref": {
+          "runAfter": {
+            "Get_item": [
+              "Succeeded"
+            ]
+          },
+          "type": "Compose",
+          "inputs": "@concat('CAPA-', if(empty(outputs('Get_item')?['body/FindingID']), formatDateTime(utcNow(),'yyyy'), substring(outputs('Get_item')?['body/FindingID'],4,4)), '-', formatNumber(triggerOutputs()?['body/ID'], '0000'))"
+        },
+        "Set_Reference": {
+          "runAfter": {
+            "Compose_Ref": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "b764513a-7d82-4c99-8ddc-241877494ea5"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/lists(guid'@@LIST:IA_ActionPlans@@')/items(@{triggerOutputs()?['body/ID']})",
+              "parameters/headers": {
+                "X-HTTP-Method": "MERGE",
+                "IF-MATCH": "*",
+                "Content-Type": "application/json;odata=nometadata"
+              },
+              "parameters/body": "@concat('{\"CAPAID\":\"', outputs('Compose_Ref'), '\"}')"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "operationId": "HttpRequest",
+              "connectionName": "shared_sharepointonline"
+            }
+          }
+        },
+        "Get_item": {
+          "runAfter": {},
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+              "table": "@@LIST:IA_Findings@@",
+              "id": "@triggerOutputs()?['body/Finding/Id']"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "operationId": "GetItem",
+              "connectionName": "shared_sharepointonline"
+            }
+          }
+        }
+      }
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

@@ -1,0 +1,224 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedsharepointonline_iams"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedoffice365_iams"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "When_an_action_is_created_or_modified": {
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          },
+          "splitOn": "@triggerOutputs()?['body/value']",
+          "metadata": {},
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+              "table": "@@LIST:IA_ActionPlans@@"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "operationId": "GetOnUpdatedItems",
+              "connectionName": "shared_sharepointonline"
+            }
+          }
+        }
+      },
+      "actions": {
+        "Check_closed_and_validated": {
+          "actions": {
+            "Stamp_CompletedDate": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "parameters/method": "POST",
+                  "parameters/uri": "_api/web/lists(guid'@@LIST:IA_ActionPlans@@')/items(@{triggerOutputs()?['body/ID']})",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata",
+                    "Content-Type": "application/json;odata=nometadata",
+                    "X-HTTP-Method": "MERGE",
+                    "IF-MATCH": "*"
+                  },
+                  "parameters/body": "{\"CompletedDate\":\"@{coalesce(triggerOutputs()?['body/CompletedDate'], utcNow())}\",\"ClosureProcessed\":true}"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "connectionName": "shared_sharepointonline"
+                }
+              }
+            },
+            "Get_other_open_actions": {
+              "runAfter": {
+                "Stamp_CompletedDate": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "table": "@@LIST:IA_ActionPlans@@",
+                  "$filter": "@concat('Finding/Id eq ',triggerOutputs()?['body/Finding/Id'],' and ActionStatus ne ',decodeUriComponent('%27'),'Closed',decodeUriComponent('%27'))",
+                  "$top": 100
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "operationId": "GetItems",
+                  "connectionName": "shared_sharepointonline"
+                }
+              }
+            },
+            "If_no_other_open_actions": {
+              "actions": {
+                "Close_finding": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                      "parameters/method": "POST",
+                      "parameters/uri": "_api/web/lists(guid'@@LIST:IA_Findings@@')/items(@{triggerOutputs()?['body/Finding/Id']})",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata",
+                        "Content-Type": "application/json;odata=nometadata",
+                        "X-HTTP-Method": "MERGE",
+                        "IF-MATCH": "*"
+                      },
+                      "parameters/body": "{\"FindingStatus\":\"Closed\",\"WorkflowStage\":\"Closed\",\"ClosedDate\":\"@{utcNow()}\",\"LastProcessedStage\":\"Closed\"}"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "connectionName": "shared_sharepointonline"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Get_other_open_actions": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {}
+              },
+              "expression": {
+                "equals": [
+                  "@length(body('Get_other_open_actions')?['value'])",
+                  0
+                ]
+              },
+              "type": "If"
+            },
+            "Write_audit_log": {
+              "runAfter": {
+                "If_no_other_open_actions": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "table": "@@LIST:IA_AuditLog@@",
+                  "item/Title": "@concat('Action closed: ',triggerOutputs()?['body/Title'])",
+                  "item/SourceList": "Corrective Action Tracker",
+                  "item/SourceItemId": "@triggerOutputs()?['body/ID']",
+                  "item/EventType/Value": "Closure",
+                  "item/EventDetails": "@concat('Action validated and closed. Open actions remaining on finding: ',length(body('Get_other_open_actions')?['value']))"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "operationId": "PostItem",
+                  "connectionName": "shared_sharepointonline"
+                }
+              }
+            },
+            "Email_action_owner": {
+              "runAfter": {
+                "Write_audit_log": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "emailMessage/To": "@coalesce(triggerOutputs()?['body/ActionOwner/Email'],'user@example.com')",
+                  "emailMessage/Subject": "@concat('Action closed: ',triggerOutputs()?['body/Title'])",
+                  "emailMessage/Body": "<p>Your corrective action <b>@{triggerOutputs()?['body/Title']}</b> has been validated by Internal Audit and is now closed. Thank you.</p><p>MHAO Group Internal Audit</p>",
+                  "emailMessage/Importance": "Normal"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                  "operationId": "SendEmailV2",
+                  "connectionName": "shared_office365"
+                }
+              }
+            }
+          },
+          "runAfter": {},
+          "else": {
+            "actions": {}
+          },
+          "expression": {
+            "and": [
+              {
+                "equals": [
+                  "@triggerOutputs()?['body/ActionStatus/Value']",
+                  "Closed"
+                ]
+              },
+              {
+                "equals": [
+                  "@triggerOutputs()?['body/ValidationStatus/Value']",
+                  "Validated"
+                ]
+              },
+              {
+                "equals": [
+                  "@not(equals(triggerOutputs()?['body/ClosureProcessed'], true))",
+                  true
+                ]
+              }
+            ]
+          },
+          "type": "If"
+        }
+      }
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

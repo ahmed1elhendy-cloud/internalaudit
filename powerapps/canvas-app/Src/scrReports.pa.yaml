@@ -404,7 +404,7 @@ Screens:
             Height: =42
             HoverColor: =RGBA(247, 244, 236, 1)
             HoverFill: =RGBA(27, 50, 80, 1)
-            OnSelect: =Launch("https://mhaome.sharepoint.com/sites/InternalAuditTest/Lists/Audit%20Engagements/AllItems.aspx")
+            OnSelect: =Launch("https://YOURTENANT.sharepoint.com/sites/InternalAuditTest/Lists/Audit%20Engagements/AllItems.aspx")
             PressedColor: =RGBA(247, 244, 236, 1)
             PressedFill: =RGBA(27, 50, 80, 1)
             RadiusBottomLeft: =0
@@ -428,7 +428,7 @@ Screens:
             Height: =42
             HoverColor: =RGBA(18, 35, 59, 1)
             HoverFill: =RGBA(251, 249, 243, 1)
-            OnSelect: =Launch("https://mhaome.sharepoint.com/sites/InternalAuditTest/Lists/Audit%20Findings%20Register/AllItems.aspx")
+            OnSelect: =Launch("https://YOURTENANT.sharepoint.com/sites/InternalAuditTest/Lists/Audit%20Findings%20Register/AllItems.aspx")
             PressedColor: =RGBA(18, 35, 59, 1)
             PressedFill: =RGBA(251, 249, 243, 1)
             RadiusBottomLeft: =0

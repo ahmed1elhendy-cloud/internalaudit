@@ -1,0 +1,253 @@
+# Live SharePoint schema of the test site (read via REST on 2026-11-18). Format: InternalName|DisplayName(if different)|Type|REQ|Choices|LookupListId|Default
+## Annual Audit Plan [100]
+Title|Audit Title|Text|REQ|||
+AuditRef|Audit Ref|Text||||
+PlanYear|Plan Year|Number||||
+AuditArea|Audit Area|Lookup|REQ||Audit Universe|
+Entity||LookupMulti|||Entities|
+AuditType|Audit Type|Choice||Financial;Operational;Compliance;IT;Special Investigation;Follow-up;Advisory||
+PlannedStart|Planned Start|DateTime|REQ|||
+PlannedFinish|Planned Finish|DateTime|REQ|||
+RiskScore|Risk Score|Number||||
+AssignedAuditor|Assigned Auditor|User||||
+AuditManager|Audit Manager|User||||
+BudgetHours|Budget Hours|Number||||
+ActualHours|Actual Hours|Number||||
+AuditStatus|Audit Status|Choice||Planned;In Progress;Fieldwork;Reporting;Completed;Deferred;Cancelled||Planned
+ApprovalStatus|Approval Status|Choice||Draft;Pending Manager Review;Pending Owner Approval;Approved;Rejected||Draft
+DeferralReason|Deferral / Cancellation Reason|Note||||
+## Audit Engagements [100]
+Title|Engagement Title|Text|REQ|||
+EngagementID|Engagement ID|Text||||
+AuditPlanItem|Audit Plan Item|Lookup||Annual Audit Plan|
+Entity||LookupMulti|||Entities|
+EngagementScope|Engagement Scope|Note||||
+AuditObjective|Audit Objective|Note||||
+LeadAuditor|Lead Auditor|User||||
+TeamMembers|Team Members|UserMulti||||
+ActualStart|Start Date|DateTime||||
+ActualEnd|End Date|DateTime||||
+Stage||Choice||Planning;Kick-off;Walkthroughs;Fieldwork;Fieldwork Complete;Testing;Draft Report;Management Responses;Reporting;Final Report;Closed||Planning
+OverallOpinion|Overall Opinion|Choice||Satisfactory;Needs Improvement;Unsatisfactory;Not Rated||
+EngagementFolderUrl|Engagement Folder|URL||||
+Engagement_x0020_Type|Engagement Type|Choice||Financial;Operational;Compliance;IT;Special Investigation;Follow-up;Advisory||
+BudgetedHours|Budgeted Hours|Number||||
+EngActualHours|Actual Hours|Number||||
+PlanningType|Planning Type|Choice||Planned;Unplanned||Planned
+AuditManager|Audit Manager|User||||
+## Audit Findings Register [100]
+Title|Finding Title|Text|REQ|||
+FindingID|Finding ID|Text||||
+Engagement||Lookup|REQ|Audit Engagements|
+Entity||Lookup||Entities|
+Department||Lookup||Departments|
+Observation||Note||||
+RootCause|Root Cause|Note||||
+RiskCategory|Risk Category|Choice||Strategic;Operational;Financial;Compliance;IT & Cyber;Fraud;Reputational;HSE||
+ImpactDescription|Impact|Note||||
+Recommendation||Note||||
+Rating||Choice|REQ|Critical;High;Medium;Low||
+WorkflowStage|Workflow Stage|Choice||Draft;Manager Review;Management Response;Audit Review;HoIA Approval;Issued;Closed||Draft
+AgreementStatus|Management Agreement|Choice||Pending;Agreed;Partially Agreed;Disagreed||Pending
+ManagementResponse|Management Response|Note||||
+ResponsibleManager|Responsible Manager|User||||
+DateIssued|Date Issued|DateTime||||
+OriginalDueDate|Original Due Date|DateTime||||
+DueDate|Current Due Date|DateTime||||
+ExtensionCount|Extension Count|Number|||0
+FindingStatus|Status|Choice||Open;In Progress;Pending Validation;Closed;Re-opened;Risk Accepted||Open
+ClosedDate|Closed Date|DateTime||||
+LastProcessedStage|Last Processed Stage|Text||||
+Compliance_x0020_Result|Compliance Result|Choice||Compliant;Non-compliant;N/A||
+MgmtAcceptance|Management Acceptance|Choice||Pending;Accepted;Partially Accepted;Not Accepted||Pending
+MgmtResponseDate|Management Response Date|DateTime||||
+MgmtAcceptanceComments|Management Acceptance Comments|Note||||
+## Audit Questionnaires [100]
+Title|Questionnaire Name|Text|REQ|||
+QuestionnaireID|Questionnaire ID|Text||||
+Engagement||Lookup|REQ|Audit Engagements|
+AuditType|Audit Type|Choice||Financial;Operational;Compliance;IT;Special Investigation;Follow-up;Advisory||
+TemplateVersion|Template Version|Text||||
+Scope||Note||||
+QuestionnaireStatus|Status|Choice||Draft;Issued;In Progress;Under Review;Returned;Accepted;Closed||Draft
+Round||Number|||1
+IssuedDate|Issued Date|DateTime||||
+PreparedBy|Prepared By|User||||
+Reviewer||User||||
+SourceFileUrl|Source File|URL||||
+QuestionCount|Question Count|Number||||
+## Audit Trail [100]
+Title|Event|Text|REQ|||
+SourceList|Source List|Text||||
+SourceItemId|Source Item ID|Number||||
+EventType|Event Type|Choice||Created;Stage Change;Approval;Rejection;Due Date Extension;Closure;Re-open;Escalation||
+EventBy|By|User||||
+EventDetails|Details|Note||||
+## Audit Universe [100]
+Title|Auditable Area|Text|REQ|||
+AuditAreaID|Audit Area ID|Text||||
+Entity||Lookup|REQ|Entities|
+Department||Lookup||Departments|
+ProcessCategory|Process Category|Choice||Finance;Procurement;HR & Payroll;IT;Sales;Operations;Legal & Compliance;Projects;Treasury;Other||
+ProcessOwner|Process Owner|User||||
+RiskRating|Risk Rating|Choice||Critical;High;Medium;Low||
+RiskScore|Risk Score (1-25)|Number||||
+LastAuditDate|Last Audit Date|DateTime||||
+AuditFrequency|Audit Frequency|Choice||Annual;18 Months;2 Years;3 Years||
+NextAuditDate|Next Audit Date|DateTime||||
+UniverseStatus|Status|Choice||Active;Retired;On Hold||Active
+## Audit Working Papers [101 library]
+Title||Text||||
+Engagement||Lookup|REQ|Audit Engagements|
+Entity||Lookup||Entities|
+FinancialYear|Financial Year|Text||||
+AuditType|Audit Type|Choice||Financial;Operational;Compliance;IT;Special Investigation;Follow-up;Advisory||
+WPNumber|Working Paper Number|Text||||
+PreparedBy|Prepared By|User||||
+ReviewedBy|Reviewed By|User||||
+ReviewStatus|Review Status|Choice||Draft;Prepared;Reviewed;Cleared||Draft
+## Corrective Action Tracker [100]
+Title|Action Title|Text|REQ|||
+CAPAID|Action ID|Text||||
+Finding||Lookup|REQ|Audit Findings Register|
+Entity||Lookup||Entities|
+ActionDescription|Action Description|Note||||
+ActionOwner|Owner|User|REQ|||
+DueDate|Due Date|DateTime|REQ|||
+CompletionPct|Completion %|Number|||0
+EvidenceUploaded|Evidence Uploaded|Boolean|||0
+ValidationStatus|Validation Status|Choice||Not Started;Submitted;Under Review;Validated;Rejected||Not Started
+FollowUpAuditor|Follow-up Auditor|User||||
+FindingRating|Finding Rating|Choice||Critical;High;Medium;Low||
+ActionStatus|Status|Choice||Open;In Progress;Complete - Awaiting Validation;Closed;Overdue||Open
+ReminderStage|Reminder Stage|Choice||None;Reminder 30d;Reminder 15d;Escalated - Dept Head;Escalated - CEO||None
+CompletedDate|Actual Completion Date|DateTime||||
+ExtensionCount||Number||||
+OriginalDueDate||DateTime||||
+ClosureProcessed||Boolean|||0
+## Departments [100]
+Title|Department Name|Text|REQ|||
+Entity||Lookup|REQ|Entities|
+DepartmentHead|Department Head|User||||
+Active||Boolean|||1
+## Engagement Milestones [100]
+Title|Milestone|Text|REQ|||
+Engagement||Lookup|REQ|Audit Engagements|
+MilestoneType|Type|Choice||Kick-off;Walkthroughs;Fieldwork Complete;Draft Report;Management Responses;Final Report;Closure||
+DueDate|Due Date|DateTime|REQ|||
+CompletedDate|Completed Date|DateTime||||
+MilestoneOwner|Owner|User||||
+MilestoneStatus|Status|Choice||Not Started;In Progress;Complete;Late||Not Started
+## Entities [100]
+Title|Entity Name|Text|REQ|||
+EntityCode|Entity Code|Text|REQ|||
+EntityType|Entity Type|Choice||Parent;Subsidiary;Associate;Joint Venture||
+Country||Text||||
+EntityHead|Entity Head / MD|User||||
+EntityCEO|Entity CEO (escalation L2)|User||||
+Active||Boolean|||1
+## Evidence Repository [101 library]
+Title||Text||||
+Engagement||Lookup|REQ|Audit Engagements|
+Finding||Lookup||Audit Findings Register|
+Action||Lookup||Corrective Action Tracker|
+EvidenceType|Evidence Type|Choice||Planning;Walkthrough;Sample;Testing;Management Evidence;Validation||
+UploadedByUser|Uploaded By|User||||
+## Follow-Up Reviews [100]
+Title|Review Title|Text|REQ|||
+Finding||Lookup|REQ|Audit Findings Register|
+Action||Lookup||Corrective Action Tracker|
+Reviewer||User|REQ|||
+ReviewDate|Review Date|DateTime||||
+Outcome||Choice||Implemented;Partially Implemented;Not Implemented;Re-opened;Closed||
+TestingNotes|Testing Notes|Note||||
+ValidationDocUrl|Validation Document|URL||||
+## IA Configuration [100]
+Title|Key|Text|REQ|||
+ConfigValue|Value|Text|REQ|||
+ConfigDescription|Description|Text||||
+## Knowledge Documents [101 library]
+Title||Text||||
+## Knowledge Index [100]
+Title||Text|REQ|||
+DocGroup||Choice|REQ|Governance;Methodology;System and templates;Reference||
+Description||Text||||
+DocLink||URL||||
+IconName||Text||||
+Version||Text||||
+ReviewDate||DateTime||||
+SortOrder||Number||||
+## Questionnaire Files [101 library]
+Title||Text||||
+Engagement||Lookup||Audit Engagements|
+Questionnaire||Lookup||Audit Questionnaires|
+## Questionnaire Items [100]
+Title|Ref|Text|REQ|||
+Questionnaire||Lookup|REQ|Audit Questionnaires|
+Section||Lookup|REQ|Questionnaire Sections|
+SortOrder|Sort Order|Number||||
+Question||Note||||
+AttachmentRequirement|Attachment Requirement|Note||||
+EvidenceRule|Evidence Rule|Choice||If Yes;If No;Always;Never||If Yes
+ExplanationRequiredIfNo|Explanation Required if No|Boolean|||1
+IsException|Exception Question|Boolean|||0
+Answer||Choice||Yes;No||
+DocumentRef|Document Ref|Text||||
+Explanation||Note||||
+ResponsibleOwner|Responsible Owner|Text||||
+ReviewStatus|Review Status|Choice||Pending;Accepted;Returned||Pending
+ReviewerComment|Reviewer Comment|Note||||
+FindingRaised|Finding Raised|Lookup||Audit Findings Register|
+## Questionnaire Sections [100]
+Title|Section Title|Text|REQ|||
+Questionnaire||Lookup|REQ|Audit Questionnaires|
+SectionNo|Section No|Number||||
+Assignee||User||||
+DueDate|Due Date|DateTime||||
+SectionStatus|Section Status|Choice||Not started;In progress;Submitted;Returned;Accepted||Not started
+SubmittedDate|Submitted Date|DateTime||||
+QuestionCount|Question Count|Number||||
+## Questionnaire Templates [101 library]
+Title||Text||||
+TemplateVersion|Template Version|Text||||
+Active||Boolean|||1
+## Questionnaire Uploads [100]
+Title|Upload Title|Text|REQ|||
+Engagement||Lookup|REQ|Audit Engagements|
+AuditArea|Audit Area|Lookup||Audit Universe|
+UploadStatus|Upload Status|Choice||Uploaded;Validating;Draft Created;Rejected||Uploaded
+ValidationMessage|Validation Message|Note||||
+Questionnaire||Lookup||Audit Questionnaires|
+## Reports Library [101 library]
+Title||Text||||
+Engagement||Lookup||Audit Engagements|
+Entity||Lookup||Entities|
+ReportType|Report Type|Choice|REQ|Draft Report;Final Report;Follow-Up Report;Quarterly IA Report;Annual IA Report;Outstanding Findings Report;Audit Plan Status||
+ReportPeriod|Report Period|Text||||
+VersionLabel|Version|Text||||
+ReportStatus|Report Status|Choice||Draft;In Review;Approved;Issued||Draft
+## Risk Register [100]
+Title|Risk Title|Text|REQ|||
+RiskID|Risk ID|Text||||
+RiskDescription|Risk Description|Note||||
+AuditArea|Audit Area|Lookup|REQ|Audit Universe|
+Entity||Lookup||Entities|
+RiskCategory|Risk Category|Choice||Strategic;Operational;Financial;Compliance;IT & Cyber;Fraud;Reputational;HSE||
+Likelihood||Number|REQ|||
+ImpactScore|Impact|Number|REQ|||
+ControlRating|Control Rating|Number|REQ|||
+RiskOwner|Risk Owner|User||||
+RiskStatus|Status|Choice||Open;Mitigated;Accepted;Closed||Open
+## Self Assessment Register [100]
+Title|Form Name|Text|REQ|||
+CSAID|CSA ID|Text||||
+Entity||Lookup||Entities|
+Department||Lookup||Departments|
+AssessmentPeriod|Assessment Period|Text||||
+SubmissionDate|Submission Date|DateTime||||
+SubmittedBy|Submitted By|User||||
+Score||Number||||
+Result||Choice||Satisfactory;Needs Attention;Unsatisfactory||
+FormResponseId|Forms Response ID|Text||||
+RelatedAudit|Related Audit|Lookup||Annual Audit Plan|
+AttachmentsUrl|Attachments Folder|URL||||

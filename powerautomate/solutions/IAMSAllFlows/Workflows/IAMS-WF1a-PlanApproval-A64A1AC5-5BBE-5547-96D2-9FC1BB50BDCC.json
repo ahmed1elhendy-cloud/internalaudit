@@ -1,0 +1,480 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedsharepointonline_iams"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedoffice365_iams"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      },
+      "shared_approvals": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedapprovals_iams"
+        },
+        "api": {
+          "name": "shared_approvals"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "PowerApp",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "title": "PlanItemId",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please enter PlanItemId",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text_1": {
+                  "title": "SubmitterEmail",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please enter SubmitterEmail",
+                  "x-ms-content-hint": "TEXT"
+                }
+              },
+              "required": [
+                "text",
+                "text_1"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Get_plan": {
+          "runAfter": {},
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+              "parameters/method": "GET",
+              "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_AuditPlan@@',decodeUriComponent('%27'),')/items(',triggerBody()?['text'],')?$select=Id,Title,AuditRef,ApprovalStatus')",
+              "parameters/headers": {
+                "Accept": "application/json;odata=nometadata"
+              }
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Set_Pending_Manager": {
+          "runAfter": {
+            "Get_plan": [
+              "Succeeded"
+            ]
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/lists(guid'@@LIST:IA_AuditPlan@@')/items(@{triggerBody()?['text']})",
+              "parameters/headers": {
+                "Accept": "application/json;odata=nometadata",
+                "Content-Type": "application/json;odata=nometadata",
+                "X-HTTP-Method": "MERGE",
+                "IF-MATCH": "*"
+              },
+              "parameters/body": "{\"ApprovalStatus\":\"Pending Manager Review\"}"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Respond_submitted": {
+          "runAfter": {
+            "Set_Pending_Manager": [
+              "Succeeded"
+            ]
+          },
+          "type": "Response",
+          "kind": "PowerApp",
+          "inputs": {
+            "statusCode": 200,
+            "body": {
+              "result": "Submitted for approval. You will be notified by email of the outcome."
+            },
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "title": "result",
+                  "x-ms-dynamically-added": true,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "Approval_1_Audit_Manager": {
+          "runAfter": {
+            "Respond_submitted": [
+              "Succeeded"
+            ]
+          },
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_approvals",
+              "operationId": "StartAndWaitForAnApproval",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_approvals"
+            },
+            "parameters": {
+              "approvalType": "Basic",
+              "WebhookApprovalCreationInput/title": "@concat('Plan approval (1 of 2, Audit Manager): ',body('Get_plan')?['Title'])",
+              "WebhookApprovalCreationInput/assignedTo": "user@example.com",
+              "WebhookApprovalCreationInput/details": "@concat('Ref ',body('Get_plan')?['AuditRef'],'. Submitted by ',triggerBody()?['text_1'])",
+              "WebhookApprovalCreationInput/enableNotifications": true,
+              "WebhookApprovalCreationInput/enableReassignment": true
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "If_approved_1": {
+          "runAfter": {
+            "Approval_1_Audit_Manager": [
+              "Succeeded"
+            ]
+          },
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@outputs('Approval_1_Audit_Manager')?['body/outcome']",
+              "Approve"
+            ]
+          },
+          "actions": {
+            "Set_Pending_Owner": {
+              "runAfter": {},
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "parameters/method": "POST",
+                  "parameters/uri": "_api/web/lists(guid'@@LIST:IA_AuditPlan@@')/items(@{triggerBody()?['text']})",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata",
+                    "Content-Type": "application/json;odata=nometadata",
+                    "X-HTTP-Method": "MERGE",
+                    "IF-MATCH": "*"
+                  },
+                  "parameters/body": "{\"ApprovalStatus\":\"Pending Owner Approval\"}"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Approval_2_Head_of_IA": {
+              "runAfter": {
+                "Set_Pending_Owner": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnectionWebhook",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_approvals",
+                  "operationId": "StartAndWaitForAnApproval",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_approvals"
+                },
+                "parameters": {
+                  "approvalType": "Basic",
+                  "WebhookApprovalCreationInput/title": "@concat('Plan approval (2 of 2, Head of IA): ',body('Get_plan')?['Title'])",
+                  "WebhookApprovalCreationInput/assignedTo": "user@example.com",
+                  "WebhookApprovalCreationInput/details": "@concat('Audit Manager approved. Ref ',body('Get_plan')?['AuditRef'],'. Manager comment: ',coalesce(first(outputs('Approval_1_Audit_Manager')?['body/responses'])?['comments'],'(no comment)'))",
+                  "WebhookApprovalCreationInput/enableNotifications": true,
+                  "WebhookApprovalCreationInput/enableReassignment": true
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "If_approved_2": {
+              "runAfter": {
+                "Approval_2_Head_of_IA": [
+                  "Succeeded"
+                ]
+              },
+              "type": "If",
+              "expression": {
+                "equals": [
+                  "@outputs('Approval_2_Head_of_IA')?['body/outcome']",
+                  "Approve"
+                ]
+              },
+              "actions": {
+                "Set_Approved": {
+                  "runAfter": {},
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                      "parameters/method": "POST",
+                      "parameters/uri": "_api/web/lists(guid'@@LIST:IA_AuditPlan@@')/items(@{triggerBody()?['text']})",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata",
+                        "Content-Type": "application/json;odata=nometadata",
+                        "X-HTTP-Method": "MERGE",
+                        "IF-MATCH": "*"
+                      },
+                      "parameters/body": "{\"ApprovalStatus\":\"Approved\"}"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "Audit_ok": {
+                  "runAfter": {
+                    "Set_Approved": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "PostItem",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                      "table": "@@LIST:IA_AuditLog@@",
+                      "item/Title": "@concat('Plan approved: ',body('Get_plan')?['Title'])",
+                      "item/SourceList": "Annual Audit Plan",
+                      "item/SourceItemId": "@int(triggerBody()?['text'])",
+                      "item/EventType/Value": "Updated",
+                      "item/EventDetails": "Approved by Audit Manager and Head of IA. Engagement creation (WF1) follows."
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "Email_ok": {
+                  "runAfter": {
+                    "Audit_ok": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_office365",
+                      "operationId": "SendEmailV2",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                    },
+                    "parameters": {
+                      "emailMessage/To": "user@example.com",
+                      "emailMessage/Subject": "@concat('Audit plan item approved: ',body('Get_plan')?['Title'])",
+                      "emailMessage/Body": "@concat('<p>The plan item <b>',body('Get_plan')?['Title'],'</b> has been approved by the Audit Manager and the Head of IA. The engagement will be created automatically.</p><p>Intended recipient (test mode redirects to you): planner ',triggerBody()?['text_1'],'</p>')",
+                      "emailMessage/Importance": "Normal"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                }
+              },
+              "else": {
+                "actions": {
+                  "Set_Draft_2": {
+                    "runAfter": {},
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": {
+                        "connectionName": "shared_sharepointonline",
+                        "operationId": "HttpRequest",
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                      },
+                      "parameters": {
+                        "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                        "parameters/method": "POST",
+                        "parameters/uri": "_api/web/lists(guid'@@LIST:IA_AuditPlan@@')/items(@{triggerBody()?['text']})",
+                        "parameters/headers": {
+                          "Accept": "application/json;odata=nometadata",
+                          "Content-Type": "application/json;odata=nometadata",
+                          "X-HTTP-Method": "MERGE",
+                          "IF-MATCH": "*"
+                        },
+                        "parameters/body": "{\"ApprovalStatus\":\"Draft\"}"
+                      },
+                      "authentication": "@parameters('$authentication')"
+                    }
+                  },
+                  "Audit_rej_2": {
+                    "runAfter": {
+                      "Set_Draft_2": [
+                        "Succeeded"
+                      ]
+                    },
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": {
+                        "connectionName": "shared_sharepointonline",
+                        "operationId": "PostItem",
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                      },
+                      "parameters": {
+                        "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                        "table": "@@LIST:IA_AuditLog@@",
+                        "item/Title": "@concat('Plan rejected by Head of IA: ',body('Get_plan')?['Title'])",
+                        "item/SourceList": "Annual Audit Plan",
+                        "item/SourceItemId": "@int(triggerBody()?['text'])",
+                        "item/EventType/Value": "Updated",
+                        "item/EventDetails": "@coalesce(first(outputs('Approval_2_Head_of_IA')?['body/responses'])?['comments'],'(no comment)')"
+                      },
+                      "authentication": "@parameters('$authentication')"
+                    }
+                  },
+                  "Email_rej_2": {
+                    "runAfter": {
+                      "Audit_rej_2": [
+                        "Succeeded"
+                      ]
+                    },
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": {
+                        "connectionName": "shared_office365",
+                        "operationId": "SendEmailV2",
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                      },
+                      "parameters": {
+                        "emailMessage/To": "user@example.com",
+                        "emailMessage/Subject": "@concat('Audit plan item rejected by Head of IA: ',body('Get_plan')?['Title'])",
+                        "emailMessage/Body": "@concat('<p>The plan item <b>',body('Get_plan')?['Title'],'</b> was rejected by the Head of Internal Audit and returned to Draft.</p><p>Comment: ',coalesce(first(outputs('Approval_2_Head_of_IA')?['body/responses'])?['comments'],'(no comment)'),'</p><p>Intended recipients (test mode redirects to you): planner ',triggerBody()?['text_1'],' and the Audit Manager.</p>')",
+                        "emailMessage/Importance": "Normal"
+                      },
+                      "authentication": "@parameters('$authentication')"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Set_Draft_1": {
+                "runAfter": {},
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "connectionName": "shared_sharepointonline",
+                    "operationId": "HttpRequest",
+                    "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                  },
+                  "parameters": {
+                    "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                    "parameters/method": "POST",
+                    "parameters/uri": "_api/web/lists(guid'@@LIST:IA_AuditPlan@@')/items(@{triggerBody()?['text']})",
+                    "parameters/headers": {
+                      "Accept": "application/json;odata=nometadata",
+                      "Content-Type": "application/json;odata=nometadata",
+                      "X-HTTP-Method": "MERGE",
+                      "IF-MATCH": "*"
+                    },
+                    "parameters/body": "{\"ApprovalStatus\":\"Draft\"}"
+                  },
+                  "authentication": "@parameters('$authentication')"
+                }
+              },
+              "Audit_rej_1": {
+                "runAfter": {
+                  "Set_Draft_1": [
+                    "Succeeded"
+                  ]
+                },
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "connectionName": "shared_sharepointonline",
+                    "operationId": "PostItem",
+                    "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                  },
+                  "parameters": {
+                    "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                    "table": "@@LIST:IA_AuditLog@@",
+                    "item/Title": "@concat('Plan rejected by Audit Manager: ',body('Get_plan')?['Title'])",
+                    "item/SourceList": "Annual Audit Plan",
+                    "item/SourceItemId": "@int(triggerBody()?['text'])",
+                    "item/EventType/Value": "Updated",
+                    "item/EventDetails": "@coalesce(first(outputs('Approval_1_Audit_Manager')?['body/responses'])?['comments'],'(no comment)')"
+                  },
+                  "authentication": "@parameters('$authentication')"
+                }
+              },
+              "Email_rej_1": {
+                "runAfter": {
+                  "Audit_rej_1": [
+                    "Succeeded"
+                  ]
+                },
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "host": {
+                    "connectionName": "shared_office365",
+                    "operationId": "SendEmailV2",
+                    "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                  },
+                  "parameters": {
+                    "emailMessage/To": "user@example.com",
+                    "emailMessage/Subject": "@concat('Audit plan item rejected by Audit Manager: ',body('Get_plan')?['Title'])",
+                    "emailMessage/Body": "@concat('<p>The plan item <b>',body('Get_plan')?['Title'],'</b> was rejected by the Audit Manager and returned to Draft.</p><p>Comment: ',coalesce(first(outputs('Approval_1_Audit_Manager')?['body/responses'])?['comments'],'(no comment)'),'</p><p>Intended recipient (test mode redirects to you): planner ',triggerBody()?['text_1'],'</p>')",
+                    "emailMessage/Importance": "Normal"
+                  },
+                  "authentication": "@parameters('$authentication')"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

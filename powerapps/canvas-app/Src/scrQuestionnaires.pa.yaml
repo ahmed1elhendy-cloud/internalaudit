@@ -151,7 +151,7 @@ Screens:
             Height: =38
             HoverColor: =RGBA(18, 35, 59, 1)
             HoverFill: =RGBA(251, 249, 243, 1)
-            OnSelect: =Launch("https://mhaome.sharepoint.com/sites/InternalAuditTest/IA_QnrTemplates")
+            OnSelect: =Launch("https://YOURTENANT.sharepoint.com/sites/InternalAuditTest/IA_QnrTemplates")
             PressedColor: =RGBA(18, 35, 59, 1)
             PressedFill: =RGBA(251, 249, 243, 1)
             RadiusBottomLeft: =0

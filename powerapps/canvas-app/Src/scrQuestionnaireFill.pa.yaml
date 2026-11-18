@@ -301,7 +301,7 @@ Screens:
                   Height: =34
                   HoverColor: =RGBA(18, 35, 59, 1)
                   HoverFill: =RGBA(251, 249, 243, 1)
-                  OnSelect: =Launch("https://mhaome.sharepoint.com/sites/InternalAuditTest/Lists/IA_QnrItems/EditForm.aspx?ID=" & ThisItem.ID)
+                  OnSelect: =Launch("https://YOURTENANT.sharepoint.com/sites/InternalAuditTest/Lists/IA_QnrItems/EditForm.aspx?ID=" & ThisItem.ID)
                   PressedColor: =RGBA(18, 35, 59, 1)
                   PressedFill: =RGBA(251, 249, 243, 1)
                   RadiusBottomLeft: =0

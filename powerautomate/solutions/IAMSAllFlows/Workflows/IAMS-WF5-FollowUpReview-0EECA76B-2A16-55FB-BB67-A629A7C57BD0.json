@@ -1,0 +1,358 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedsharepointonline_iams"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedoffice365_iams"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "When_an_action_is_created_or_modified": {
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          },
+          "splitOn": "@triggerOutputs()?['body/value']",
+          "metadata": {},
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+              "table": "@@LIST:IA_ActionPlans@@"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "operationId": "GetOnUpdatedItems",
+              "connectionName": "shared_sharepointonline"
+            }
+          }
+        }
+      },
+      "actions": {
+        "If_awaiting_validation": {
+          "actions": {
+            "Get_evidence": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "parameters/method": "GET",
+                  "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_Evidence@@',decodeUriComponent('%27'),')/items?$filter=ActionId eq ',triggerOutputs()?['body/ID'],'&$top=1&$select=Id')",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "connectionName": "shared_sharepointonline"
+                }
+              }
+            },
+            "If_evidence": {
+              "actions": {
+                "Create_review": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                      "parameters/method": "POST",
+                      "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_FollowUps@@',decodeUriComponent('%27'),')/items')",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata",
+                        "Content-Type": "application/json;odata=nometadata"
+                      },
+                      "parameters/body": "@json(concat('{\"Title\":\"Follow-up: ',replace(triggerOutputs()?['body/Title'],'\"',''),'\",\"FindingId\":',triggerOutputs()?['body/Finding/Id'],',\"ActionId\":',triggerOutputs()?['body/ID'],',\"ReviewDate\":\"',addDays(utcNow(),10),'\"}'))"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "connectionName": "shared_sharepointonline"
+                    }
+                  }
+                },
+                "If_has_auditor": {
+                  "actions": {
+                    "Ensure_auditor": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                          "parameters/method": "POST",
+                          "parameters/uri": "_api/web/ensureuser",
+                          "parameters/headers": {
+                            "Accept": "application/json;odata=nometadata",
+                            "Content-Type": "application/json;odata=nometadata"
+                          },
+                          "parameters/body": "@concat('{\"logonName\":\"i:0#.f|membership|',triggerOutputs()?['body/FollowUpAuditor/Email'],'\"}')"
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                          "operationId": "HttpRequest",
+                          "connectionName": "shared_sharepointonline"
+                        }
+                      }
+                    },
+                    "Set_reviewer": {
+                      "runAfter": {
+                        "Ensure_auditor": [
+                          "Succeeded"
+                        ]
+                      },
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                          "parameters/method": "POST",
+                          "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_FollowUps@@',decodeUriComponent('%27'),')/items(',body('Create_review')?['Id'],')')",
+                          "parameters/headers": {
+                            "Accept": "application/json;odata=nometadata",
+                            "Content-Type": "application/json;odata=nometadata",
+                            "X-HTTP-Method": "MERGE",
+                            "IF-MATCH": "*"
+                          },
+                          "parameters/body": "@concat('{\"ReviewerId\":',body('Ensure_auditor')?['Id'],'}')"
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                          "operationId": "HttpRequest",
+                          "connectionName": "shared_sharepointonline"
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Create_review": [
+                      "Succeeded"
+                    ]
+                  },
+                  "else": {
+                    "actions": {}
+                  },
+                  "expression": {
+                    "equals": [
+                      "@empty(triggerOutputs()?['body/FollowUpAuditor/Email'])",
+                      false
+                    ]
+                  },
+                  "type": "If"
+                },
+                "Mark_submitted": {
+                  "runAfter": {
+                    "If_has_auditor": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                      "parameters/method": "POST",
+                      "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_ActionPlans@@',decodeUriComponent('%27'),')/items(',triggerOutputs()?['body/ID'],')')",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata",
+                        "Content-Type": "application/json;odata=nometadata",
+                        "X-HTTP-Method": "MERGE",
+                        "IF-MATCH": "*"
+                      },
+                      "parameters/body": "{\"ValidationStatus\":\"Submitted\"}"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "connectionName": "shared_sharepointonline"
+                    }
+                  }
+                },
+                "Mail_auditor": {
+                  "runAfter": {
+                    "Mark_submitted": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "emailMessage/To": "user@example.com",
+                      "emailMessage/Subject": "@concat('Follow-up review required: ',triggerOutputs()?['body/Title'])",
+                      "emailMessage/Body": "@concat('<p>Action <b>',triggerOutputs()?['body/Title'],'</b> (owner marked complete, evidence on file) is ready for validation.</p><p>Review item #',body('Create_review')?['Id'],' was created, review date ',formatDateTime(addDays(utcNow(),10),'yyyy-MM-dd'),'.</p>')",
+                      "emailMessage/Importance": "Normal"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                      "operationId": "SendEmailV2",
+                      "connectionName": "shared_office365"
+                    }
+                  }
+                },
+                "Audit_review": {
+                  "runAfter": {
+                    "Mail_auditor": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                      "table": "@@LIST:IA_AuditLog@@",
+                      "item/Title": "@concat('Follow-up review created: ',triggerOutputs()?['body/Title'])",
+                      "item/SourceList": "Corrective Action Tracker",
+                      "item/SourceItemId": "@int(triggerOutputs()?['body/ID'])",
+                      "item/EventType/Value": "Stage Change",
+                      "item/EventDetails": "Action submitted for validation"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                      "operationId": "PostItem",
+                      "connectionName": "shared_sharepointonline"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Get_evidence": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {
+                  "Revert_status": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "parameters": {
+                        "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                        "parameters/method": "POST",
+                        "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_ActionPlans@@',decodeUriComponent('%27'),')/items(',triggerOutputs()?['body/ID'],')')",
+                        "parameters/headers": {
+                          "Accept": "application/json;odata=nometadata",
+                          "Content-Type": "application/json;odata=nometadata",
+                          "X-HTTP-Method": "MERGE",
+                          "IF-MATCH": "*"
+                        },
+                        "parameters/body": "{\"ActionStatus\":\"In Progress\"}"
+                      },
+                      "host": {
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                        "operationId": "HttpRequest",
+                        "connectionName": "shared_sharepointonline"
+                      }
+                    }
+                  },
+                  "Mail_evidence_required": {
+                    "runAfter": {
+                      "Revert_status": [
+                        "Succeeded"
+                      ]
+                    },
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "parameters": {
+                        "emailMessage/To": "user@example.com",
+                        "emailMessage/Subject": "@concat('Evidence required before completion: ',triggerOutputs()?['body/Title'])",
+                        "emailMessage/Body": "@concat('<p>Action <b>',triggerOutputs()?['body/Title'],'</b> was marked complete but no evidence is on file. It has been returned to In Progress. Please upload evidence and mark it complete again.</p>')",
+                        "emailMessage/Importance": "Normal"
+                      },
+                      "host": {
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                        "operationId": "SendEmailV2",
+                        "connectionName": "shared_office365"
+                      }
+                    }
+                  },
+                  "Audit_no_evidence": {
+                    "runAfter": {
+                      "Mail_evidence_required": [
+                        "Succeeded"
+                      ]
+                    },
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "parameters": {
+                        "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                        "table": "@@LIST:IA_AuditLog@@",
+                        "item/Title": "@concat('Completion rejected, no evidence: ',triggerOutputs()?['body/Title'])",
+                        "item/SourceList": "Corrective Action Tracker",
+                        "item/SourceItemId": "@int(triggerOutputs()?['body/ID'])",
+                        "item/EventType/Value": "Rejection",
+                        "item/EventDetails": "No evidence uploaded for the action"
+                      },
+                      "host": {
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                        "operationId": "PostItem",
+                        "connectionName": "shared_sharepointonline"
+                      }
+                    }
+                  }
+                }
+              },
+              "expression": {
+                "and": [
+                  {
+                    "greater": [
+                      "@length(body('Get_evidence')?['value'])",
+                      -1
+                    ]
+                  }
+                ]
+              },
+              "type": "If"
+            }
+          },
+          "runAfter": {},
+          "else": {
+            "actions": {}
+          },
+          "expression": {
+            "and": [
+              {
+                "equals": [
+                  "@triggerOutputs()?['body/ActionStatus/Value']",
+                  "Complete - Awaiting Validation"
+                ]
+              },
+              {
+                "not": {
+                  "equals": [
+                    "@triggerOutputs()?['body/ValidationStatus/Value']",
+                    "Submitted"
+                  ]
+                }
+              }
+            ]
+          },
+          "type": "If"
+        }
+      }
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

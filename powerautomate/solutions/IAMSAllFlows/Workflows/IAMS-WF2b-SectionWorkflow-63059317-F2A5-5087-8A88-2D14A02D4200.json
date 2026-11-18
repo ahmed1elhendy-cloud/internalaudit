@@ -1,0 +1,619 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedsharepointonline_iams"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedoffice365_iams"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "When_a_section_is_created_or_modified": {
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          },
+          "splitOn": "@triggerOutputs()?['body/value']",
+          "metadata": {},
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+              "table": "@@LIST:IA_QnrSections@@"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "operationId": "GetOnUpdatedItems",
+              "connectionName": "shared_sharepointonline"
+            }
+          }
+        }
+      },
+      "actions": {
+        "Route_section": {
+          "runAfter": {},
+          "cases": {
+            "Submitted": {
+              "case": "Submitted",
+              "actions": {
+                "If_not_yet_submitted": {
+                  "actions": {
+                    "Get_section_items": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                          "parameters/method": "GET",
+                          "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_QnrItems@@',decodeUriComponent('%27'),')/items?','$filter=SectionId eq ',triggerOutputs()?['body/ID'],'&$top=500&$select=Id,Title,Answer,Explanation,ExplanationRequiredIfNo,ReviewStatus')",
+                          "parameters/headers": {
+                            "Accept": "application/json;odata=nometadata"
+                          }
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                          "operationId": "HttpRequest",
+                          "connectionName": "shared_sharepointonline"
+                        }
+                      }
+                    },
+                    "Find_incomplete": {
+                      "runAfter": {
+                        "Get_section_items": [
+                          "Succeeded"
+                        ]
+                      },
+                      "type": "Query",
+                      "inputs": {
+                        "from": "@body('Get_section_items')?['value']",
+                        "where": "@or(empty(item()?['Answer']), and(equals(item()?['Answer'],'No'), equals(item()?['ExplanationRequiredIfNo'],true), empty(item()?['Explanation'])))"
+                      }
+                    },
+                    "If_complete": {
+                      "actions": {
+                        "Stamp_submitted": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "parameters": {
+                              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                              "parameters/method": "POST",
+                              "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_QnrSections@@',decodeUriComponent('%27'),')/items(',triggerOutputs()?['body/ID'],')')",
+                              "parameters/headers": {
+                                "Accept": "application/json;odata=nometadata",
+                                "Content-Type": "application/json;odata=nometadata",
+                                "X-HTTP-Method": "MERGE",
+                                "IF-MATCH": "*"
+                              },
+                              "parameters/body": "@concat('{\"SubmittedDate\":\"',utcNow(),'\"}')"
+                            },
+                            "host": {
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                              "operationId": "HttpRequest",
+                              "connectionName": "shared_sharepointonline"
+                            }
+                          }
+                        },
+                        "Each_returned_item": {
+                          "foreach": "@body('Get_section_items')?['value']",
+                          "actions": {
+                            "If_item_was_returned": {
+                              "actions": {
+                                "Reset_item_review": {
+                                  "type": "OpenApiConnection",
+                                  "inputs": {
+                                    "parameters": {
+                                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                                      "parameters/method": "POST",
+                                      "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_QnrItems@@',decodeUriComponent('%27'),')/items(',items('Each_returned_item')?['Id'],')')",
+                                      "parameters/headers": {
+                                        "Accept": "application/json;odata=nometadata",
+                                        "Content-Type": "application/json;odata=nometadata",
+                                        "X-HTTP-Method": "MERGE",
+                                        "IF-MATCH": "*"
+                                      },
+                                      "parameters/body": "{\"ReviewStatus\":\"Pending\"}"
+                                    },
+                                    "host": {
+                                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                                      "operationId": "HttpRequest",
+                                      "connectionName": "shared_sharepointonline"
+                                    }
+                                  }
+                                }
+                              },
+                              "else": {
+                                "actions": {}
+                              },
+                              "expression": {
+                                "equals": [
+                                  "@items('Each_returned_item')?['ReviewStatus']",
+                                  "Returned"
+                                ]
+                              },
+                              "type": "If"
+                            }
+                          },
+                          "runAfter": {
+                            "Stamp_submitted": [
+                              "Succeeded"
+                            ]
+                          },
+                          "type": "Foreach"
+                        },
+                        "Mail_submitted": {
+                          "runAfter": {
+                            "Each_returned_item": [
+                              "Succeeded"
+                            ]
+                          },
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "parameters": {
+                              "emailMessage/To": "user@example.com",
+                              "emailMessage/Subject": "@concat('Section submitted for review: ',triggerOutputs()?['body/Title'])",
+                              "emailMessage/Body": "@concat('<p>Section <b>',triggerOutputs()?['body/Title'],'</b> has been submitted and is ready for review.</p>')",
+                              "emailMessage/Importance": "Normal"
+                            },
+                            "host": {
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                              "operationId": "SendEmailV2",
+                              "connectionName": "shared_office365"
+                            }
+                          }
+                        },
+                        "Audit_submitted": {
+                          "runAfter": {
+                            "Mail_submitted": [
+                              "Succeeded"
+                            ]
+                          },
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "parameters": {
+                              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                              "table": "@@LIST:IA_AuditLog@@",
+                              "item/Title": "@concat('Section submitted: ',triggerOutputs()?['body/Title'])",
+                              "item/SourceList": "Questionnaire Sections",
+                              "item/SourceItemId": "@int(triggerOutputs()?['body/ID'])",
+                              "item/EventType/Value": "Stage Change",
+                              "item/EventDetails": "Section submitted for review"
+                            },
+                            "host": {
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                              "operationId": "PostItem",
+                              "connectionName": "shared_sharepointonline"
+                            }
+                          }
+                        }
+                      },
+                      "runAfter": {
+                        "Find_incomplete": [
+                          "Succeeded"
+                        ]
+                      },
+                      "else": {
+                        "actions": {
+                          "Reopen_section": {
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "parameters": {
+                                "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                                "parameters/method": "POST",
+                                "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_QnrSections@@',decodeUriComponent('%27'),')/items(',triggerOutputs()?['body/ID'],')')",
+                                "parameters/headers": {
+                                  "Accept": "application/json;odata=nometadata",
+                                  "Content-Type": "application/json;odata=nometadata",
+                                  "X-HTTP-Method": "MERGE",
+                                  "IF-MATCH": "*"
+                                },
+                                "parameters/body": "{\"SectionStatus\":\"In progress\"}"
+                              },
+                              "host": {
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                                "operationId": "HttpRequest",
+                                "connectionName": "shared_sharepointonline"
+                              }
+                            }
+                          },
+                          "Mail_incomplete": {
+                            "runAfter": {
+                              "Reopen_section": [
+                                "Succeeded"
+                              ]
+                            },
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "parameters": {
+                                "emailMessage/To": "user@example.com",
+                                "emailMessage/Subject": "@concat('Section returned to draft (incomplete): ',triggerOutputs()?['body/Title'])",
+                                "emailMessage/Body": "@concat('<p>Section <b>',triggerOutputs()?['body/Title'],'</b> was not submitted: ',string(length(body('Find_incomplete'))),' question(s) are unanswered or missing a required explanation.</p>')",
+                                "emailMessage/Importance": "Normal"
+                              },
+                              "host": {
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                                "operationId": "SendEmailV2",
+                                "connectionName": "shared_office365"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "expression": {
+                        "equals": [
+                          "@length(body('Find_incomplete'))",
+                          0
+                        ]
+                      },
+                      "type": "If"
+                    }
+                  },
+                  "else": {
+                    "actions": {}
+                  },
+                  "expression": {
+                    "equals": [
+                      "@empty(triggerOutputs()?['body/SubmittedDate'])",
+                      true
+                    ]
+                  },
+                  "type": "If"
+                }
+              }
+            },
+            "Returned": {
+              "case": "Returned",
+              "actions": {
+                "Clear_submitted_date": {
+                  "runAfter": {
+                    "Condition": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                      "parameters/method": "POST",
+                      "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_QnrSections@@',decodeUriComponent('%27'),')/items(',triggerOutputs()?['body/ID'],')')",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata",
+                        "Content-Type": "application/json;odata=nometadata",
+                        "X-HTTP-Method": "MERGE",
+                        "IF-MATCH": "*"
+                      },
+                      "parameters/body": "{\"SubmittedDate\":null}"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "connectionName": "shared_sharepointonline"
+                    }
+                  }
+                },
+                "Mail_returned": {
+                  "runAfter": {
+                    "Clear_submitted_date": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "emailMessage/To": "user@example.com",
+                      "emailMessage/Subject": "@concat('Section returned for correction: ',triggerOutputs()?['body/Title'])",
+                      "emailMessage/Body": "@concat('<p>Section <b>',triggerOutputs()?['body/Title'],'</b> was returned by the reviewer. Please correct the flagged answers and resubmit.</p>')",
+                      "emailMessage/Importance": "Normal"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                      "operationId": "SendEmailV2",
+                      "connectionName": "shared_office365"
+                    }
+                  }
+                },
+                "Audit_returned": {
+                  "runAfter": {
+                    "Mail_returned": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                      "table": "@@LIST:IA_AuditLog@@",
+                      "item/Title": "@concat('Section returned: ',triggerOutputs()?['body/Title'])",
+                      "item/SourceList": "Questionnaire Sections",
+                      "item/SourceItemId": "@int(triggerOutputs()?['body/ID'])",
+                      "item/EventType/Value": "Rejection",
+                      "item/EventDetails": "Section returned by reviewer"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                      "operationId": "PostItem",
+                      "connectionName": "shared_sharepointonline"
+                    }
+                  }
+                },
+                "Condition": {
+                  "actions": {
+                    "Terminate": {
+                      "type": "Terminate",
+                      "inputs": {
+                        "runStatus": "Succeeded"
+                      }
+                    }
+                  },
+                  "else": {
+                    "actions": {}
+                  },
+                  "expression": {
+                    "and": [
+                      {
+                        "equals": [
+                          "@empty(triggerOutputs()?['body/SubmittedDate'])",
+                          "@true"
+                        ]
+                      }
+                    ]
+                  },
+                  "type": "If"
+                }
+              }
+            }
+          },
+          "default": {
+            "actions": {}
+          },
+          "expression": "@triggerOutputs()?['body/SectionStatus/Value']",
+          "type": "Switch"
+        },
+        "Recompute": {
+          "actions": {
+            "Get_all_sections": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "parameters/method": "GET",
+                  "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_QnrSections@@',decodeUriComponent('%27'),')/items?','$filter=QuestionnaireId eq ',triggerOutputs()?['body/Questionnaire/Id'],'&$select=Id,SectionStatus')",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "connectionName": "shared_sharepointonline"
+                }
+              }
+            },
+            "Get_questionnaire": {
+              "runAfter": {
+                "Get_all_sections": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "parameters/method": "GET",
+                  "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_Questionnaires@@',decodeUriComponent('%27'),')/items(',triggerOutputs()?['body/Questionnaire/Id'],')?$select=Id,QuestionnaireStatus')",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "connectionName": "shared_sharepointonline"
+                }
+              }
+            },
+            "Count_returned": {
+              "runAfter": {
+                "Get_questionnaire": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@body('Get_all_sections')?['value']",
+                "where": "@equals(item()?['SectionStatus'],'Returned')"
+              }
+            },
+            "Count_accepted": {
+              "runAfter": {
+                "Count_returned": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@body('Get_all_sections')?['value']",
+                "where": "@equals(item()?['SectionStatus'],'Accepted')"
+              }
+            },
+            "Count_open": {
+              "runAfter": {
+                "Count_accepted": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@body('Get_all_sections')?['value']",
+                "where": "@or(equals(item()?['SectionStatus'],'Submitted'),equals(item()?['SectionStatus'],'Accepted'))"
+              }
+            },
+            "Count_started": {
+              "runAfter": {
+                "Count_open": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@body('Get_all_sections')?['value']",
+                "where": "@not(equals(item()?['SectionStatus'],'Not started'))"
+              }
+            },
+            "NewStatus": {
+              "runAfter": {
+                "Count_started": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Compose",
+              "inputs": "@if(greater(length(body('Count_returned')),0),'Returned',if(equals(length(body('Count_accepted')),length(body('Get_all_sections')?['value'])),'Accepted',if(equals(length(body('Count_open')),length(body('Get_all_sections')?['value'])),'Under Review',if(greater(length(body('Count_started')),0),'In Progress',body('Get_questionnaire')?['QuestionnaireStatus']))))"
+            },
+            "If_status_changes": {
+              "actions": {
+                "Update_questionnaire_status": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                      "parameters/method": "POST",
+                      "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_Questionnaires@@',decodeUriComponent('%27'),')/items(',triggerOutputs()?['body/Questionnaire/Id'],')')",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata",
+                        "Content-Type": "application/json;odata=nometadata",
+                        "X-HTTP-Method": "MERGE",
+                        "IF-MATCH": "*"
+                      },
+                      "parameters/body": "@concat('{\"QuestionnaireStatus\":\"',outputs('NewStatus'),'\"}')"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "connectionName": "shared_sharepointonline"
+                    }
+                  }
+                },
+                "Audit_status": {
+                  "runAfter": {
+                    "Update_questionnaire_status": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                      "table": "@@LIST:IA_AuditLog@@",
+                      "item/Title": "@concat('Questionnaire status: ',body('Get_questionnaire')?['QuestionnaireStatus'],' -> ',outputs('NewStatus'))",
+                      "item/SourceList": "Audit Questionnaires",
+                      "item/SourceItemId": "@int(triggerOutputs()?['body/Questionnaire/Id'])",
+                      "item/EventType/Value": "Stage Change",
+                      "item/EventDetails": "@concat('Status changed to ',outputs('NewStatus'))"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                      "operationId": "PostItem",
+                      "connectionName": "shared_sharepointonline"
+                    }
+                  }
+                },
+                "Mail_status": {
+                  "runAfter": {
+                    "Audit_status": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "emailMessage/To": "user@example.com",
+                      "emailMessage/Subject": "@concat('Questionnaire status: ',outputs('NewStatus'))",
+                      "emailMessage/Body": "@concat('<p>Questionnaire #',triggerOutputs()?['body/Questionnaire/Id'],' is now <b>',outputs('NewStatus'),'</b>.</p>')",
+                      "emailMessage/Importance": "Normal"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                      "operationId": "SendEmailV2",
+                      "connectionName": "shared_office365"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "NewStatus": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {}
+              },
+              "expression": {
+                "and": [
+                  {
+                    "not": {
+                      "equals": [
+                        "@outputs('NewStatus')",
+                        "@body('Get_questionnaire')?['QuestionnaireStatus']"
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "equals": [
+                        "@body('Get_questionnaire')?['QuestionnaireStatus']",
+                        "Closed"
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "equals": [
+                        "@body('Get_questionnaire')?['QuestionnaireStatus']",
+                        "Draft"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "type": "If"
+            }
+          },
+          "runAfter": {
+            "Route_section": [
+              "Succeeded",
+              "Failed",
+              "Skipped"
+            ]
+          },
+          "type": "Scope"
+        }
+      }
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

@@ -1,0 +1,388 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "cr047_sharedsharepointonline_a5339"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      },
+      "shared_approvals": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "cr047_sharedapprovals_5171e"
+        },
+        "api": {
+          "name": "shared_approvals"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "cr047_sharedoffice365_89b8c"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      },
+      "shared_sharepointonline-1": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "cr047_sharedsharepointonline_a2113"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "When_an_item_or_a_file_is_modified": {
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          },
+          "evaluatedRecurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          },
+          "splitOn": "@triggerOutputs()?['body/value']",
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+              "table": "Audit Findings Register"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "GetOnChangedItems"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      },
+      "actions": {
+        "Condition_2": {
+          "actions": {
+            "Start_and_wait_for_an_approval": {
+              "type": "OpenApiConnectionWebhook",
+              "inputs": {
+                "parameters": {
+                  "approvalType": "Basic",
+                  "WebhookApprovalCreationInput/title": "Approval Request for Audit Finding",
+                  "WebhookApprovalCreationInput/assignedTo": "user@example.com",
+                  "WebhookApprovalCreationInput/enableNotifications": true,
+                  "WebhookApprovalCreationInput/enableReassignment": true
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_approvals",
+                  "connectionName": "shared_approvals",
+                  "operationId": "StartAndWaitForAnApproval"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Condition": {
+              "actions": {
+                "Update_item": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                      "table": "Audit Findings Register",
+                      "id": "@triggerOutputs()?['body/ID']",
+                      "item/Title": "@triggerOutputs()?['body/Title']",
+                      "item/WorkflowStage/Value": "Management Response",
+                      "item/LastProcessedStage": "Management Response"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "PatchItem"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                }
+              },
+              "runAfter": {
+                "Start_and_wait_for_an_approval": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {
+                  "Update_item_2": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "parameters": {
+                        "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                        "table": "Audit Findings Register",
+                        "id": "@triggerOutputs()?['body/ID']",
+                        "item/Title": "@triggerOutputs()?['body/Title']",
+                        "item/WorkflowStage/Value": "Draft",
+                        "item/LastProcessedStage": "Draft"
+                      },
+                      "host": {
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                        "connectionName": "shared_sharepointonline",
+                        "operationId": "PatchItem"
+                      },
+                      "authentication": "@parameters('$authentication')"
+                    }
+                  },
+                  "Send_an_email": {
+                    "runAfter": {
+                      "Update_item_2": [
+                        "Succeeded"
+                      ]
+                    },
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "parameters": {
+                        "emailMessage/To": "user@example.com",
+                        "emailMessage/Subject": "Approval Rejected - Audit Finding",
+                        "emailMessage/Body": "@outputs('Start_and_wait_for_an_approval')?['body/comments']"
+                      },
+                      "host": {
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                        "connectionName": "shared_office365",
+                        "operationId": "SendEmailV2"
+                      },
+                      "authentication": "@parameters('$authentication')"
+                    }
+                  }
+                }
+              },
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@outputs('Start_and_wait_for_an_approval')?['body/outcome']",
+                      "Approve"
+                    ]
+                  }
+                ]
+              },
+              "type": "If"
+            }
+          },
+          "runAfter": {},
+          "else": {
+            "actions": {}
+          },
+          "expression": {
+            "and": [
+              {
+                "equals": [
+                  "@triggerBody()?['WorkflowStage/Value']",
+                  "Manager Review"
+                ]
+              },
+              {
+                "not": {
+                  "equals": [
+                    "@triggerBody()?['WorkflowStage/Value']",
+                    "@triggerOutputs()?['body/LastProcessedStage']"
+                  ]
+                }
+              }
+            ]
+          },
+          "type": "If"
+        },
+        "Condition_1": {
+          "actions": {
+            "Update_item_1": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "table": "@@LIST:IA_Findings@@",
+                  "id": "@triggerOutputs()?['body/ID']",
+                  "item/Title": "@triggerOutputs()?['body/Title']",
+                  "item/WorkflowStage/Value": "Closed",
+                  "item/ClosedDate": "@utcNow('yyyy-MM-dd')",
+                  "item/LastProcessedStage": "Closed"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "connectionName": "shared_sharepointonline-1",
+                  "operationId": "PatchItem"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Condition_2": [
+              "Succeeded"
+            ]
+          },
+          "else": {
+            "actions": {}
+          },
+          "expression": {
+            "and": [
+              {
+                "equals": [
+                  "@if(and(equals(triggerOutputs()?['body/WorkflowStage/Value'],'Closed'),not(equals(triggerOutputs()?['body/LastProcessedStage'],'Closed'))),'go','skip')",
+                  "go"
+                ]
+              }
+            ]
+          },
+          "type": "If"
+        },
+        "Condition_3": {
+          "actions": {
+            "Update_item_3": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "table": "@@LIST:IA_Findings@@",
+                  "id": "@triggerOutputs()?['body/ID']",
+                  "item/Title": "@triggerOutputs()?['body/Title']",
+                  "item/WorkflowStage/Value": "Management Response",
+                  "item/OriginalDueDate": "@addDays(utcNow(),14,'yyyy-MM-dd')",
+                  "item/DueDate": "@addDays(utcNow(),14,'yyyy-MM-dd')",
+                  "item/LastProcessedStage": "Management Response"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "connectionName": "shared_sharepointonline-1",
+                  "operationId": "PatchItem"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Send_an_email_(V2)": {
+              "runAfter": {
+                "Update_item_3": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "emailMessage/To": "@coalesce(triggerOutputs()?['body/ResponsibleManager/Email'],'user@example.com')",
+                  "emailMessage/Subject": "MHAO Internal Audit - Management response required for finding",
+                  "emailMessage/Body": "<p class=\"editor-paragraph\">An internal audit finding has been issued to you for management response. Please open the MHAO Internal Audit Portal and submit your response and action plan within 10 working days. Regards, MHAO Internal Audit</p>",
+                  "emailMessage/Importance": "Normal"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                  "connectionName": "shared_office365",
+                  "operationId": "SendEmailV2"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Condition_1": [
+              "Succeeded"
+            ]
+          },
+          "else": {
+            "actions": {}
+          },
+          "expression": {
+            "and": [
+              {
+                "equals": [
+                  "@if(and(equals(triggerOutputs()?['body/WorkflowStage/Value'],'Management Response'),not(equals(triggerOutputs()?['body/LastProcessedStage'],'Management Response'))),'go','skip')",
+                  "go"
+                ]
+              }
+            ]
+          },
+          "type": "If"
+        },
+        "Condition_4": {
+          "actions": {
+            "Update_item_4": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "table": "@@LIST:IA_Findings@@",
+                  "id": "@triggerOutputs()?['body/ID']",
+                  "item/Title": "@triggerOutputs()?['body/Title']",
+                  "item/DateIssued": "@if(equals(triggerOutputs()?['body/WorkflowStage/Value'],'Issued'),utcNow('yyyy-MM-dd'),null)",
+                  "item/LastProcessedStage": "@triggerOutputs()?['body/WorkflowStage/Value']"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "connectionName": "shared_sharepointonline-1",
+                  "operationId": "PatchItem"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Send_an_email_(V2)_1": {
+              "runAfter": {
+                "Update_item_4": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "emailMessage/To": "@coalesce(triggerOutputs()?['body/ResponsibleManager/Email'],'user@example.com')",
+                  "emailMessage/Subject": "IAMS: Audit finding stage update (Audit Review / Issued)",
+                  "emailMessage/Body": "<p class=\"editor-paragraph\">Dear colleague, an audit finding in the MHAO Internal Audit Management System has moved to the Audit Review / Issued stage. Please open the Internal Audit Portal to review the finding and take any action required. Regards, MHAO Internal Audit.</p>",
+                  "emailMessage/Importance": "Normal"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                  "connectionName": "shared_office365",
+                  "operationId": "SendEmailV2"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Condition_3": [
+              "Succeeded"
+            ]
+          },
+          "else": {
+            "actions": {}
+          },
+          "expression": {
+            "and": [
+              {
+                "equals": [
+                  "@if(and(or(equals(triggerOutputs()?['body/WorkflowStage/Value'],'Audit Review'),equals(triggerOutputs()?['body/WorkflowStage/Value'],'Issued')),not(equals(triggerOutputs()?['body/LastProcessedStage'],triggerOutputs()?['body/WorkflowStage/Value']))),'go','skip')",
+                  "go"
+                ]
+              }
+            ]
+          },
+          "type": "If"
+        }
+      },
+      "outputs": {}
+    },
+    "templateName": "78720f54e49444d0bd456477288a7ef7"
+  },
+  "schemaVersion": "1.0.0.0"
+}

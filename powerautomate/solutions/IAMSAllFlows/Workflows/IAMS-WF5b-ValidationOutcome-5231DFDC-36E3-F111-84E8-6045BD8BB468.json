@@ -1,0 +1,132 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "cr047_sharedsharepointonline_a5339"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      },
+      "shared_sharepointonline-1": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "cr047_sharedsharepointonline_a2113"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "When_an_item_is_created_or_modified": {
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          },
+          "evaluatedRecurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          },
+          "splitOn": "@triggerOutputs()?['body/value']",
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+              "table": "Follow-Up Reviews"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "GetOnUpdatedItems"
+            },
+            "authentication": "@parameters('$authentication')"
+          },
+          "conditions": [
+            {
+              "expression": "@not(empty(triggerOutputs()?['body/Outcome/Value']))"
+            }
+          ]
+        }
+      },
+      "actions": {
+        "Condition": {
+          "actions": {
+            "Get_item": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "table": "@@LIST:IA_ActionPlans@@",
+                  "id": "@triggerOutputs()?['body/Action/Id']"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "connectionName": "shared_sharepointonline-1",
+                  "operationId": "GetItem"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Update_item": {
+              "runAfter": {
+                "Get_item": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "table": "@@LIST:IA_ActionPlans@@",
+                  "id": "@triggerOutputs()?['body/Action/Id']",
+                  "item/Title": "@outputs('Get_item')?['body/Title']",
+                  "item/DueDate": "@outputs('Get_item')?['body/DueDate']",
+                  "item/ValidationStatus/Value": "@if(or(equals(triggerOutputs()?['body/Outcome/Value'],'Implemented'),equals(triggerOutputs()?['body/Outcome/Value'],'Closed')),'Validated','Rejected')",
+                  "item/ActionStatus/Value": "@if(or(equals(triggerOutputs()?['body/Outcome/Value'],'Implemented'),equals(triggerOutputs()?['body/Outcome/Value'],'Closed')),'Closed',if(equals(triggerOutputs()?['body/Outcome/Value'],'Partially Implemented'),'In Progress','Open'))"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "connectionName": "shared_sharepointonline-1",
+                  "operationId": "PatchItem"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {},
+          "else": {
+            "actions": {}
+          },
+          "expression": {
+            "not": {
+              "equals": [
+                "@triggerOutputs()?['body/Outcome']",
+                ""
+              ]
+            }
+          },
+          "type": "If"
+        }
+      },
+      "outputs": {}
+    },
+    "templateName": "78720f54e49444d0bd456477288a7ef7"
+  },
+  "schemaVersion": "1.0.0.0"
+}

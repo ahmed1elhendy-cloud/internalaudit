@@ -1,14 +1,17 @@
 import sys, uuid, re
 from xml.sax.saxutils import escape
-sys.path.insert(0, "/home/claude")
+import os
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
 from iams_spec import *
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
-OUT = "/mnt/user-data/outputs"
+OUT = HERE
+XLSX_OUT = os.path.join(HERE, "..", "data")
 TYPE_LABEL = dict(text="Single line of text", note="Multiple lines of text", choice="Choice", number="Number", date="Date (date only)",
-                  bool="Yes/No", user="Person", usermulti="Person (multiple)", lookup="Lookup", calc="Calculated", url="Hyperlink")
+                  bool="Yes/No", user="Person", usermulti="Person (multiple)", lookup="Lookup", lookupmulti="Lookup (multiple)", calc="Calculated", url="Hyperlink")
 
 # ---------------------------------------------------------------- Excel
 wb = Workbook()
@@ -65,13 +68,13 @@ crow = []
 for L in LISTS:
     crow.append((L["name"], "Title", L["title_display"], "Single line of text", "Yes", "", "", "Default Title column, renamed"))
     for (i, d, t, o) in L["cols"]:
-        extra = o.get("choices") and "; ".join(o["choices"]) or (f"-> {o['list']}" if t == "lookup" else (o.get("formula", "")))
+        extra = o.get("choices") and "; ".join(o["choices"]) or (f"-> {o['list']}" if t in ("lookup", "lookupmulti") else (o.get("formula", "")))
         rng = ""
         if "min" in o or "max" in o: rng = f"{o.get('min','')}..{o.get('max','')}"
         crow.append((L["name"], i, d, TYPE_LABEL[t], "Yes" if o.get("required") else "", "Yes" if o.get("indexed") else "", extra, "; ".join(x for x in [o.get("note",""), f"range {rng}" if rng else "", f"default {o['default']}" if 'default' in o else ""] if x)))
 for L in LIBRARIES:
     for (i, d, t, o) in L["cols"]:
-        extra = o.get("choices") and "; ".join(o["choices"]) or (f"-> {o['list']}" if t == "lookup" else "")
+        extra = o.get("choices") and "; ".join(o["choices"]) or (f"-> {o['list']}" if t in ("lookup", "lookupmulti") else "")
         crow.append((L["name"], i, d, TYPE_LABEL[t], "Yes" if o.get("required") else "", "Yes" if o.get("indexed") else "", extra, f"default {o['default']}" if 'default' in o else ""))
 sheet("Columns", ["List / library", "Internal name", "Display name", "Type", "Required", "Indexed", "Choices / lookup target / formula", "Notes"], crow, [22, 22, 32, 22, 9, 9, 70, 50])
 
@@ -94,7 +97,7 @@ sheet("Workflows", ["Flow", "Trigger", "Steps", "Lists touched", "Notes"], WORKF
 sheet("PowerApps", ["Screen", "Purpose", "Data sources", "Key logic / notes"], POWERAPPS, [28, 40, 44, 90])
 sheet("Design Decisions", ["Topic", "Decision / recommendation"], GAPS, [30, 130])
 sheet("Config seed", ["Key", "Value", "Description"], CONFIG_SEED, [26, 14, 60])
-wb.save(f"{OUT}/MHAO_IAMS_Data_Model.xlsx")
+wb.save(f"{XLSX_OUT}/MHAO_IAMS_Data_Model.xlsx")
 
 # ---------------------------------------------------------------- PowerShell
 def field_xml(i, d, t, o, disp=None):
@@ -117,6 +120,7 @@ def field_xml(i, d, t, o, disp=None):
     if t == "usermulti": return f'<Field Type="UserMulti" {attrs} List="UserInfo" ShowField="ImnName" UserSelectionMode="PeopleOnly" Mult="TRUE" />'
     if t == "url": return f'<Field Type="URL" {attrs} Format="Hyperlink" />'
     if t == "lookup": return f'<Field Type="Lookup" {attrs} List="@@LIST:{o["list"]}@@" ShowField="Title" />'
+    if t == "lookupmulti": return f'<Field Type="LookupMulti" {attrs} List="@@LIST:{o["list"]}@@" ShowField="Title" Mult="TRUE" />'
     if t == "calc":
         refs = "".join(f'<FieldRef Name="{r}" />' for r in o["refs"])
         return f'<Field Type="Calculated" {attrs} ResultType="{o["result"]}" ReadOnly="TRUE"><Formula>{escape(re.sub(r"\[(\w+)\]", lambda m: "[" + (disp or {}).get(m.group(1), m.group(1)) + "]", o["formula"]))}</Formula><FieldRefs>{refs}</FieldRefs></Field>'
@@ -140,7 +144,7 @@ ps.append("""<#
  Usage:    .\\Provision-IAMS.ps1 -SiteUrl https://<tenant>.sharepoint.com/sites/InternalAuditTest -ClientId <app ID>
            App-only (Sites.Selected): add  -Tenant YOURTENANT.onmicrosoft.com -CertificatePath C:\\path\\app.pfx -CertificatePassword (Read-Host -AsSecureString)
            (PnP.PowerShell 2.x needs your own Entra app registration: see Register-PnPEntraIDAppForInteractiveLogin)
- NOTE: Written without access to a live tenant - run first on a TEST site. Script is re-runnable (skips existing lists/fields).
+ NOTE: Matches the live test-site schema (see live_schema.txt). Run first on a TEST site. Re-runnable (skips existing lists/fields).
 #>
 param(
   [Parameter(Mandatory=$true)][string]$SiteUrl,
@@ -219,6 +223,10 @@ ps.append("# Subfolders per engagement: " + ", ".join(EVIDENCE_SUBFOLDERS))
 ps.append("\n# ---- 5. Seed configuration values")
 for k, v, dsc in CONFIG_SEED:
     ps.append(f"if (-not (Get-PnPListItem -List 'IA_Config' -Query \"<View><Query><Where><Eq><FieldRef Name='Title'/><Value Type='Text'>{k}</Value></Eq></Where></Query></View>\")) {{ Add-PnPListItem -List 'IA_Config' -Values @{{Title={ps_str(k)}; ConfigValue={ps_str(v if v else 'TBD')}; ConfigDescription={ps_str(dsc)}}} | Out-Null }}")
+
+ps.append("\n# ---- 5b. Resource Centre catalogue (Knowledge Index). DocLink is filled in later, once the documents are uploaded.")
+for t, g, d, ic, so in KNOWLEDGE_SEED:
+    ps.append(f"if (-not (Get-PnPListItem -List 'Knowledge Index' | Where-Object {{ $_['Title'] -eq {ps_str(t)} }})) {{ Add-PnPListItem -List 'Knowledge Index' -Values @{{Title={ps_str(t)}; DocGroup={ps_str(g)}; Description={ps_str(d)}; IconName={ps_str(ic)}; SortOrder={so}}} | Out-Null }}")
 
 ps.append("\n# ---- 6. Groups and baseline list-level permissions")
 ps.append("# Only UNQUALIFIED permissions are applied. Anything marked '(assigned)', '(own ...)' or 'issued only' in the Security sheet")

@@ -1,0 +1,216 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedsharepointonline_iams"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedoffice365_iams"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "When_a_review_is_created_or_modified": {
+          "type": "OpenApiConnection",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          },
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "GetOnUpdatedItems",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+              "table": "@@LIST:IA_FollowUps@@"
+            },
+            "authentication": "@parameters('$authentication')"
+          },
+          "splitOn": "@triggerOutputs()?['body/value']",
+          "metadata": {}
+        }
+      },
+      "actions": {
+        "Outcome_branch": {
+          "runAfter": {},
+          "type": "If",
+          "expression": {
+            "or": [
+              {
+                "equals": [
+                  "@triggerOutputs()?['body/Outcome/Value']",
+                  "Not Implemented"
+                ]
+              },
+              {
+                "equals": [
+                  "@triggerOutputs()?['body/Outcome/Value']",
+                  "Re-opened"
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "Reopen_finding": {
+              "runAfter": {},
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "parameters/method": "POST",
+                  "parameters/uri": "_api/web/lists(guid'@@LIST:IA_Findings@@')/items(@{triggerOutputs()?['body/Finding/Id']})",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata",
+                    "Content-Type": "application/json;odata=nometadata",
+                    "X-HTTP-Method": "MERGE",
+                    "IF-MATCH": "*"
+                  },
+                  "parameters/body": "{\"FindingStatus\":\"Re-opened\",\"WorkflowStage\":\"Issued\",\"LastProcessedStage\":\"Issued\"}"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Audit_reopen": {
+              "runAfter": {
+                "Reopen_finding": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "PostItem",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "table": "@@LIST:IA_AuditLog@@",
+                  "item/Title": "@concat('Finding re-opened after follow-up: ',triggerOutputs()?['body/Title'])",
+                  "item/SourceList": "Follow-Up Reviews",
+                  "item/SourceItemId": "@triggerOutputs()?['body/ID']",
+                  "item/EventType/Value": "Re-open",
+                  "item/EventDetails": "@concat('Outcome: ',triggerOutputs()?['body/Outcome/Value'],'. ',coalesce(triggerOutputs()?['body/TestingNotes'],''))"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Notify_dept_head": {
+              "runAfter": {
+                "Audit_reopen": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_office365",
+                  "operationId": "SendEmailV2",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                },
+                "parameters": {
+                  "emailMessage/To": "user@example.com",
+                  "emailMessage/Subject": "Finding re-opened after follow-up review",
+                  "emailMessage/Body": "<p>A follow-up review concluded <b>@{triggerOutputs()?['body/Outcome/Value']}</b>. The related finding has been re-opened.</p><p>Notes: @{triggerOutputs()?['body/TestingNotes']}</p><p>(Test mode: sent to Head of IA. At go-live this goes to the Department Head.)</p>",
+                  "emailMessage/Importance": "Normal"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "If_partial": {
+                "runAfter": {},
+                "type": "If",
+                "expression": {
+                  "equals": [
+                    "@triggerOutputs()?['body/Outcome/Value']",
+                    "Partially Implemented"
+                  ]
+                },
+                "actions": {
+                  "Get_action": {
+                    "runAfter": {},
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": {
+                        "connectionName": "shared_sharepointonline",
+                        "operationId": "GetItem",
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                      },
+                      "parameters": {
+                        "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                        "table": "@@LIST:IA_ActionPlans@@",
+                        "id": "@triggerOutputs()?['body/Action/Id']"
+                      },
+                      "authentication": "@parameters('$authentication')"
+                    }
+                  },
+                  "Email_owner_partial": {
+                    "runAfter": {
+                      "Get_action": [
+                        "Succeeded"
+                      ]
+                    },
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": {
+                        "connectionName": "shared_office365",
+                        "operationId": "SendEmailV2",
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                      },
+                      "parameters": {
+                        "emailMessage/To": "@coalesce(outputs('Get_action')?['body/ActionOwner/Email'],'user@example.com')",
+                        "emailMessage/Subject": "Corrective action only partially implemented",
+                        "emailMessage/Body": "<p>Follow-up testing found your action <b>@{outputs('Get_action')?['body/Title']}</b> only partially implemented. Please complete the outstanding work and resubmit.</p><p>Auditor notes: @{triggerOutputs()?['body/TestingNotes']}</p>",
+                        "emailMessage/Importance": "Normal"
+                      },
+                      "authentication": "@parameters('$authentication')"
+                    }
+                  }
+                },
+                "else": {
+                  "actions": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

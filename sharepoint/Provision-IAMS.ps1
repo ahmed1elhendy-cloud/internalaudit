@@ -4,7 +4,7 @@
  Usage:    .\Provision-IAMS.ps1 -SiteUrl https://<tenant>.sharepoint.com/sites/InternalAuditTest -ClientId <app ID>
            App-only (Sites.Selected): add  -Tenant YOURTENANT.onmicrosoft.com -CertificatePath C:\path\app.pfx -CertificatePassword (Read-Host -AsSecureString)
            (PnP.PowerShell 2.x needs your own Entra app registration: see Register-PnPEntraIDAppForInteractiveLogin)
- NOTE: Written without access to a live tenant - run first on a TEST site. Script is re-runnable (skips existing lists/fields).
+ NOTE: Matches the live test-site schema (see live_schema.txt). Run first on a TEST site. Re-runnable (skips existing lists/fields).
 #>
 param(
   [Parameter(Mandatory=$true)][string]$SiteUrl,
@@ -62,8 +62,16 @@ $l = $allLists | Where-Object { $_.RootFolder.Name -eq 'IA_FollowUps' } | Select
 $l = $allLists | Where-Object { $_.RootFolder.Name -eq 'IA_CSARegister' } | Select-Object -First 1; if ($l -and $l.Title -ne 'IA_CSARegister') { Set-PnPList -Identity $l.Id -Title 'IA_CSARegister' | Out-Null; Write-Host '  restored name: IA_CSARegister' }
 $l = $allLists | Where-Object { $_.RootFolder.Name -eq 'IA_AuditLog' } | Select-Object -First 1; if ($l -and $l.Title -ne 'IA_AuditLog') { Set-PnPList -Identity $l.Id -Title 'IA_AuditLog' | Out-Null; Write-Host '  restored name: IA_AuditLog' }
 $l = $allLists | Where-Object { $_.RootFolder.Name -eq 'IA_Config' } | Select-Object -First 1; if ($l -and $l.Title -ne 'IA_Config') { Set-PnPList -Identity $l.Id -Title 'IA_Config' | Out-Null; Write-Host '  restored name: IA_Config' }
+$l = $allLists | Where-Object { $_.RootFolder.Name -eq 'IA_Questionnaires' } | Select-Object -First 1; if ($l -and $l.Title -ne 'IA_Questionnaires') { Set-PnPList -Identity $l.Id -Title 'IA_Questionnaires' | Out-Null; Write-Host '  restored name: IA_Questionnaires' }
+$l = $allLists | Where-Object { $_.RootFolder.Name -eq 'IA_QnrSections' } | Select-Object -First 1; if ($l -and $l.Title -ne 'IA_QnrSections') { Set-PnPList -Identity $l.Id -Title 'IA_QnrSections' | Out-Null; Write-Host '  restored name: IA_QnrSections' }
+$l = $allLists | Where-Object { $_.RootFolder.Name -eq 'IA_QnrItems' } | Select-Object -First 1; if ($l -and $l.Title -ne 'IA_QnrItems') { Set-PnPList -Identity $l.Id -Title 'IA_QnrItems' | Out-Null; Write-Host '  restored name: IA_QnrItems' }
+$l = $allLists | Where-Object { $_.RootFolder.Name -eq 'IA_QnrUploads' } | Select-Object -First 1; if ($l -and $l.Title -ne 'IA_QnrUploads') { Set-PnPList -Identity $l.Id -Title 'IA_QnrUploads' | Out-Null; Write-Host '  restored name: IA_QnrUploads' }
+$l = $allLists | Where-Object { $_.RootFolder.Name -eq 'Knowledge Index' } | Select-Object -First 1; if ($l -and $l.Title -ne 'Knowledge Index') { Set-PnPList -Identity $l.Id -Title 'Knowledge Index' | Out-Null; Write-Host '  restored name: Knowledge Index' }
 $l = $allLists | Where-Object { $_.RootFolder.Name -eq 'IA_WorkingPapers' } | Select-Object -First 1; if ($l -and $l.Title -ne 'IA_WorkingPapers') { Set-PnPList -Identity $l.Id -Title 'IA_WorkingPapers' | Out-Null; Write-Host '  restored name: IA_WorkingPapers' }
 $l = $allLists | Where-Object { $_.RootFolder.Name -eq 'IA_Evidence' } | Select-Object -First 1; if ($l -and $l.Title -ne 'IA_Evidence') { Set-PnPList -Identity $l.Id -Title 'IA_Evidence' | Out-Null; Write-Host '  restored name: IA_Evidence' }
+$l = $allLists | Where-Object { $_.RootFolder.Name -eq 'IA_QnrFiles' } | Select-Object -First 1; if ($l -and $l.Title -ne 'IA_QnrFiles') { Set-PnPList -Identity $l.Id -Title 'IA_QnrFiles' | Out-Null; Write-Host '  restored name: IA_QnrFiles' }
+$l = $allLists | Where-Object { $_.RootFolder.Name -eq 'IA_QnrTemplates' } | Select-Object -First 1; if ($l -and $l.Title -ne 'IA_QnrTemplates') { Set-PnPList -Identity $l.Id -Title 'IA_QnrTemplates' | Out-Null; Write-Host '  restored name: IA_QnrTemplates' }
+$l = $allLists | Where-Object { $_.RootFolder.Name -eq 'Knowledge Documents' } | Select-Object -First 1; if ($l -and $l.Title -ne 'Knowledge Documents') { Set-PnPList -Identity $l.Id -Title 'Knowledge Documents' | Out-Null; Write-Host '  restored name: Knowledge Documents' }
 $l = $allLists | Where-Object { $_.RootFolder.Name -eq 'IA_Reports' } | Select-Object -First 1; if ($l -and $l.Title -ne 'IA_Reports') { Set-PnPList -Identity $l.Id -Title 'IA_Reports' | Out-Null; Write-Host '  restored name: IA_Reports' }
 # ---- 1. Lists and libraries
 Ensure-List 'IA_Entities' 'GenericList'
@@ -79,8 +87,16 @@ Ensure-List 'IA_FollowUps' 'GenericList'
 Ensure-List 'IA_CSARegister' 'GenericList'
 Ensure-List 'IA_AuditLog' 'GenericList'
 Ensure-List 'IA_Config' 'GenericList'
+Ensure-List 'IA_Questionnaires' 'GenericList'
+Ensure-List 'IA_QnrSections' 'GenericList'
+Ensure-List 'IA_QnrItems' 'GenericList'
+Ensure-List 'IA_QnrUploads' 'GenericList'
+Ensure-List 'Knowledge Index' 'GenericList'
 Ensure-List 'IA_WorkingPapers' 'DocumentLibrary'
 Ensure-List 'IA_Evidence' 'DocumentLibrary'
+Ensure-List 'IA_QnrFiles' 'DocumentLibrary'
+Ensure-List 'IA_QnrTemplates' 'DocumentLibrary'
+Ensure-List 'Knowledge Documents' 'DocumentLibrary'
 Ensure-List 'IA_Reports' 'DocumentLibrary'
 
 # ---- 2. Columns (dependency order: lookup targets are created first)
@@ -124,7 +140,7 @@ Set-PnPField -List 'IA_AuditPlan' -Identity 'Title' -Values @{Title='Audit Title
 Ensure-Field 'IA_AuditPlan' 'AuditRef' '<Field Type="Text" DisplayName="Audit Ref" Name="AuditRef" StaticName="AuditRef" Group="IAMS" Required="FALSE" Indexed="TRUE" MaxLength="255" />' 'Audit Ref'
 Ensure-Field 'IA_AuditPlan' 'PlanYear' '<Field Type="Number" DisplayName="Plan Year" Name="PlanYear" StaticName="PlanYear" Group="IAMS" Required="FALSE" Indexed="TRUE" Min="2020" Max="2100"></Field>' 'Plan Year'
 Ensure-Field 'IA_AuditPlan' 'AuditArea' '<Field Type="Lookup" DisplayName="Audit Area" Name="AuditArea" StaticName="AuditArea" Group="IAMS" Required="TRUE" Indexed="TRUE" List="@@LIST:IA_AuditUniverse@@" ShowField="Title" />' 'Audit Area'
-Ensure-Field 'IA_AuditPlan' 'Entity' '<Field Type="Lookup" DisplayName="Entity" Name="Entity" StaticName="Entity" Group="IAMS" Required="FALSE" Indexed="TRUE" List="@@LIST:IA_Entities@@" ShowField="Title" />' 'Entity'
+Ensure-Field 'IA_AuditPlan' 'Entity' '<Field Type="LookupMulti" DisplayName="Entity" Name="Entity" StaticName="Entity" Group="IAMS" Required="FALSE" List="@@LIST:IA_Entities@@" ShowField="Title" Mult="TRUE" />' 'Entity'
 Ensure-Field 'IA_AuditPlan' 'AuditType' '<Field Type="Choice" DisplayName="Audit Type" Name="AuditType" StaticName="AuditType" Group="IAMS" Required="FALSE" Format="Dropdown"><CHOICES><CHOICE>Financial</CHOICE><CHOICE>Operational</CHOICE><CHOICE>Compliance</CHOICE><CHOICE>IT</CHOICE><CHOICE>Special Investigation</CHOICE><CHOICE>Follow-up</CHOICE><CHOICE>Advisory</CHOICE></CHOICES></Field>' 'Audit Type'
 Ensure-Field 'IA_AuditPlan' 'PlannedStart' '<Field Type="DateTime" DisplayName="Planned Start" Name="PlannedStart" StaticName="PlannedStart" Group="IAMS" Required="TRUE" Format="DateOnly" />' 'Planned Start'
 Ensure-Field 'IA_AuditPlan' 'PlannedFinish' '<Field Type="DateTime" DisplayName="Planned Finish" Name="PlannedFinish" StaticName="PlannedFinish" Group="IAMS" Required="TRUE" Format="DateOnly" />' 'Planned Finish'
@@ -134,21 +150,26 @@ Ensure-Field 'IA_AuditPlan' 'AuditManager' '<Field Type="User" DisplayName="Audi
 Ensure-Field 'IA_AuditPlan' 'BudgetHours' '<Field Type="Number" DisplayName="Budget Hours" Name="BudgetHours" StaticName="BudgetHours" Group="IAMS" Required="FALSE" Min="0"></Field>' 'Budget Hours'
 Ensure-Field 'IA_AuditPlan' 'ActualHours' '<Field Type="Number" DisplayName="Actual Hours" Name="ActualHours" StaticName="ActualHours" Group="IAMS" Required="FALSE" Min="0"></Field>' 'Actual Hours'
 Ensure-Field 'IA_AuditPlan' 'AuditStatus' '<Field Type="Choice" DisplayName="Audit Status" Name="AuditStatus" StaticName="AuditStatus" Group="IAMS" Required="FALSE" Indexed="TRUE" Format="Dropdown"><CHOICES><CHOICE>Planned</CHOICE><CHOICE>In Progress</CHOICE><CHOICE>Fieldwork</CHOICE><CHOICE>Reporting</CHOICE><CHOICE>Completed</CHOICE><CHOICE>Deferred</CHOICE><CHOICE>Cancelled</CHOICE></CHOICES><Default>Planned</Default></Field>' 'Audit Status'
-Ensure-Field 'IA_AuditPlan' 'ApprovalStatus' '<Field Type="Choice" DisplayName="Approval Status" Name="ApprovalStatus" StaticName="ApprovalStatus" Group="IAMS" Required="FALSE" Indexed="TRUE" Format="Dropdown"><CHOICES><CHOICE>Draft</CHOICE><CHOICE>Pending Approval</CHOICE><CHOICE>Approved</CHOICE><CHOICE>Rejected</CHOICE></CHOICES><Default>Draft</Default></Field>' 'Approval Status'
+Ensure-Field 'IA_AuditPlan' 'ApprovalStatus' '<Field Type="Choice" DisplayName="Approval Status" Name="ApprovalStatus" StaticName="ApprovalStatus" Group="IAMS" Required="FALSE" Indexed="TRUE" Format="Dropdown"><CHOICES><CHOICE>Draft</CHOICE><CHOICE>Pending Manager Review</CHOICE><CHOICE>Pending Owner Approval</CHOICE><CHOICE>Approved</CHOICE><CHOICE>Rejected</CHOICE></CHOICES><Default>Draft</Default></Field>' 'Approval Status'
 Ensure-Field 'IA_AuditPlan' 'DeferralReason' '<Field Type="Note" DisplayName="Deferral / Cancellation Reason" Name="DeferralReason" StaticName="DeferralReason" Group="IAMS" Required="FALSE" NumLines="6" RichText="FALSE" />' 'Deferral / Cancellation Reason'
 Set-PnPField -List 'IA_Engagements' -Identity 'Title' -Values @{Title='Engagement Title'} | Out-Null
 Ensure-Field 'IA_Engagements' 'EngagementID' '<Field Type="Text" DisplayName="Engagement ID" Name="EngagementID" StaticName="EngagementID" Group="IAMS" Required="FALSE" Indexed="TRUE" MaxLength="255" />' 'Engagement ID'
 Ensure-Field 'IA_Engagements' 'AuditPlanItem' '<Field Type="Lookup" DisplayName="Audit Plan Item" Name="AuditPlanItem" StaticName="AuditPlanItem" Group="IAMS" Required="TRUE" Indexed="TRUE" List="@@LIST:IA_AuditPlan@@" ShowField="Title" />' 'Audit Plan Item'
-Ensure-Field 'IA_Engagements' 'Entity' '<Field Type="Lookup" DisplayName="Entity" Name="Entity" StaticName="Entity" Group="IAMS" Required="FALSE" Indexed="TRUE" List="@@LIST:IA_Entities@@" ShowField="Title" />' 'Entity'
+Ensure-Field 'IA_Engagements' 'Entity' '<Field Type="LookupMulti" DisplayName="Entity" Name="Entity" StaticName="Entity" Group="IAMS" Required="FALSE" List="@@LIST:IA_Entities@@" ShowField="Title" Mult="TRUE" />' 'Entity'
 Ensure-Field 'IA_Engagements' 'EngagementScope' '<Field Type="Note" DisplayName="Engagement Scope" Name="EngagementScope" StaticName="EngagementScope" Group="IAMS" Required="FALSE" NumLines="6" RichText="FALSE" />' 'Engagement Scope'
 Ensure-Field 'IA_Engagements' 'AuditObjective' '<Field Type="Note" DisplayName="Audit Objective" Name="AuditObjective" StaticName="AuditObjective" Group="IAMS" Required="FALSE" NumLines="6" RichText="FALSE" />' 'Audit Objective'
 Ensure-Field 'IA_Engagements' 'LeadAuditor' '<Field Type="User" DisplayName="Lead Auditor" Name="LeadAuditor" StaticName="LeadAuditor" Group="IAMS" Required="FALSE" Indexed="TRUE" List="UserInfo" ShowField="ImnName" UserSelectionMode="PeopleOnly" />' 'Lead Auditor'
 Ensure-Field 'IA_Engagements' 'TeamMembers' '<Field Type="UserMulti" DisplayName="Team Members" Name="TeamMembers" StaticName="TeamMembers" Group="IAMS" Required="FALSE" List="UserInfo" ShowField="ImnName" UserSelectionMode="PeopleOnly" Mult="TRUE" />' 'Team Members'
 Ensure-Field 'IA_Engagements' 'ActualStart' '<Field Type="DateTime" DisplayName="Start Date" Name="ActualStart" StaticName="ActualStart" Group="IAMS" Required="FALSE" Format="DateOnly" />' 'Start Date'
 Ensure-Field 'IA_Engagements' 'ActualEnd' '<Field Type="DateTime" DisplayName="End Date" Name="ActualEnd" StaticName="ActualEnd" Group="IAMS" Required="FALSE" Format="DateOnly" />' 'End Date'
-Ensure-Field 'IA_Engagements' 'Stage' '<Field Type="Choice" DisplayName="Stage" Name="Stage" StaticName="Stage" Group="IAMS" Required="FALSE" Indexed="TRUE" Format="Dropdown"><CHOICES><CHOICE>Planning</CHOICE><CHOICE>Fieldwork</CHOICE><CHOICE>Testing</CHOICE><CHOICE>Reporting</CHOICE><CHOICE>Closed</CHOICE></CHOICES><Default>Planning</Default></Field>' 'Stage'
+Ensure-Field 'IA_Engagements' 'Stage' '<Field Type="Choice" DisplayName="Stage" Name="Stage" StaticName="Stage" Group="IAMS" Required="FALSE" Indexed="TRUE" Format="Dropdown"><CHOICES><CHOICE>Planning</CHOICE><CHOICE>Kick-off</CHOICE><CHOICE>Walkthroughs</CHOICE><CHOICE>Fieldwork</CHOICE><CHOICE>Fieldwork Complete</CHOICE><CHOICE>Testing</CHOICE><CHOICE>Draft Report</CHOICE><CHOICE>Management Responses</CHOICE><CHOICE>Reporting</CHOICE><CHOICE>Final Report</CHOICE><CHOICE>Closed</CHOICE></CHOICES><Default>Planning</Default></Field>' 'Stage'
 Ensure-Field 'IA_Engagements' 'OverallOpinion' '<Field Type="Choice" DisplayName="Overall Opinion" Name="OverallOpinion" StaticName="OverallOpinion" Group="IAMS" Required="FALSE" Format="Dropdown"><CHOICES><CHOICE>Satisfactory</CHOICE><CHOICE>Needs Improvement</CHOICE><CHOICE>Unsatisfactory</CHOICE><CHOICE>Not Rated</CHOICE></CHOICES></Field>' 'Overall Opinion'
 Ensure-Field 'IA_Engagements' 'EngagementFolderUrl' '<Field Type="URL" DisplayName="Engagement Folder" Name="EngagementFolderUrl" StaticName="EngagementFolderUrl" Group="IAMS" Required="FALSE" Format="Hyperlink" />' 'Engagement Folder'
+Ensure-Field 'IA_Engagements' 'Engagement_x0020_Type' '<Field Type="Choice" DisplayName="Engagement Type" Name="Engagement_x0020_Type" StaticName="Engagement_x0020_Type" Group="IAMS" Required="FALSE" Format="Dropdown"><CHOICES><CHOICE>Financial</CHOICE><CHOICE>Operational</CHOICE><CHOICE>Compliance</CHOICE><CHOICE>IT</CHOICE><CHOICE>Special Investigation</CHOICE><CHOICE>Follow-up</CHOICE><CHOICE>Advisory</CHOICE></CHOICES></Field>' 'Engagement Type'
+Ensure-Field 'IA_Engagements' 'BudgetedHours' '<Field Type="Number" DisplayName="Budgeted Hours" Name="BudgetedHours" StaticName="BudgetedHours" Group="IAMS" Required="FALSE" Min="0"></Field>' 'Budgeted Hours'
+Ensure-Field 'IA_Engagements' 'EngActualHours' '<Field Type="Number" DisplayName="Actual Hours" Name="EngActualHours" StaticName="EngActualHours" Group="IAMS" Required="FALSE" Min="0"></Field>' 'Actual Hours'
+Ensure-Field 'IA_Engagements' 'PlanningType' '<Field Type="Choice" DisplayName="Planning Type" Name="PlanningType" StaticName="PlanningType" Group="IAMS" Required="FALSE" Format="Dropdown"><CHOICES><CHOICE>Planned</CHOICE><CHOICE>Unplanned</CHOICE></CHOICES><Default>Planned</Default></Field>' 'Planning Type'
+Ensure-Field 'IA_Engagements' 'AuditManager' '<Field Type="User" DisplayName="Audit Manager" Name="AuditManager" StaticName="AuditManager" Group="IAMS" Required="FALSE" List="UserInfo" ShowField="ImnName" UserSelectionMode="PeopleOnly" />' 'Audit Manager'
 Set-PnPField -List 'IA_Milestones' -Identity 'Title' -Values @{Title='Milestone'} | Out-Null
 Ensure-Field 'IA_Milestones' 'Engagement' '<Field Type="Lookup" DisplayName="Engagement" Name="Engagement" StaticName="Engagement" Group="IAMS" Required="TRUE" Indexed="TRUE" List="@@LIST:IA_Engagements@@" ShowField="Title" />' 'Engagement'
 Ensure-Field 'IA_Milestones' 'MilestoneType' '<Field Type="Choice" DisplayName="Type" Name="MilestoneType" StaticName="MilestoneType" Group="IAMS" Required="FALSE" Format="Dropdown"><CHOICES><CHOICE>Kick-off</CHOICE><CHOICE>Walkthroughs</CHOICE><CHOICE>Fieldwork Complete</CHOICE><CHOICE>Draft Report</CHOICE><CHOICE>Management Responses</CHOICE><CHOICE>Final Report</CHOICE><CHOICE>Closure</CHOICE></CHOICES></Field>' 'Type'
@@ -178,8 +199,12 @@ Ensure-Field 'IA_Findings' 'ExtensionCount' '<Field Type="Number" DisplayName="E
 Ensure-Field 'IA_Findings' 'FindingStatus' '<Field Type="Choice" DisplayName="Status" Name="FindingStatus" StaticName="FindingStatus" Group="IAMS" Required="FALSE" Indexed="TRUE" Format="Dropdown"><CHOICES><CHOICE>Open</CHOICE><CHOICE>In Progress</CHOICE><CHOICE>Pending Validation</CHOICE><CHOICE>Closed</CHOICE><CHOICE>Re-opened</CHOICE><CHOICE>Risk Accepted</CHOICE></CHOICES><Default>Open</Default></Field>' 'Status'
 Ensure-Field 'IA_Findings' 'ClosedDate' '<Field Type="DateTime" DisplayName="Closed Date" Name="ClosedDate" StaticName="ClosedDate" Group="IAMS" Required="FALSE" Format="DateOnly" />' 'Closed Date'
 Ensure-Field 'IA_Findings' 'LastProcessedStage' '<Field Type="Text" DisplayName="Last Processed Stage" Name="LastProcessedStage" StaticName="LastProcessedStage" Group="IAMS" Required="FALSE" MaxLength="255" />' 'Last Processed Stage'
+Ensure-Field 'IA_Findings' 'Compliance_x0020_Result' '<Field Type="Choice" DisplayName="Compliance Result" Name="Compliance_x0020_Result" StaticName="Compliance_x0020_Result" Group="IAMS" Required="FALSE" Format="Dropdown"><CHOICES><CHOICE>Compliant</CHOICE><CHOICE>Non-compliant</CHOICE><CHOICE>N/A</CHOICE></CHOICES></Field>' 'Compliance Result'
+Ensure-Field 'IA_Findings' 'MgmtAcceptance' '<Field Type="Choice" DisplayName="Management Acceptance" Name="MgmtAcceptance" StaticName="MgmtAcceptance" Group="IAMS" Required="FALSE" Format="Dropdown"><CHOICES><CHOICE>Pending</CHOICE><CHOICE>Accepted</CHOICE><CHOICE>Partially Accepted</CHOICE><CHOICE>Not Accepted</CHOICE></CHOICES><Default>Pending</Default></Field>' 'Management Acceptance'
+Ensure-Field 'IA_Findings' 'MgmtResponseDate' '<Field Type="DateTime" DisplayName="Management Response Date" Name="MgmtResponseDate" StaticName="MgmtResponseDate" Group="IAMS" Required="FALSE" Format="DateOnly" />' 'Management Response Date'
+Ensure-Field 'IA_Findings' 'MgmtAcceptanceComments' '<Field Type="Note" DisplayName="Management Acceptance Comments" Name="MgmtAcceptanceComments" StaticName="MgmtAcceptanceComments" Group="IAMS" Required="FALSE" NumLines="6" RichText="FALSE" />' 'Management Acceptance Comments'
 Set-PnPField -List 'IA_ActionPlans' -Identity 'Title' -Values @{Title='Action Title'} | Out-Null
-Ensure-Field 'IA_ActionPlans' 'CAPAID' '<Field Type="Text" DisplayName="CAPA ID" Name="CAPAID" StaticName="CAPAID" Group="IAMS" Required="FALSE" Indexed="TRUE" MaxLength="255" />' 'CAPA ID'
+Ensure-Field 'IA_ActionPlans' 'CAPAID' '<Field Type="Text" DisplayName="Action ID" Name="CAPAID" StaticName="CAPAID" Group="IAMS" Required="FALSE" Indexed="TRUE" MaxLength="255" />' 'Action ID'
 Ensure-Field 'IA_ActionPlans' 'Finding' '<Field Type="Lookup" DisplayName="Finding" Name="Finding" StaticName="Finding" Group="IAMS" Required="TRUE" Indexed="TRUE" List="@@LIST:IA_Findings@@" ShowField="Title" />' 'Finding'
 Ensure-Field 'IA_ActionPlans' 'Entity' '<Field Type="Lookup" DisplayName="Entity" Name="Entity" StaticName="Entity" Group="IAMS" Required="FALSE" Indexed="TRUE" List="@@LIST:IA_Entities@@" ShowField="Title" />' 'Entity'
 Ensure-Field 'IA_ActionPlans' 'ActionDescription' '<Field Type="Note" DisplayName="Action Description" Name="ActionDescription" StaticName="ActionDescription" Group="IAMS" Required="FALSE" NumLines="6" RichText="FALSE" />' 'Action Description'
@@ -193,6 +218,9 @@ Ensure-Field 'IA_ActionPlans' 'FindingRating' '<Field Type="Choice" DisplayName=
 Ensure-Field 'IA_ActionPlans' 'ActionStatus' '<Field Type="Choice" DisplayName="Status" Name="ActionStatus" StaticName="ActionStatus" Group="IAMS" Required="FALSE" Indexed="TRUE" Format="Dropdown"><CHOICES><CHOICE>Open</CHOICE><CHOICE>In Progress</CHOICE><CHOICE>Complete - Awaiting Validation</CHOICE><CHOICE>Closed</CHOICE><CHOICE>Overdue</CHOICE></CHOICES><Default>Open</Default></Field>' 'Status'
 Ensure-Field 'IA_ActionPlans' 'ReminderStage' '<Field Type="Choice" DisplayName="Reminder Stage" Name="ReminderStage" StaticName="ReminderStage" Group="IAMS" Required="FALSE" Format="Dropdown"><CHOICES><CHOICE>None</CHOICE><CHOICE>Reminder 30d</CHOICE><CHOICE>Reminder 15d</CHOICE><CHOICE>Escalated - Dept Head</CHOICE><CHOICE>Escalated - CEO</CHOICE></CHOICES><Default>None</Default></Field>' 'Reminder Stage'
 Ensure-Field 'IA_ActionPlans' 'CompletedDate' '<Field Type="DateTime" DisplayName="Actual Completion Date" Name="CompletedDate" StaticName="CompletedDate" Group="IAMS" Required="FALSE" Format="DateOnly" />' 'Actual Completion Date'
+Ensure-Field 'IA_ActionPlans' 'ExtensionCount' '<Field Type="Number" DisplayName="ExtensionCount" Name="ExtensionCount" StaticName="ExtensionCount" Group="IAMS" Required="FALSE" Min="0"></Field>' 'ExtensionCount'
+Ensure-Field 'IA_ActionPlans' 'OriginalDueDate' '<Field Type="DateTime" DisplayName="OriginalDueDate" Name="OriginalDueDate" StaticName="OriginalDueDate" Group="IAMS" Required="FALSE" Format="DateOnly" />' 'OriginalDueDate'
+Ensure-Field 'IA_ActionPlans' 'ClosureProcessed' '<Field Type="Boolean" DisplayName="ClosureProcessed" Name="ClosureProcessed" StaticName="ClosureProcessed" Group="IAMS" Required="FALSE"><Default>0</Default></Field>' 'ClosureProcessed'
 Set-PnPField -List 'IA_FollowUps' -Identity 'Title' -Values @{Title='Review Title'} | Out-Null
 Ensure-Field 'IA_FollowUps' 'Finding' '<Field Type="Lookup" DisplayName="Finding" Name="Finding" StaticName="Finding" Group="IAMS" Required="TRUE" Indexed="TRUE" List="@@LIST:IA_Findings@@" ShowField="Title" />' 'Finding'
 Ensure-Field 'IA_FollowUps' 'Action' '<Field Type="Lookup" DisplayName="Action" Name="Action" StaticName="Action" Group="IAMS" Required="FALSE" Indexed="TRUE" List="@@LIST:IA_ActionPlans@@" ShowField="Title" />' 'Action'
@@ -222,6 +250,57 @@ Ensure-Field 'IA_AuditLog' 'EventDetails' '<Field Type="Note" DisplayName="Detai
 Set-PnPField -List 'IA_Config' -Identity 'Title' -Values @{Title='Key'} | Out-Null
 Ensure-Field 'IA_Config' 'ConfigValue' '<Field Type="Text" DisplayName="Value" Name="ConfigValue" StaticName="ConfigValue" Group="IAMS" Required="TRUE" MaxLength="255" />' 'Value'
 Ensure-Field 'IA_Config' 'ConfigDescription' '<Field Type="Text" DisplayName="Description" Name="ConfigDescription" StaticName="ConfigDescription" Group="IAMS" Required="FALSE" MaxLength="255" />' 'Description'
+Set-PnPField -List 'IA_Questionnaires' -Identity 'Title' -Values @{Title='Questionnaire Name'} | Out-Null
+Ensure-Field 'IA_Questionnaires' 'QuestionnaireID' '<Field Type="Text" DisplayName="Questionnaire ID" Name="QuestionnaireID" StaticName="QuestionnaireID" Group="IAMS" Required="FALSE" Indexed="TRUE" MaxLength="255" />' 'Questionnaire ID'
+Ensure-Field 'IA_Questionnaires' 'Engagement' '<Field Type="Lookup" DisplayName="Engagement" Name="Engagement" StaticName="Engagement" Group="IAMS" Required="TRUE" Indexed="TRUE" List="@@LIST:IA_Engagements@@" ShowField="Title" />' 'Engagement'
+Ensure-Field 'IA_Questionnaires' 'AuditType' '<Field Type="Choice" DisplayName="Audit Type" Name="AuditType" StaticName="AuditType" Group="IAMS" Required="FALSE" Format="Dropdown"><CHOICES><CHOICE>Financial</CHOICE><CHOICE>Operational</CHOICE><CHOICE>Compliance</CHOICE><CHOICE>IT</CHOICE><CHOICE>Special Investigation</CHOICE><CHOICE>Follow-up</CHOICE><CHOICE>Advisory</CHOICE></CHOICES></Field>' 'Audit Type'
+Ensure-Field 'IA_Questionnaires' 'TemplateVersion' '<Field Type="Text" DisplayName="Template Version" Name="TemplateVersion" StaticName="TemplateVersion" Group="IAMS" Required="FALSE" MaxLength="255" />' 'Template Version'
+Ensure-Field 'IA_Questionnaires' 'Scope' '<Field Type="Note" DisplayName="Scope" Name="Scope" StaticName="Scope" Group="IAMS" Required="FALSE" NumLines="6" RichText="FALSE" />' 'Scope'
+Ensure-Field 'IA_Questionnaires' 'QuestionnaireStatus' '<Field Type="Choice" DisplayName="Status" Name="QuestionnaireStatus" StaticName="QuestionnaireStatus" Group="IAMS" Required="FALSE" Indexed="TRUE" Format="Dropdown"><CHOICES><CHOICE>Draft</CHOICE><CHOICE>Issued</CHOICE><CHOICE>In Progress</CHOICE><CHOICE>Under Review</CHOICE><CHOICE>Returned</CHOICE><CHOICE>Accepted</CHOICE><CHOICE>Closed</CHOICE></CHOICES><Default>Draft</Default></Field>' 'Status'
+Ensure-Field 'IA_Questionnaires' 'Round' '<Field Type="Number" DisplayName="Round" Name="Round" StaticName="Round" Group="IAMS" Required="FALSE"><Default>1</Default></Field>' 'Round'
+Ensure-Field 'IA_Questionnaires' 'IssuedDate' '<Field Type="DateTime" DisplayName="Issued Date" Name="IssuedDate" StaticName="IssuedDate" Group="IAMS" Required="FALSE" Format="DateOnly" />' 'Issued Date'
+Ensure-Field 'IA_Questionnaires' 'PreparedBy' '<Field Type="User" DisplayName="Prepared By" Name="PreparedBy" StaticName="PreparedBy" Group="IAMS" Required="FALSE" List="UserInfo" ShowField="ImnName" UserSelectionMode="PeopleOnly" />' 'Prepared By'
+Ensure-Field 'IA_Questionnaires' 'Reviewer' '<Field Type="User" DisplayName="Reviewer" Name="Reviewer" StaticName="Reviewer" Group="IAMS" Required="FALSE" List="UserInfo" ShowField="ImnName" UserSelectionMode="PeopleOnly" />' 'Reviewer'
+Ensure-Field 'IA_Questionnaires' 'SourceFileUrl' '<Field Type="URL" DisplayName="Source File" Name="SourceFileUrl" StaticName="SourceFileUrl" Group="IAMS" Required="FALSE" Format="Hyperlink" />' 'Source File'
+Ensure-Field 'IA_Questionnaires' 'QuestionCount' '<Field Type="Number" DisplayName="Question Count" Name="QuestionCount" StaticName="QuestionCount" Group="IAMS" Required="FALSE"></Field>' 'Question Count'
+Set-PnPField -List 'IA_QnrSections' -Identity 'Title' -Values @{Title='Section Title'} | Out-Null
+Ensure-Field 'IA_QnrSections' 'Questionnaire' '<Field Type="Lookup" DisplayName="Questionnaire" Name="Questionnaire" StaticName="Questionnaire" Group="IAMS" Required="TRUE" Indexed="TRUE" List="@@LIST:IA_Questionnaires@@" ShowField="Title" />' 'Questionnaire'
+Ensure-Field 'IA_QnrSections' 'SectionNo' '<Field Type="Number" DisplayName="Section No" Name="SectionNo" StaticName="SectionNo" Group="IAMS" Required="FALSE"></Field>' 'Section No'
+Ensure-Field 'IA_QnrSections' 'Assignee' '<Field Type="User" DisplayName="Assignee" Name="Assignee" StaticName="Assignee" Group="IAMS" Required="FALSE" List="UserInfo" ShowField="ImnName" UserSelectionMode="PeopleOnly" />' 'Assignee'
+Ensure-Field 'IA_QnrSections' 'DueDate' '<Field Type="DateTime" DisplayName="Due Date" Name="DueDate" StaticName="DueDate" Group="IAMS" Required="FALSE" Format="DateOnly" />' 'Due Date'
+Ensure-Field 'IA_QnrSections' 'SectionStatus' '<Field Type="Choice" DisplayName="Section Status" Name="SectionStatus" StaticName="SectionStatus" Group="IAMS" Required="FALSE" Indexed="TRUE" Format="Dropdown"><CHOICES><CHOICE>Not started</CHOICE><CHOICE>In progress</CHOICE><CHOICE>Submitted</CHOICE><CHOICE>Returned</CHOICE><CHOICE>Accepted</CHOICE></CHOICES><Default>Not started</Default></Field>' 'Section Status'
+Ensure-Field 'IA_QnrSections' 'SubmittedDate' '<Field Type="DateTime" DisplayName="Submitted Date" Name="SubmittedDate" StaticName="SubmittedDate" Group="IAMS" Required="FALSE" Format="DateOnly" />' 'Submitted Date'
+Ensure-Field 'IA_QnrSections' 'QuestionCount' '<Field Type="Number" DisplayName="Question Count" Name="QuestionCount" StaticName="QuestionCount" Group="IAMS" Required="FALSE"></Field>' 'Question Count'
+Set-PnPField -List 'IA_QnrItems' -Identity 'Title' -Values @{Title='Ref'} | Out-Null
+Ensure-Field 'IA_QnrItems' 'Questionnaire' '<Field Type="Lookup" DisplayName="Questionnaire" Name="Questionnaire" StaticName="Questionnaire" Group="IAMS" Required="TRUE" Indexed="TRUE" List="@@LIST:IA_Questionnaires@@" ShowField="Title" />' 'Questionnaire'
+Ensure-Field 'IA_QnrItems' 'Section' '<Field Type="Lookup" DisplayName="Section" Name="Section" StaticName="Section" Group="IAMS" Required="TRUE" Indexed="TRUE" List="@@LIST:IA_QnrSections@@" ShowField="Title" />' 'Section'
+Ensure-Field 'IA_QnrItems' 'SortOrder' '<Field Type="Number" DisplayName="Sort Order" Name="SortOrder" StaticName="SortOrder" Group="IAMS" Required="FALSE"></Field>' 'Sort Order'
+Ensure-Field 'IA_QnrItems' 'Question' '<Field Type="Note" DisplayName="Question" Name="Question" StaticName="Question" Group="IAMS" Required="FALSE" NumLines="6" RichText="FALSE" />' 'Question'
+Ensure-Field 'IA_QnrItems' 'AttachmentRequirement' '<Field Type="Note" DisplayName="Attachment Requirement" Name="AttachmentRequirement" StaticName="AttachmentRequirement" Group="IAMS" Required="FALSE" NumLines="6" RichText="FALSE" />' 'Attachment Requirement'
+Ensure-Field 'IA_QnrItems' 'EvidenceRule' '<Field Type="Choice" DisplayName="Evidence Rule" Name="EvidenceRule" StaticName="EvidenceRule" Group="IAMS" Required="FALSE" Format="Dropdown"><CHOICES><CHOICE>If Yes</CHOICE><CHOICE>If No</CHOICE><CHOICE>Always</CHOICE><CHOICE>Never</CHOICE></CHOICES><Default>If Yes</Default></Field>' 'Evidence Rule'
+Ensure-Field 'IA_QnrItems' 'ExplanationRequiredIfNo' '<Field Type="Boolean" DisplayName="Explanation Required if No" Name="ExplanationRequiredIfNo" StaticName="ExplanationRequiredIfNo" Group="IAMS" Required="FALSE"><Default>1</Default></Field>' 'Explanation Required if No'
+Ensure-Field 'IA_QnrItems' 'IsException' '<Field Type="Boolean" DisplayName="Exception Question" Name="IsException" StaticName="IsException" Group="IAMS" Required="FALSE"><Default>0</Default></Field>' 'Exception Question'
+Ensure-Field 'IA_QnrItems' 'Answer' '<Field Type="Choice" DisplayName="Answer" Name="Answer" StaticName="Answer" Group="IAMS" Required="FALSE" Format="Dropdown"><CHOICES><CHOICE>Yes</CHOICE><CHOICE>No</CHOICE></CHOICES></Field>' 'Answer'
+Ensure-Field 'IA_QnrItems' 'DocumentRef' '<Field Type="Text" DisplayName="Document Ref" Name="DocumentRef" StaticName="DocumentRef" Group="IAMS" Required="FALSE" MaxLength="255" />' 'Document Ref'
+Ensure-Field 'IA_QnrItems' 'Explanation' '<Field Type="Note" DisplayName="Explanation" Name="Explanation" StaticName="Explanation" Group="IAMS" Required="FALSE" NumLines="6" RichText="FALSE" />' 'Explanation'
+Ensure-Field 'IA_QnrItems' 'ResponsibleOwner' '<Field Type="Text" DisplayName="Responsible Owner" Name="ResponsibleOwner" StaticName="ResponsibleOwner" Group="IAMS" Required="FALSE" MaxLength="255" />' 'Responsible Owner'
+Ensure-Field 'IA_QnrItems' 'ReviewStatus' '<Field Type="Choice" DisplayName="Review Status" Name="ReviewStatus" StaticName="ReviewStatus" Group="IAMS" Required="FALSE" Format="Dropdown"><CHOICES><CHOICE>Pending</CHOICE><CHOICE>Accepted</CHOICE><CHOICE>Returned</CHOICE></CHOICES><Default>Pending</Default></Field>' 'Review Status'
+Ensure-Field 'IA_QnrItems' 'ReviewerComment' '<Field Type="Note" DisplayName="Reviewer Comment" Name="ReviewerComment" StaticName="ReviewerComment" Group="IAMS" Required="FALSE" NumLines="6" RichText="FALSE" />' 'Reviewer Comment'
+Ensure-Field 'IA_QnrItems' 'FindingRaised' '<Field Type="Lookup" DisplayName="Finding Raised" Name="FindingRaised" StaticName="FindingRaised" Group="IAMS" Required="FALSE" List="@@LIST:IA_Findings@@" ShowField="Title" />' 'Finding Raised'
+Set-PnPField -List 'IA_QnrUploads' -Identity 'Title' -Values @{Title='Upload Title'} | Out-Null
+Ensure-Field 'IA_QnrUploads' 'Engagement' '<Field Type="Lookup" DisplayName="Engagement" Name="Engagement" StaticName="Engagement" Group="IAMS" Required="TRUE" Indexed="TRUE" List="@@LIST:IA_Engagements@@" ShowField="Title" />' 'Engagement'
+Ensure-Field 'IA_QnrUploads' 'AuditArea' '<Field Type="Lookup" DisplayName="Audit Area" Name="AuditArea" StaticName="AuditArea" Group="IAMS" Required="FALSE" List="@@LIST:IA_AuditUniverse@@" ShowField="Title" />' 'Audit Area'
+Ensure-Field 'IA_QnrUploads' 'UploadStatus' '<Field Type="Choice" DisplayName="Upload Status" Name="UploadStatus" StaticName="UploadStatus" Group="IAMS" Required="FALSE" Format="Dropdown"><CHOICES><CHOICE>Uploaded</CHOICE><CHOICE>Validating</CHOICE><CHOICE>Draft Created</CHOICE><CHOICE>Rejected</CHOICE></CHOICES><Default>Uploaded</Default></Field>' 'Upload Status'
+Ensure-Field 'IA_QnrUploads' 'ValidationMessage' '<Field Type="Note" DisplayName="Validation Message" Name="ValidationMessage" StaticName="ValidationMessage" Group="IAMS" Required="FALSE" NumLines="6" RichText="FALSE" />' 'Validation Message'
+Ensure-Field 'IA_QnrUploads' 'Questionnaire' '<Field Type="Lookup" DisplayName="Questionnaire" Name="Questionnaire" StaticName="Questionnaire" Group="IAMS" Required="FALSE" List="@@LIST:IA_Questionnaires@@" ShowField="Title" />' 'Questionnaire'
+Set-PnPField -List 'Knowledge Index' -Identity 'Title' -Values @{Title='Title'} | Out-Null
+Ensure-Field 'Knowledge Index' 'DocGroup' '<Field Type="Choice" DisplayName="DocGroup" Name="DocGroup" StaticName="DocGroup" Group="IAMS" Required="TRUE" Format="Dropdown"><CHOICES><CHOICE>Governance</CHOICE><CHOICE>Methodology</CHOICE><CHOICE>System and templates</CHOICE><CHOICE>Reference</CHOICE></CHOICES></Field>' 'DocGroup'
+Ensure-Field 'Knowledge Index' 'Description' '<Field Type="Text" DisplayName="Description" Name="Description" StaticName="Description" Group="IAMS" Required="FALSE" MaxLength="255" />' 'Description'
+Ensure-Field 'Knowledge Index' 'DocLink' '<Field Type="URL" DisplayName="DocLink" Name="DocLink" StaticName="DocLink" Group="IAMS" Required="FALSE" Format="Hyperlink" />' 'DocLink'
+Ensure-Field 'Knowledge Index' 'IconName' '<Field Type="Text" DisplayName="IconName" Name="IconName" StaticName="IconName" Group="IAMS" Required="FALSE" MaxLength="255" />' 'IconName'
+Ensure-Field 'Knowledge Index' 'Version' '<Field Type="Text" DisplayName="Version" Name="Version" StaticName="Version" Group="IAMS" Required="FALSE" MaxLength="255" />' 'Version'
+Ensure-Field 'Knowledge Index' 'ReviewDate' '<Field Type="DateTime" DisplayName="ReviewDate" Name="ReviewDate" StaticName="ReviewDate" Group="IAMS" Required="FALSE" Format="DateOnly" />' 'ReviewDate'
+Ensure-Field 'Knowledge Index' 'SortOrder' '<Field Type="Number" DisplayName="SortOrder" Name="SortOrder" StaticName="SortOrder" Group="IAMS" Required="FALSE"></Field>' 'SortOrder'
 Ensure-Field 'IA_WorkingPapers' 'Engagement' '<Field Type="Lookup" DisplayName="Engagement" Name="Engagement" StaticName="Engagement" Group="IAMS" Required="TRUE" Indexed="TRUE" List="@@LIST:IA_Engagements@@" ShowField="Title" />' 'Engagement'
 Ensure-Field 'IA_WorkingPapers' 'Entity' '<Field Type="Lookup" DisplayName="Entity" Name="Entity" StaticName="Entity" Group="IAMS" Required="FALSE" Indexed="TRUE" List="@@LIST:IA_Entities@@" ShowField="Title" />' 'Entity'
 Ensure-Field 'IA_WorkingPapers' 'FinancialYear' '<Field Type="Text" DisplayName="Financial Year" Name="FinancialYear" StaticName="FinancialYear" Group="IAMS" Required="FALSE" Indexed="TRUE" MaxLength="255" />' 'Financial Year'
@@ -235,6 +314,10 @@ Ensure-Field 'IA_Evidence' 'Finding' '<Field Type="Lookup" DisplayName="Finding"
 Ensure-Field 'IA_Evidence' 'Action' '<Field Type="Lookup" DisplayName="Action" Name="Action" StaticName="Action" Group="IAMS" Required="FALSE" List="@@LIST:IA_ActionPlans@@" ShowField="Title" />' 'Action'
 Ensure-Field 'IA_Evidence' 'EvidenceType' '<Field Type="Choice" DisplayName="Evidence Type" Name="EvidenceType" StaticName="EvidenceType" Group="IAMS" Required="FALSE" Format="Dropdown"><CHOICES><CHOICE>Planning</CHOICE><CHOICE>Walkthrough</CHOICE><CHOICE>Sample</CHOICE><CHOICE>Testing</CHOICE><CHOICE>Management Evidence</CHOICE><CHOICE>Validation</CHOICE></CHOICES></Field>' 'Evidence Type'
 Ensure-Field 'IA_Evidence' 'UploadedByUser' '<Field Type="User" DisplayName="Uploaded By" Name="UploadedByUser" StaticName="UploadedByUser" Group="IAMS" Required="FALSE" List="UserInfo" ShowField="ImnName" UserSelectionMode="PeopleOnly" />' 'Uploaded By'
+Ensure-Field 'IA_QnrFiles' 'Engagement' '<Field Type="Lookup" DisplayName="Engagement" Name="Engagement" StaticName="Engagement" Group="IAMS" Required="FALSE" Indexed="TRUE" List="@@LIST:IA_Engagements@@" ShowField="Title" />' 'Engagement'
+Ensure-Field 'IA_QnrFiles' 'Questionnaire' '<Field Type="Lookup" DisplayName="Questionnaire" Name="Questionnaire" StaticName="Questionnaire" Group="IAMS" Required="FALSE" Indexed="TRUE" List="@@LIST:IA_Questionnaires@@" ShowField="Title" />' 'Questionnaire'
+Ensure-Field 'IA_QnrTemplates' 'TemplateVersion' '<Field Type="Text" DisplayName="Template Version" Name="TemplateVersion" StaticName="TemplateVersion" Group="IAMS" Required="FALSE" MaxLength="255" />' 'Template Version'
+Ensure-Field 'IA_QnrTemplates' 'Active' '<Field Type="Boolean" DisplayName="Active" Name="Active" StaticName="Active" Group="IAMS" Required="FALSE"><Default>1</Default></Field>' 'Active'
 Ensure-Field 'IA_Reports' 'Engagement' '<Field Type="Lookup" DisplayName="Engagement" Name="Engagement" StaticName="Engagement" Group="IAMS" Required="FALSE" Indexed="TRUE" List="@@LIST:IA_Engagements@@" ShowField="Title" />' 'Engagement'
 Ensure-Field 'IA_Reports' 'Entity' '<Field Type="Lookup" DisplayName="Entity" Name="Entity" StaticName="Entity" Group="IAMS" Required="FALSE" List="@@LIST:IA_Entities@@" ShowField="Title" />' 'Entity'
 Ensure-Field 'IA_Reports' 'ReportType' '<Field Type="Choice" DisplayName="Report Type" Name="ReportType" StaticName="ReportType" Group="IAMS" Required="TRUE" Indexed="TRUE" Format="Dropdown"><CHOICES><CHOICE>Draft Report</CHOICE><CHOICE>Final Report</CHOICE><CHOICE>Follow-Up Report</CHOICE><CHOICE>Quarterly IA Report</CHOICE><CHOICE>Annual IA Report</CHOICE><CHOICE>Outstanding Findings Report</CHOICE><CHOICE>Audit Plan Status</CHOICE></CHOICES></Field>' 'Report Type'
@@ -256,8 +339,16 @@ Set-PnPList -Identity 'IA_FollowUps' -EnableVersioning $true -MajorVersions 50 |
 Set-PnPList -Identity 'IA_CSARegister' -EnableVersioning $true -MajorVersions 50 | Out-Null
 Set-PnPList -Identity 'IA_AuditLog' -EnableVersioning $true -MajorVersions 50 | Out-Null
 Set-PnPList -Identity 'IA_Config' -EnableVersioning $true -MajorVersions 50 | Out-Null
+Set-PnPList -Identity 'IA_Questionnaires' -EnableVersioning $true -MajorVersions 50 | Out-Null
+Set-PnPList -Identity 'IA_QnrSections' -EnableVersioning $true -MajorVersions 50 | Out-Null
+Set-PnPList -Identity 'IA_QnrItems' -EnableVersioning $true -MajorVersions 50 | Out-Null
+Set-PnPList -Identity 'IA_QnrUploads' -EnableVersioning $true -MajorVersions 50 | Out-Null
+Set-PnPList -Identity 'Knowledge Index' -EnableVersioning $true -MajorVersions 50 | Out-Null
 Set-PnPList -Identity 'IA_WorkingPapers' -EnableVersioning $true -MajorVersions 50 | Out-Null
 Set-PnPList -Identity 'IA_Evidence' -EnableVersioning $true -MajorVersions 50 | Out-Null
+Set-PnPList -Identity 'IA_QnrFiles' -EnableVersioning $true -MajorVersions 50 | Out-Null
+Set-PnPList -Identity 'IA_QnrTemplates' -EnableVersioning $true -MajorVersions 50 | Out-Null
+Set-PnPList -Identity 'Knowledge Documents' -EnableVersioning $true -MajorVersions 50 | Out-Null
 Set-PnPList -Identity 'IA_Reports' -EnableVersioning $true -MajorVersions 50 | Out-Null
 Set-PnPList -Identity 'IA_AuditLog' -EnableAttachments $false | Out-Null
 
@@ -267,16 +358,24 @@ Update-DefaultView 'IA_Departments' @('LinkTitle', 'Entity', 'DepartmentHead', '
 Update-DefaultView 'IA_AuditUniverse' @('LinkTitle', 'AuditAreaID', 'Entity', 'Department', 'ProcessCategory', 'ProcessOwner', 'RiskRating', 'RiskScore', 'LastAuditDate', 'AuditFrequency', 'NextAuditDate', 'UniverseStatus')
 Update-DefaultView 'IA_RiskRegister' @('LinkTitle', 'RiskID', 'AuditArea', 'Entity', 'RiskCategory', 'Likelihood', 'ImpactScore', 'InherentRisk', 'ControlRating', 'ResidualRisk', 'RiskOwner', 'RiskStatus')
 Update-DefaultView 'IA_AuditPlan' @('LinkTitle', 'AuditRef', 'PlanYear', 'AuditArea', 'Entity', 'AuditType', 'PlannedStart', 'PlannedFinish', 'RiskScore', 'AssignedAuditor', 'AuditManager', 'BudgetHours', 'ActualHours', 'AuditStatus', 'ApprovalStatus')
-Update-DefaultView 'IA_Engagements' @('LinkTitle', 'EngagementID', 'AuditPlanItem', 'Entity', 'LeadAuditor', 'TeamMembers', 'ActualStart', 'ActualEnd', 'Stage', 'OverallOpinion', 'EngagementFolderUrl')
+Update-DefaultView 'IA_Engagements' @('LinkTitle', 'EngagementID', 'AuditPlanItem', 'Entity', 'LeadAuditor', 'TeamMembers', 'ActualStart', 'ActualEnd', 'Stage', 'OverallOpinion', 'EngagementFolderUrl', 'Engagement_x0020_Type', 'BudgetedHours', 'EngActualHours', 'PlanningType', 'AuditManager')
 Update-DefaultView 'IA_Milestones' @('LinkTitle', 'Engagement', 'MilestoneType', 'DueDate', 'CompletedDate', 'MilestoneOwner', 'MilestoneStatus')
-Update-DefaultView 'IA_Findings' @('LinkTitle', 'FindingID', 'Engagement', 'Entity', 'Department', 'RiskCategory', 'Rating', 'WorkflowStage', 'AgreementStatus', 'ResponsibleManager', 'DateIssued', 'OriginalDueDate', 'DueDate', 'ExtensionCount', 'FindingStatus', 'ClosedDate', 'LastProcessedStage')
-Update-DefaultView 'IA_ActionPlans' @('LinkTitle', 'CAPAID', 'Finding', 'Entity', 'ActionOwner', 'DueDate', 'CompletionPct', 'EvidenceUploaded', 'ValidationStatus', 'FollowUpAuditor', 'FindingRating', 'ActionStatus', 'ReminderStage', 'CompletedDate')
+Update-DefaultView 'IA_Findings' @('LinkTitle', 'FindingID', 'Engagement', 'Entity', 'Department', 'RiskCategory', 'Rating', 'WorkflowStage', 'AgreementStatus', 'ResponsibleManager', 'DateIssued', 'OriginalDueDate', 'DueDate', 'ExtensionCount', 'FindingStatus', 'ClosedDate', 'LastProcessedStage', 'Compliance_x0020_Result', 'MgmtAcceptance', 'MgmtResponseDate')
+Update-DefaultView 'IA_ActionPlans' @('LinkTitle', 'CAPAID', 'Finding', 'Entity', 'ActionOwner', 'DueDate', 'CompletionPct', 'EvidenceUploaded', 'ValidationStatus', 'FollowUpAuditor', 'FindingRating', 'ActionStatus', 'ReminderStage', 'CompletedDate', 'ExtensionCount', 'OriginalDueDate', 'ClosureProcessed')
 Update-DefaultView 'IA_FollowUps' @('LinkTitle', 'Finding', 'Action', 'Reviewer', 'ReviewDate', 'Outcome', 'ValidationDocUrl')
 Update-DefaultView 'IA_CSARegister' @('LinkTitle', 'CSAID', 'Entity', 'Department', 'AssessmentPeriod', 'SubmissionDate', 'SubmittedBy', 'Score', 'Result', 'FormResponseId', 'RelatedAudit', 'AttachmentsUrl')
 Update-DefaultView 'IA_AuditLog' @('LinkTitle', 'SourceList', 'SourceItemId', 'EventType', 'EventBy')
 Update-DefaultView 'IA_Config' @('LinkTitle', 'ConfigValue', 'ConfigDescription')
+Update-DefaultView 'IA_Questionnaires' @('LinkTitle', 'QuestionnaireID', 'Engagement', 'AuditType', 'TemplateVersion', 'QuestionnaireStatus', 'Round', 'IssuedDate', 'PreparedBy', 'Reviewer', 'SourceFileUrl', 'QuestionCount')
+Update-DefaultView 'IA_QnrSections' @('LinkTitle', 'Questionnaire', 'SectionNo', 'Assignee', 'DueDate', 'SectionStatus', 'SubmittedDate', 'QuestionCount')
+Update-DefaultView 'IA_QnrItems' @('LinkTitle', 'Questionnaire', 'Section', 'SortOrder', 'EvidenceRule', 'ExplanationRequiredIfNo', 'IsException', 'Answer', 'DocumentRef', 'ResponsibleOwner', 'ReviewStatus', 'FindingRaised')
+Update-DefaultView 'IA_QnrUploads' @('LinkTitle', 'Engagement', 'AuditArea', 'UploadStatus', 'Questionnaire')
+Update-DefaultView 'Knowledge Index' @('LinkTitle', 'DocGroup', 'Description', 'DocLink', 'IconName', 'Version', 'ReviewDate', 'SortOrder')
 Update-DefaultView 'IA_WorkingPapers' @('DocIcon', 'LinkFilename', 'Engagement', 'Entity', 'FinancialYear', 'AuditType', 'WPNumber', 'PreparedBy', 'ReviewedBy', 'ReviewStatus')
 Update-DefaultView 'IA_Evidence' @('DocIcon', 'LinkFilename', 'Engagement', 'Finding', 'Action', 'EvidenceType', 'UploadedByUser')
+Update-DefaultView 'IA_QnrFiles' @('DocIcon', 'LinkFilename', 'Engagement', 'Questionnaire')
+Update-DefaultView 'IA_QnrTemplates' @('DocIcon', 'LinkFilename', 'TemplateVersion', 'Active')
+Update-DefaultView 'Knowledge Documents' @('DocIcon', 'LinkFilename')
 Update-DefaultView 'IA_Reports' @('DocIcon', 'LinkFilename', 'Engagement', 'Entity', 'ReportType', 'ReportPeriod', 'VersionLabel', 'ReportStatus')
 
 # ---- 4. Evidence/Working-paper subfolder template (created per engagement by flow WF1; sample root only)
@@ -288,6 +387,29 @@ if (-not (Get-PnPListItem -List 'IA_Config' -Query "<View><Query><Where><Eq><Fie
 if (-not (Get-PnPListItem -List 'IA_Config' -Query "<View><Query><Where><Eq><FieldRef Name='Title'/><Value Type='Text'>EscalateCEOAfterDays</Value></Eq></Where></Query></View>")) { Add-PnPListItem -List 'IA_Config' -Values @{Title='EscalateCEOAfterDays'; ConfigValue='30'; ConfigDescription='Days overdue before CEO escalation'} | Out-Null }
 if (-not (Get-PnPListItem -List 'IA_Config' -Query "<View><Query><Where><Eq><FieldRef Name='Title'/><Value Type='Text'>GroupCEOEmail</Value></Eq></Where></Query></View>")) { Add-PnPListItem -List 'IA_Config' -Values @{Title='GroupCEOEmail'; ConfigValue='TBD'; ConfigDescription='Fallback CEO email if entity CEO is blank'} | Out-Null }
 if (-not (Get-PnPListItem -List 'IA_Config' -Query "<View><Query><Where><Eq><FieldRef Name='Title'/><Value Type='Text'>HeadOfIAEmail</Value></Eq></Where></Query></View>")) { Add-PnPListItem -List 'IA_Config' -Values @{Title='HeadOfIAEmail'; ConfigValue='TBD'; ConfigDescription='Group Head of Internal Audit email'} | Out-Null }
+if (-not (Get-PnPListItem -List 'IA_Config' -Query "<View><Query><Where><Eq><FieldRef Name='Title'/><Value Type='Text'>Role.Owner</Value></Eq></Where></Query></View>")) { Add-PnPListItem -List 'IA_Config' -Values @{Title='Role.Owner'; ConfigValue=';'; ConfigDescription='Semicolon-separated emails of people holding the Owner role. Read by the app on start. Format: ;a@x.com;b@x.com;'} | Out-Null }
+if (-not (Get-PnPListItem -List 'IA_Config' -Query "<View><Query><Where><Eq><FieldRef Name='Title'/><Value Type='Text'>Role.Manager</Value></Eq></Where></Query></View>")) { Add-PnPListItem -List 'IA_Config' -Values @{Title='Role.Manager'; ConfigValue=';'; ConfigDescription='Semicolon-separated emails of people holding the Manager role. Read by the app on start. Format: ;a@x.com;b@x.com;'} | Out-Null }
+if (-not (Get-PnPListItem -List 'IA_Config' -Query "<View><Query><Where><Eq><FieldRef Name='Title'/><Value Type='Text'>Role.Auditor</Value></Eq></Where></Query></View>")) { Add-PnPListItem -List 'IA_Config' -Values @{Title='Role.Auditor'; ConfigValue=';'; ConfigDescription='Semicolon-separated emails of people holding the Auditor role. Read by the app on start. Format: ;a@x.com;b@x.com;'} | Out-Null }
+if (-not (Get-PnPListItem -List 'IA_Config' -Query "<View><Query><Where><Eq><FieldRef Name='Title'/><Value Type='Text'>Role.ActionOwner</Value></Eq></Where></Query></View>")) { Add-PnPListItem -List 'IA_Config' -Values @{Title='Role.ActionOwner'; ConfigValue=';'; ConfigDescription='Semicolon-separated emails of people holding the ActionOwner role. Read by the app on start. Format: ;a@x.com;b@x.com;'} | Out-Null }
+if (-not (Get-PnPListItem -List 'IA_Config' -Query "<View><Query><Where><Eq><FieldRef Name='Title'/><Value Type='Text'>Role.Executive</Value></Eq></Where></Query></View>")) { Add-PnPListItem -List 'IA_Config' -Values @{Title='Role.Executive'; ConfigValue=';'; ConfigDescription='Semicolon-separated emails of people holding the Executive role. Read by the app on start. Format: ;a@x.com;b@x.com;'} | Out-Null }
+if (-not (Get-PnPListItem -List 'IA_Config' -Query "<View><Query><Where><Eq><FieldRef Name='Title'/><Value Type='Text'>Role.BUHead</Value></Eq></Where></Query></View>")) { Add-PnPListItem -List 'IA_Config' -Values @{Title='Role.BUHead'; ConfigValue=';'; ConfigDescription='Semicolon-separated emails of people holding the BUHead role. Read by the app on start. Format: ;a@x.com;b@x.com;'} | Out-Null }
+if (-not (Get-PnPListItem -List 'IA_Config' -Query "<View><Query><Where><Eq><FieldRef Name='Title'/><Value Type='Text'>Role.DepartmentHead</Value></Eq></Where></Query></View>")) { Add-PnPListItem -List 'IA_Config' -Values @{Title='Role.DepartmentHead'; ConfigValue=';'; ConfigDescription='Semicolon-separated emails of people holding the DepartmentHead role. Read by the app on start. Format: ;a@x.com;b@x.com;'} | Out-Null }
+
+# ---- 5b. Resource Centre catalogue (Knowledge Index). DocLink is filled in later, once the documents are uploaded.
+if (-not (Get-PnPListItem -List 'Knowledge Index' | Where-Object { $_['Title'] -eq 'Internal Audit Charter' })) { Add-PnPListItem -List 'Knowledge Index' -Values @{Title='Internal Audit Charter'; DocGroup='Governance'; Description='Mandate and authority'; IconName='scale'; SortOrder=1} | Out-Null }
+if (-not (Get-PnPListItem -List 'Knowledge Index' | Where-Object { $_['Title'] -eq 'Code of Ethics and Independence' })) { Add-PnPListItem -List 'Knowledge Index' -Values @{Title='Code of Ethics and Independence'; DocGroup='Governance'; Description='Conduct and declaration'; IconName='shield'; SortOrder=2} | Out-Null }
+if (-not (Get-PnPListItem -List 'Knowledge Index' | Where-Object { $_['Title'] -eq 'Internal Audit Methodology' })) { Add-PnPListItem -List 'Knowledge Index' -Values @{Title='Internal Audit Methodology'; DocGroup='Methodology'; Description='End-to-end approach'; IconName='route'; SortOrder=3} | Out-Null }
+if (-not (Get-PnPListItem -List 'Knowledge Index' | Where-Object { $_['Title'] -eq 'Annual Audit Plan and Risk Assessment' })) { Add-PnPListItem -List 'Knowledge Index' -Values @{Title='Annual Audit Plan and Risk Assessment'; DocGroup='Methodology'; Description='How the plan is built'; IconName='calendar'; SortOrder=4} | Out-Null }
+if (-not (Get-PnPListItem -List 'Knowledge Index' | Where-Object { $_['Title'] -eq 'Audit Report Rating Guide' })) { Add-PnPListItem -List 'Knowledge Index' -Values @{Title='Audit Report Rating Guide'; DocGroup='Methodology'; Description='Opinion and severity scale'; IconName='chart'; SortOrder=5} | Out-Null }
+if (-not (Get-PnPListItem -List 'Knowledge Index' | Where-Object { $_['Title'] -eq 'Sampling Guide' })) { Add-PnPListItem -List 'Knowledge Index' -Values @{Title='Sampling Guide'; DocGroup='Methodology'; Description='Sample sizes and selection'; IconName='sliders'; SortOrder=6} | Out-Null }
+if (-not (Get-PnPListItem -List 'Knowledge Index' | Where-Object { $_['Title'] -eq 'Working-paper Standards' })) { Add-PnPListItem -List 'Knowledge Index' -Values @{Title='Working-paper Standards'; DocGroup='Methodology'; Description='Documentation rules'; IconName='files'; SortOrder=7} | Out-Null }
+if (-not (Get-PnPListItem -List 'Knowledge Index' | Where-Object { $_['Title'] -eq 'IMS User Manual' })) { Add-PnPListItem -List 'Knowledge Index' -Values @{Title='IMS User Manual'; DocGroup='System and templates'; Description='Full system guide'; IconName='book'; SortOrder=8} | Out-Null }
+if (-not (Get-PnPListItem -List 'Knowledge Index' | Where-Object { $_['Title'] -eq 'Quick-start Guide' })) { Add-PnPListItem -List 'Knowledge Index' -Values @{Title='Quick-start Guide'; DocGroup='System and templates'; Description='One-page guide'; IconName='bolt'; SortOrder=9} | Out-Null }
+if (-not (Get-PnPListItem -List 'Knowledge Index' | Where-Object { $_['Title'] -eq 'Questionnaire Templates' })) { Add-PnPListItem -List 'Knowledge Index' -Values @{Title='Questionnaire Templates'; DocGroup='System and templates'; Description='Linked to Questionnaires tab'; IconName='clipboard'; SortOrder=10} | Out-Null }
+if (-not (Get-PnPListItem -List 'Knowledge Index' | Where-Object { $_['Title'] -eq 'IIA Global Internal Audit Standards' })) { Add-PnPListItem -List 'Knowledge Index' -Values @{Title='IIA Global Internal Audit Standards'; DocGroup='Reference'; Description='Professional standards'; IconName='bank'; SortOrder=11} | Out-Null }
+if (-not (Get-PnPListItem -List 'Knowledge Index' | Where-Object { $_['Title'] -eq 'Glossary' })) { Add-PnPListItem -List 'Knowledge Index' -Values @{Title='Glossary'; DocGroup='Reference'; Description='CAPA, Follow-Up, Residual risk'; IconName='abc'; SortOrder=12} | Out-Null }
+if (-not (Get-PnPListItem -List 'Knowledge Index' | Where-Object { $_['Title'] -eq 'Contacts' })) { Add-PnPListItem -List 'Knowledge Index' -Values @{Title='Contacts'; DocGroup='Reference'; Description='Who to call for what'; IconName='contacts'; SortOrder=13} | Out-Null }
+if (-not (Get-PnPListItem -List 'Knowledge Index' | Where-Object { $_['Title'] -eq 'What''s New' })) { Add-PnPListItem -List 'Knowledge Index' -Values @{Title='What''s New'; DocGroup='Reference'; Description='IAMS release notes'; IconName='spark'; SortOrder=14} | Out-Null }
 
 # ---- 6. Groups and baseline list-level permissions
 # Only UNQUALIFIED permissions are applied. Anything marked '(assigned)', '(own ...)' or 'issued only' in the Security sheet
@@ -297,9 +419,12 @@ if (-not (Get-PnPGroup -Identity 'IA_Managers' -ErrorAction SilentlyContinue)) {
 if (-not (Get-PnPGroup -Identity 'IA_Auditors' -ErrorAction SilentlyContinue)) { New-PnPGroup -Title 'IA_Auditors' -Description 'Auditors' | Out-Null }
 if (-not (Get-PnPGroup -Identity 'IA_ActionOwners' -ErrorAction SilentlyContinue)) { New-PnPGroup -Title 'IA_ActionOwners' -Description 'Action Owners / Management' | Out-Null }
 if (-not (Get-PnPGroup -Identity 'IA_Executives' -ErrorAction SilentlyContinue)) { New-PnPGroup -Title 'IA_Executives' -Description 'Executives / Audit Committee' | Out-Null }
+if (-not (Get-PnPGroup -Identity 'IA_BUHeads' -ErrorAction SilentlyContinue)) { New-PnPGroup -Title 'IA_BUHeads' -Description 'Business Unit Heads' | Out-Null }
+if (-not (Get-PnPGroup -Identity 'IA_DepartmentHeads' -ErrorAction SilentlyContinue)) { New-PnPGroup -Title 'IA_DepartmentHeads' -Description 'Department Heads' | Out-Null }
 Set-PnPList -Identity 'IA_ActionPlans' -BreakRoleInheritance -CopyRoleAssignments:$false -ClearSubscopes | Out-Null
 Set-PnPListPermission -Identity 'IA_ActionPlans' -Group 'IA_Owners' -AddRole 'Full Control'
 Set-PnPListPermission -Identity 'IA_ActionPlans' -Group 'IA_Managers' -AddRole 'Edit'
+Set-PnPListPermission -Identity 'IA_ActionPlans' -Group 'IA_Auditors' -AddRole 'Contribute'
 Set-PnPListPermission -Identity 'IA_ActionPlans' -Group 'IA_Executives' -AddRole 'Read'
 Set-PnPList -Identity 'IA_AuditLog' -BreakRoleInheritance -CopyRoleAssignments:$false -ClearSubscopes | Out-Null
 Set-PnPListPermission -Identity 'IA_AuditLog' -Group 'IA_Owners' -AddRole 'Read'
@@ -320,13 +445,15 @@ Set-PnPListPermission -Identity 'IA_CSARegister' -Group 'IA_Auditors' -AddRole '
 Set-PnPListPermission -Identity 'IA_CSARegister' -Group 'IA_Executives' -AddRole 'Read'
 Set-PnPList -Identity 'IA_Config' -BreakRoleInheritance -CopyRoleAssignments:$false -ClearSubscopes | Out-Null
 Set-PnPListPermission -Identity 'IA_Config' -Group 'IA_Owners' -AddRole 'Full Control'
-Set-PnPListPermission -Identity 'IA_Config' -Group 'IA_Managers' -AddRole 'Read'
+Set-PnPListPermission -Identity 'IA_Config' -Group 'IA_Managers' -AddRole 'Edit'
 Set-PnPList -Identity 'IA_Departments' -BreakRoleInheritance -CopyRoleAssignments:$false -ClearSubscopes | Out-Null
 Set-PnPListPermission -Identity 'IA_Departments' -Group 'IA_Owners' -AddRole 'Full Control'
 Set-PnPListPermission -Identity 'IA_Departments' -Group 'IA_Managers' -AddRole 'Edit'
 Set-PnPListPermission -Identity 'IA_Departments' -Group 'IA_Auditors' -AddRole 'Read'
 Set-PnPListPermission -Identity 'IA_Departments' -Group 'IA_ActionOwners' -AddRole 'Read'
 Set-PnPListPermission -Identity 'IA_Departments' -Group 'IA_Executives' -AddRole 'Read'
+Set-PnPListPermission -Identity 'IA_Departments' -Group 'IA_BUHeads' -AddRole 'Read'
+Set-PnPListPermission -Identity 'IA_Departments' -Group 'IA_DepartmentHeads' -AddRole 'Read'
 Set-PnPList -Identity 'IA_Engagements' -BreakRoleInheritance -CopyRoleAssignments:$false -ClearSubscopes | Out-Null
 Set-PnPListPermission -Identity 'IA_Engagements' -Group 'IA_Owners' -AddRole 'Full Control'
 Set-PnPListPermission -Identity 'IA_Engagements' -Group 'IA_Managers' -AddRole 'Edit'
@@ -337,12 +464,16 @@ Set-PnPListPermission -Identity 'IA_Entities' -Group 'IA_Managers' -AddRole 'Edi
 Set-PnPListPermission -Identity 'IA_Entities' -Group 'IA_Auditors' -AddRole 'Read'
 Set-PnPListPermission -Identity 'IA_Entities' -Group 'IA_ActionOwners' -AddRole 'Read'
 Set-PnPListPermission -Identity 'IA_Entities' -Group 'IA_Executives' -AddRole 'Read'
+Set-PnPListPermission -Identity 'IA_Entities' -Group 'IA_BUHeads' -AddRole 'Read'
+Set-PnPListPermission -Identity 'IA_Entities' -Group 'IA_DepartmentHeads' -AddRole 'Read'
 Set-PnPList -Identity 'IA_Evidence' -BreakRoleInheritance -CopyRoleAssignments:$false -ClearSubscopes | Out-Null
 Set-PnPListPermission -Identity 'IA_Evidence' -Group 'IA_Owners' -AddRole 'Full Control'
 Set-PnPListPermission -Identity 'IA_Evidence' -Group 'IA_Managers' -AddRole 'Edit'
+Set-PnPListPermission -Identity 'IA_Evidence' -Group 'IA_Auditors' -AddRole 'Contribute'
 Set-PnPList -Identity 'IA_Findings' -BreakRoleInheritance -CopyRoleAssignments:$false -ClearSubscopes | Out-Null
 Set-PnPListPermission -Identity 'IA_Findings' -Group 'IA_Owners' -AddRole 'Full Control'
 Set-PnPListPermission -Identity 'IA_Findings' -Group 'IA_Managers' -AddRole 'Edit'
+Set-PnPListPermission -Identity 'IA_Findings' -Group 'IA_Auditors' -AddRole 'Contribute'
 Set-PnPListPermission -Identity 'IA_Findings' -Group 'IA_Executives' -AddRole 'Read'
 Set-PnPList -Identity 'IA_FollowUps' -BreakRoleInheritance -CopyRoleAssignments:$false -ClearSubscopes | Out-Null
 Set-PnPListPermission -Identity 'IA_FollowUps' -Group 'IA_Owners' -AddRole 'Full Control'
@@ -357,6 +488,7 @@ Set-PnPList -Identity 'IA_Reports' -BreakRoleInheritance -CopyRoleAssignments:$f
 Set-PnPListPermission -Identity 'IA_Reports' -Group 'IA_Owners' -AddRole 'Full Control'
 Set-PnPListPermission -Identity 'IA_Reports' -Group 'IA_Managers' -AddRole 'Edit'
 Set-PnPListPermission -Identity 'IA_Reports' -Group 'IA_Auditors' -AddRole 'Read'
+Set-PnPListPermission -Identity 'IA_Reports' -Group 'IA_Executives' -AddRole 'Read'
 Set-PnPList -Identity 'IA_RiskRegister' -BreakRoleInheritance -CopyRoleAssignments:$false -ClearSubscopes | Out-Null
 Set-PnPListPermission -Identity 'IA_RiskRegister' -Group 'IA_Owners' -AddRole 'Full Control'
 Set-PnPListPermission -Identity 'IA_RiskRegister' -Group 'IA_Managers' -AddRole 'Edit'
@@ -365,6 +497,7 @@ Set-PnPListPermission -Identity 'IA_RiskRegister' -Group 'IA_Executives' -AddRol
 Set-PnPList -Identity 'IA_WorkingPapers' -BreakRoleInheritance -CopyRoleAssignments:$false -ClearSubscopes | Out-Null
 Set-PnPListPermission -Identity 'IA_WorkingPapers' -Group 'IA_Owners' -AddRole 'Full Control'
 Set-PnPListPermission -Identity 'IA_WorkingPapers' -Group 'IA_Managers' -AddRole 'Edit'
+Set-PnPListPermission -Identity 'IA_WorkingPapers' -Group 'IA_Auditors' -AddRole 'Contribute'
 
 # ---- 7. Friendly display titles (done last so lookups above resolve by internal name)
 Set-PnPList -Identity 'IA_Entities' -Title 'Entities' | Out-Null
@@ -380,8 +513,16 @@ Set-PnPList -Identity 'IA_FollowUps' -Title 'Follow-Up Reviews' | Out-Null
 Set-PnPList -Identity 'IA_CSARegister' -Title 'Self Assessment Register' | Out-Null
 Set-PnPList -Identity 'IA_AuditLog' -Title 'Audit Trail' | Out-Null
 Set-PnPList -Identity 'IA_Config' -Title 'IA Configuration' | Out-Null
+Set-PnPList -Identity 'IA_Questionnaires' -Title 'Audit Questionnaires' | Out-Null
+Set-PnPList -Identity 'IA_QnrSections' -Title 'Questionnaire Sections' | Out-Null
+Set-PnPList -Identity 'IA_QnrItems' -Title 'Questionnaire Items' | Out-Null
+Set-PnPList -Identity 'IA_QnrUploads' -Title 'Questionnaire Uploads' | Out-Null
+Set-PnPList -Identity 'Knowledge Index' -Title 'Knowledge Index' | Out-Null
 Set-PnPList -Identity 'IA_WorkingPapers' -Title 'Audit Working Papers' | Out-Null
 Set-PnPList -Identity 'IA_Evidence' -Title 'Evidence Repository' | Out-Null
+Set-PnPList -Identity 'IA_QnrFiles' -Title 'Questionnaire Files' | Out-Null
+Set-PnPList -Identity 'IA_QnrTemplates' -Title 'Questionnaire Templates' | Out-Null
+Set-PnPList -Identity 'Knowledge Documents' -Title 'Knowledge Documents' | Out-Null
 Set-PnPList -Identity 'IA_Reports' -Title 'Reports Library' | Out-Null
 
 Write-Host 'IAMS provisioning complete. Next: add members to IA_* groups, set Entity CEO/Dept Head data, build flows WF0-WF7.'

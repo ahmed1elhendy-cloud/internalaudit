@@ -1,0 +1,212 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedsharepointonline_iams"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedoffice365_iams"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "Recurrence": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Month",
+            "interval": 1,
+            "startTime": "2026-12-01T02:00:00Z",
+            "timeZone": "UTC"
+          }
+        }
+      },
+      "actions": {
+        "Get_active_areas": {
+          "runAfter": {},
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "GetItems",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+              "table": "@@LIST:IA_AuditUniverse@@",
+              "$filter": "@concat('UniverseStatus eq ',decodeUriComponent('%27'),'Active',decodeUriComponent('%27'))",
+              "$top": 5000
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "For_each_area": {
+          "runAfter": {
+            "Get_active_areas": [
+              "Succeeded"
+            ]
+          },
+          "type": "Foreach",
+          "foreach": "@body('Get_active_areas')?['value']",
+          "actions": {
+            "Get_active_risks": {
+              "runAfter": {},
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "GetItems",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "table": "@@LIST:IA_RiskRegister@@",
+                  "$filter": "@concat('AuditArea/Id eq ',items('For_each_area')?['ID'],' and RiskStatus ne ',decodeUriComponent('%27'),'Closed',decodeUriComponent('%27'))",
+                  "$top": 500
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Select_scores": {
+              "runAfter": {
+                "Get_active_risks": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Select",
+              "inputs": {
+                "from": "@body('Get_active_risks')?['value']",
+                "select": "@float(item()?['InherentRisk'])"
+              }
+            },
+            "Score": {
+              "runAfter": {
+                "Select_scores": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Compose",
+              "inputs": "@if(empty(body('Select_scores')),0,max(body('Select_scores')))"
+            },
+            "Rating": {
+              "runAfter": {
+                "Score": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Compose",
+              "inputs": "@if(greaterOrEquals(outputs('Score'),15),'Critical',if(greaterOrEquals(outputs('Score'),10),'High',if(greaterOrEquals(outputs('Score'),5),'Medium','Low')))"
+            },
+            "Risk_part": {
+              "runAfter": {
+                "Rating": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Compose",
+              "inputs": "@if(empty(body('Get_active_risks')?['value']),'',concat(',\"RiskScore\":',outputs('Score'),',\"RiskRating\":\"',outputs('Rating'),'\"'))"
+            },
+            "Months": {
+              "runAfter": {
+                "Risk_part": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Compose",
+              "inputs": "@if(equals(items('For_each_area')?['AuditFrequency/Value'],'Annual'),12,if(equals(items('For_each_area')?['AuditFrequency/Value'],'18 Months'),18,if(equals(items('For_each_area')?['AuditFrequency/Value'],'2 Years'),24,36)))"
+            },
+            "Next_part": {
+              "runAfter": {
+                "Months": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Compose",
+              "inputs": "@if(or(empty(items('For_each_area')?['LastAuditDate']),empty(items('For_each_area')?['AuditFrequency/Value'])),'',concat(',\"NextAuditDate\":\"',addToTime(items('For_each_area')?['LastAuditDate'],outputs('Months'),'Month'),'\"'))"
+            },
+            "Update_area": {
+              "runAfter": {
+                "Next_part": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "parameters/method": "POST",
+                  "parameters/uri": "_api/web/lists(guid'@@LIST:IA_AuditUniverse@@')/items(@{items('For_each_area')?['ID']})",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata",
+                    "Content-Type": "application/json;odata=nometadata",
+                    "X-HTTP-Method": "MERGE",
+                    "IF-MATCH": "*"
+                  },
+                  "parameters/body": "{\"UniverseStatus\":\"Active\"@{outputs('Risk_part')}@{outputs('Next_part')}}"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runtimeConfiguration": {
+            "concurrency": {
+              "repetitions": 1
+            }
+          }
+        },
+        "Email_summary": {
+          "runAfter": {
+            "For_each_area": [
+              "Succeeded"
+            ]
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_office365",
+              "operationId": "SendEmailV2",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+            },
+            "parameters": {
+              "emailMessage/To": "user@example.com",
+              "emailMessage/Subject": "IAMS: audit universe refreshed",
+              "emailMessage/Body": "<p>Monthly audit universe refresh completed. Areas processed: <b>@{length(body('Get_active_areas')?['value'])}</b>. Risk scores, ratings and next audit dates have been recalculated.</p>",
+              "emailMessage/Importance": "Normal"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

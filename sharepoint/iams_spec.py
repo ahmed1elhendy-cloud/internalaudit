@@ -4,11 +4,11 @@ RISK_CAT = ["Strategic", "Operational", "Financial", "Compliance", "IT & Cyber",
 RATING = ["Critical", "High", "Medium", "Low"]
 FREQ = ["Annual", "18 Months", "2 Years", "3 Years"]
 AUDIT_STATUS = ["Planned", "In Progress", "Fieldwork", "Reporting", "Completed", "Deferred", "Cancelled"]
-STAGE = ["Planning", "Fieldwork", "Testing", "Reporting", "Closed"]
+STAGE = ["Planning", "Kick-off", "Walkthroughs", "Fieldwork", "Fieldwork Complete", "Testing", "Draft Report", "Management Responses", "Reporting", "Final Report", "Closed"]
 AUDIT_TYPE = ["Financial", "Operational", "Compliance", "IT", "Special Investigation", "Follow-up", "Advisory"]
 
 # column: (internal, display, type, opts)
-# types: text note choice number date bool user usermulti lookup calc url
+# types: text note choice number date bool user usermulti lookup lookupmulti calc url
 # opts: required, choices, default, min, max, list (lookup target), indexed, formula, refs, result, note
 def C(i, d, t, **o):
     return (i, d, t, o)
@@ -63,7 +63,7 @@ LISTS = [
    C("AuditRef", "Audit Ref", "text", indexed=True, note="Flow-generated: IA-2026-001"),
    C("PlanYear", "Plan Year", "number", min=2020, max=2100, indexed=True),
    C("AuditArea", "Audit Area", "lookup", list="IA_AuditUniverse", required=True, indexed=True),
-   C("Entity", "Entity", "lookup", list="IA_Entities", indexed=True),
+   C("Entity", "Entity", "lookupmulti", list="IA_Entities", note="Multi-select: an audit can cover several entities"),
    C("AuditType", "Audit Type", "choice", choices=AUDIT_TYPE),
    C("PlannedStart", "Planned Start", "date", required=True),
    C("PlannedFinish", "Planned Finish", "date", required=True),
@@ -80,7 +80,7 @@ LISTS = [
   title_display="Engagement Title", cols=[
    C("EngagementID", "Engagement ID", "text", indexed=True, note="Flow-generated: ENG-2026-001"),
    C("AuditPlanItem", "Audit Plan Item", "lookup", list="IA_AuditPlan", required=True, indexed=True),
-   C("Entity", "Entity", "lookup", list="IA_Entities", indexed=True),
+   C("Entity", "Entity", "lookupmulti", list="IA_Entities"),
    C("EngagementScope", "Engagement Scope", "note"),
    C("AuditObjective", "Audit Objective", "note"),
    C("LeadAuditor", "Lead Auditor", "user", indexed=True),
@@ -90,6 +90,11 @@ LISTS = [
    C("Stage", "Stage", "choice", choices=STAGE, default="Planning", indexed=True),
    C("OverallOpinion", "Overall Opinion", "choice", choices=["Satisfactory", "Needs Improvement", "Unsatisfactory", "Not Rated"]),
    C("EngagementFolderUrl", "Engagement Folder", "url"),
+   C("Engagement_x0020_Type", "Engagement Type", "choice", choices=AUDIT_TYPE),
+   C("BudgetedHours", "Budgeted Hours", "number", min=0),
+   C("EngActualHours", "Actual Hours", "number", min=0),
+   C("PlanningType", "Planning Type", "choice", choices=["Planned", "Unplanned"], default="Planned"),
+   C("AuditManager", "Audit Manager", "user"),
  ]),
  dict(name="IA_Milestones", title="Engagement Milestones", purpose="Milestones/tasks per engagement (created by Audit Initiation flow).",
   title_display="Milestone", cols=[
@@ -123,10 +128,14 @@ LISTS = [
    C("FindingStatus", "Status", "choice", choices=["Open", "In Progress", "Pending Validation", "Closed", "Re-opened", "Risk Accepted"], default="Open", indexed=True),
    C("ClosedDate", "Closed Date", "date"),
    C("LastProcessedStage", "Last Processed Stage", "text", note="Written by WF3 to prevent re-trigger loops"),
+   C("Compliance_x0020_Result", "Compliance Result", "choice", choices=["Compliant", "Non-compliant", "N/A"]),
+   C("MgmtAcceptance", "Management Acceptance", "choice", choices=["Pending", "Accepted", "Partially Accepted", "Not Accepted"], default="Pending"),
+   C("MgmtResponseDate", "Management Response Date", "date"),
+   C("MgmtAcceptanceComments", "Management Acceptance Comments", "note"),
  ]),
  dict(name="IA_ActionPlans", title="Corrective Action Tracker", purpose="CAPA actions, one or more per finding.",
   title_display="Action Title", cols=[
-   C("CAPAID", "CAPA ID", "text", indexed=True, note="Flow-generated: CAPA-2026-0001"),
+   C("CAPAID", "Action ID", "text", indexed=True, note="Flow-generated: CAPA-2026-0001"),
    C("Finding", "Finding", "lookup", list="IA_Findings", required=True, indexed=True),
    C("Entity", "Entity", "lookup", list="IA_Entities", indexed=True),
    C("ActionDescription", "Action Description", "note"),
@@ -140,6 +149,9 @@ LISTS = [
    C("ActionStatus", "Status", "choice", choices=["Open", "In Progress", "Complete - Awaiting Validation", "Closed", "Overdue"], default="Open", indexed=True),
    C("ReminderStage", "Reminder Stage", "choice", choices=["None", "Reminder 30d", "Reminder 15d", "Escalated - Dept Head", "Escalated - CEO"], default="None"),
    C("CompletedDate", "Actual Completion Date", "date"),
+   C("ExtensionCount", "ExtensionCount", "number", min=0, note="Set by WF6"),
+   C("OriginalDueDate", "OriginalDueDate", "date", note="Set by WF6"),
+   C("ClosureProcessed", "ClosureProcessed", "bool", default="0", note="Set by WF5c so closure logic runs once"),
  ]),
  dict(name="IA_FollowUps", title="Follow-Up Reviews", purpose="Validation reviews of implemented actions.",
   title_display="Review Title", cols=[
@@ -178,6 +190,67 @@ LISTS = [
    C("ConfigValue", "Value", "text", required=True),
    C("ConfigDescription", "Description", "text"),
  ]),
+ dict(name="IA_Questionnaires", title="Audit Questionnaires", purpose="Questionnaire header per engagement (issued to auditees in sections).",
+  title_display="Questionnaire Name", cols=[
+   C("QuestionnaireID", "Questionnaire ID", "text", indexed=True),
+   C("Engagement", "Engagement", "lookup", list="IA_Engagements", required=True, indexed=True),
+   C("AuditType", "Audit Type", "choice", choices=AUDIT_TYPE),
+   C("TemplateVersion", "Template Version", "text"),
+   C("Scope", "Scope", "note"),
+   C("QuestionnaireStatus", "Status", "choice", choices=["Draft", "Issued", "In Progress", "Under Review", "Returned", "Accepted", "Closed"], default="Draft", indexed=True),
+   C("Round", "Round", "number", default="1"),
+   C("IssuedDate", "Issued Date", "date"),
+   C("PreparedBy", "Prepared By", "user"),
+   C("Reviewer", "Reviewer", "user"),
+   C("SourceFileUrl", "Source File", "url"),
+   C("QuestionCount", "Question Count", "number"),
+ ]),
+ dict(name="IA_QnrSections", title="Questionnaire Sections", purpose="Sections of a questionnaire, each assigned to an auditee.",
+  title_display="Section Title", cols=[
+   C("Questionnaire", "Questionnaire", "lookup", list="IA_Questionnaires", required=True, indexed=True),
+   C("SectionNo", "Section No", "number"),
+   C("Assignee", "Assignee", "user"),
+   C("DueDate", "Due Date", "date"),
+   C("SectionStatus", "Section Status", "choice", choices=["Not started", "In progress", "Submitted", "Returned", "Accepted"], default="Not started", indexed=True),
+   C("SubmittedDate", "Submitted Date", "date"),
+   C("QuestionCount", "Question Count", "number"),
+ ]),
+ dict(name="IA_QnrItems", title="Questionnaire Items", purpose="Individual questions and answers.",
+  title_display="Ref", cols=[
+   C("Questionnaire", "Questionnaire", "lookup", list="IA_Questionnaires", required=True, indexed=True),
+   C("Section", "Section", "lookup", list="IA_QnrSections", required=True, indexed=True),
+   C("SortOrder", "Sort Order", "number"),
+   C("Question", "Question", "note"),
+   C("AttachmentRequirement", "Attachment Requirement", "note"),
+   C("EvidenceRule", "Evidence Rule", "choice", choices=["If Yes", "If No", "Always", "Never"], default="If Yes"),
+   C("ExplanationRequiredIfNo", "Explanation Required if No", "bool", default="1"),
+   C("IsException", "Exception Question", "bool", default="0"),
+   C("Answer", "Answer", "choice", choices=["Yes", "No"]),
+   C("DocumentRef", "Document Ref", "text"),
+   C("Explanation", "Explanation", "note"),
+   C("ResponsibleOwner", "Responsible Owner", "text"),
+   C("ReviewStatus", "Review Status", "choice", choices=["Pending", "Accepted", "Returned"], default="Pending"),
+   C("ReviewerComment", "Reviewer Comment", "note"),
+   C("FindingRaised", "Finding Raised", "lookup", list="IA_Findings"),
+ ]),
+ dict(name="IA_QnrUploads", title="Questionnaire Uploads", purpose="Template uploads that WF2 validates and turns into a draft questionnaire.",
+  title_display="Upload Title", cols=[
+   C("Engagement", "Engagement", "lookup", list="IA_Engagements", required=True, indexed=True),
+   C("AuditArea", "Audit Area", "lookup", list="IA_AuditUniverse"),
+   C("UploadStatus", "Upload Status", "choice", choices=["Uploaded", "Validating", "Draft Created", "Rejected"], default="Uploaded"),
+   C("ValidationMessage", "Validation Message", "note"),
+   C("Questionnaire", "Questionnaire", "lookup", list="IA_Questionnaires"),
+ ]),
+ dict(name="Knowledge Index", title="Knowledge Index", purpose="Resource Centre catalogue shown in the app (links to documents in the Knowledge Documents library).",
+  title_display="Title", cols=[
+   C("DocGroup", "DocGroup", "choice", choices=["Governance", "Methodology", "System and templates", "Reference"], required=True),
+   C("Description", "Description", "text"),
+   C("DocLink", "DocLink", "url", note="Set after the document is uploaded to Knowledge Documents"),
+   C("IconName", "IconName", "text"),
+   C("Version", "Version", "text"),
+   C("ReviewDate", "ReviewDate", "date"),
+   C("SortOrder", "SortOrder", "number"),
+ ]),
 ]
 
 CONFIG_SEED = [
@@ -186,6 +259,26 @@ CONFIG_SEED = [
  ("EscalateCEOAfterDays", "30", "Days overdue before CEO escalation"),
  ("GroupCEOEmail", "", "Fallback CEO email if entity CEO is blank"),
  ("HeadOfIAEmail", "", "Group Head of Internal Audit email"),
+]
+for _r in ["Owner", "Manager", "Auditor", "ActionOwner", "Executive", "BUHead", "DepartmentHead"]:
+    CONFIG_SEED.append(("Role." + _r, ";", "Semicolon-separated emails of people holding the " + _r + " role. Read by the app on start. Format: ;a@x.com;b@x.com;"))
+
+# Resource Centre catalogue (Knowledge Index list). DocLink is set after each document is uploaded to Knowledge Documents.
+KNOWLEDGE_SEED = [
+ ("Internal Audit Charter", "Governance", "Mandate and authority", "scale", 1),
+ ("Code of Ethics and Independence", "Governance", "Conduct and declaration", "shield", 2),
+ ("Internal Audit Methodology", "Methodology", "End-to-end approach", "route", 3),
+ ("Annual Audit Plan and Risk Assessment", "Methodology", "How the plan is built", "calendar", 4),
+ ("Audit Report Rating Guide", "Methodology", "Opinion and severity scale", "chart", 5),
+ ("Sampling Guide", "Methodology", "Sample sizes and selection", "sliders", 6),
+ ("Working-paper Standards", "Methodology", "Documentation rules", "files", 7),
+ ("IMS User Manual", "System and templates", "Full system guide", "book", 8),
+ ("Quick-start Guide", "System and templates", "One-page guide", "bolt", 9),
+ ("Questionnaire Templates", "System and templates", "Linked to Questionnaires tab", "clipboard", 10),
+ ("IIA Global Internal Audit Standards", "Reference", "Professional standards", "bank", 11),
+ ("Glossary", "Reference", "CAPA, Follow-Up, Residual risk", "abc", 12),
+ ("Contacts", "Reference", "Who to call for what", "contacts", 13),
+ ("What's New", "Reference", "IAMS release notes", "spark", 14),
 ]
 
 LIBRARIES = [
@@ -206,6 +299,15 @@ LIBRARIES = [
    C("EvidenceType", "Evidence Type", "choice", choices=["Planning", "Walkthrough", "Sample", "Testing", "Management Evidence", "Validation"]),
    C("UploadedByUser", "Uploaded By", "user"),
  ]),
+dict(name="IA_QnrFiles", title="Questionnaire Files", purpose="Files attached to questionnaire answers.", cols=[
+   C("Engagement", "Engagement", "lookup", list="IA_Engagements", indexed=True),
+   C("Questionnaire", "Questionnaire", "lookup", list="IA_Questionnaires", indexed=True),
+ ]),
+ dict(name="IA_QnrTemplates", title="Questionnaire Templates", purpose="Questionnaire template workbooks (upload the template from data/).", cols=[
+   C("TemplateVersion", "Template Version", "text"),
+   C("Active", "Active", "bool", default="1"),
+ ]),
+ dict(name="Knowledge Documents", title="Knowledge Documents", purpose="Resource Centre documents (policies, manual, templates).", cols=[]),
  dict(name="IA_Reports", title="Reports Library", purpose="Draft/final/follow-up/Audit Committee reports.", cols=[
    C("Engagement", "Engagement", "lookup", list="IA_Engagements", indexed=True),
    C("Entity", "Entity", "lookup", list="IA_Entities"),
@@ -299,5 +401,5 @@ GAPS = [
 RELATIONSHIPS = []
 for L in LISTS + LIBRARIES:
     for (i, d, t, o) in L["cols"]:
-        if t == "lookup":
+        if t in ("lookup", "lookupmulti"):
             RELATIONSHIPS.append((L["name"], d, o["list"], "Many-to-one"))

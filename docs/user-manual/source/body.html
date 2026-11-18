@@ -49,7 +49,7 @@
 </table>
 <p class="note">Management roles land on <b>Actions</b> when the app opens; the audit team and executives land on the <b>Dashboard</b>.</p>
 <h2>1.4 Test mode</h2>
-<p><span class="tag">Test mode</span> During testing, every email and approval request is sent to the Head of Internal Audit (ahmed.elhendy@mhao.ae) instead of the real recipient, and the email says who the real recipient would have been. At go-live these are routed to the real people.</p>
+<p><span class="tag">Test mode</span> During testing, every email and approval request is sent to the Head of Internal Audit (user@example.com) instead of the real recipient, and the email says who the real recipient would have been. At go-live these are routed to the real people.</p>
 <h2>1.5 Your name and the Refresh icon</h2>
 <p>Your name appears at the top right of the navy header on every main screen. Under it is a small gold <b>reload icon</b> (tooltip <i>Refresh data</i>). Select it to re-read all SharePoint lists into the app; a green message <i>Data refreshed</i> confirms. Use it when someone else has just changed a record, or after an automatic step (an email, an approval) that updates a record behind the scenes. Refresh only pulls data into the app; anything you typed is saved with <b>Save</b> or <b>Submit</b>, not by Refresh.</p>
 
@@ -301,7 +301,7 @@
 <ol>
 <li><b>SharePoint site.</b> Open the Internal Audit site, select Settings (gear) &gt; Site permissions &gt; Share site, and add the person as <b>Owner</b> (full access, for a tester) or <b>Member</b> (normal use).</li>
 <li><b>Power Apps portal.</b> In make.powerapps.com open Apps &gt; MHAO Internal Audit Portal &gt; Share and add the person. Tick <b>Co-owner</b> only if they must edit the app.</li>
-<li><b>Role in the portal.</b> Open the SharePoint list <b>IA Configuration</b>, find the item for the role (Role.Owner, Role.Manager, Role.Auditor, Role.ActionOwner, Role.Executive, Role.BUHead or Role.DepartmentHead) and add the person's work email to its <i>ConfigValue</i> field. Emails are separated by semicolons with a semicolon at both ends, for example <span class="mono">;a@mhao.ae;b@mhao.ae;</span>. The app reads the list when it starts, so the person must close and reopen the app.</li>
+<li><b>Role in the portal.</b> Open the SharePoint list <b>IA Configuration</b>, find the item for the role (Role.Owner, Role.Manager, Role.Auditor, Role.ActionOwner, Role.Executive, Role.BUHead or Role.DepartmentHead) and add the person's work email to its <i>ConfigValue</i> field. Emails are separated by semicolons with a semicolon at both ends, for example <span class="mono">;a@example.com;b@example.com;</span>. The app reads the list when it starts, so the person must close and reopen the app.</li>
 </ol>
 <h2>15.2 Good to know</h2>
 <ul>
@@ -341,7 +341,7 @@
 <tr><td>A Resource Centre tile says Coming soon</td><td>The document has not been uploaded yet. Ask the Head of Internal Audit.</td></tr>
 <tr><td>I can see someone else's record</td><td>Report it to the Head of Internal Audit at once; access should be limited to your department.</td></tr>
 </table>
-<p>For support contact the Head of Internal Audit, ahmed.elhendy@mhao.ae.</p>
+<p>For support contact the Head of Internal Audit, user@example.com.</p>
 
 <h1 id="sA" class="sec">Appendix A. Status values</h1>
 <table class="small">

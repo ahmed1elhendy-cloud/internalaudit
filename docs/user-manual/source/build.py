@@ -39,7 +39,7 @@ def html(toc):
     t='<div class="toc"><h1>Contents</h1>'+''.join(f'<div class="row"><span>{h}</span><span>{toc.get(i,"")}</span></div>' for i,h in heads)+'</div>'
     cover='''<div class="cover"><div class="bar"></div><h1>MHAO Internal Audit Portal</h1><div class="sub">User Manual &ndash; Full System Guide</div>
 <div class="meta">Mohamed Hareb Al Otaiba Group (MHAO)<br>Group Internal Audit<br>Version 2.0 &middot; 18 November 2026<br>Audience: audit team, management and executives</div>
-<div class="foot">Support: ahmed.elhendy@mhao.ae &middot; Confidential &ndash; for internal use</div></div>'''
+<div class="foot">Support: user@example.com &middot; Confidential &ndash; for internal use</div></div>'''
     return f'<html><head><meta charset="utf-8"><style>{CSS}</style></head><body>{cover}<div class="page">{t}{body}</div></body></html>'
 def render(toc,out):
     open('m.html','w').write(html(toc))

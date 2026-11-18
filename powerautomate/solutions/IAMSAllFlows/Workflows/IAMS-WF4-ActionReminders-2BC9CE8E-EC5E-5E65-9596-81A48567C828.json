@@ -1,0 +1,503 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedsharepointonline_iams"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedoffice365_iams"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "Recurrence": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Day",
+            "interval": 1,
+            "timeZone": "Arabian Standard Time",
+            "schedule": {
+              "hours": [
+                "7"
+              ],
+              "minutes": [
+                0
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Today": {
+          "runAfter": {},
+          "type": "Compose",
+          "inputs": "@formatDateTime(convertTimeZone(utcNow(),'UTC','Arabian Standard Time'),'yyyy-MM-dd')"
+        },
+        "Plus30": {
+          "runAfter": {
+            "Today": [
+              "Succeeded"
+            ]
+          },
+          "type": "Compose",
+          "inputs": "@formatDateTime(addDays(outputs('Today'),30),'yyyy-MM-dd')"
+        },
+        "Plus15": {
+          "runAfter": {
+            "Plus30": [
+              "Succeeded"
+            ]
+          },
+          "type": "Compose",
+          "inputs": "@formatDateTime(addDays(outputs('Today'),15),'yyyy-MM-dd')"
+        },
+        "Minus30": {
+          "runAfter": {
+            "Plus15": [
+              "Succeeded"
+            ]
+          },
+          "type": "Compose",
+          "inputs": "@formatDateTime(addDays(outputs('Today'),-30),'yyyy-MM-dd')"
+        },
+        "Get_R1": {
+          "runAfter": {
+            "Minus30": [
+              "Succeeded"
+            ]
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+              "parameters/method": "GET",
+              "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_ActionPlans@@',decodeUriComponent('%27'),')/items?$top=500&$select=Id,Title,DueDate,ReminderStage,ActionStatus,FindingRating&$filter=',replace(concat('DueDate le ',concat('datetime',decodeUriComponent('%27'),outputs('Plus30'),'T00:00:00Z',decodeUriComponent('%27')),' and DueDate ge ',concat('datetime',decodeUriComponent('%27'),outputs('Today'),'T00:00:00Z',decodeUriComponent('%27')),' and ReminderStage eq ',decodeUriComponent('%27'),'None',decodeUriComponent('%27'),' and ActionStatus ne ',decodeUriComponent('%27'),'Closed',decodeUriComponent('%27')),' ','%20'))",
+              "parameters/headers": {
+                "Accept": "application/json;odata=nometadata"
+              }
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Each_R1": {
+          "runAfter": {
+            "Get_R1": [
+              "Succeeded"
+            ]
+          },
+          "type": "Foreach",
+          "foreach": "@body('Get_R1')?['value']",
+          "actions": {
+            "Set_R1": {
+              "runAfter": {},
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "parameters/method": "POST",
+                  "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_ActionPlans@@',decodeUriComponent('%27'),')/items(',items('Each_R1')?['Id'],')')",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata",
+                    "Content-Type": "application/json;odata=nometadata",
+                    "X-HTTP-Method": "MERGE",
+                    "IF-MATCH": "*"
+                  },
+                  "parameters/body": "{\"ReminderStage\":\"Reminder 30d\"}"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Mail_R1": {
+              "runAfter": {
+                "Set_R1": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_office365",
+                  "operationId": "SendEmailV2",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                },
+                "parameters": {
+                  "emailMessage/To": "user@example.com",
+                  "emailMessage/Subject": "@concat('Action due within 30 days: ',items('Each_R1')?['Title'])",
+                  "emailMessage/Body": "@concat('<p>Action <b>',items('Each_R1')?['Title'],'</b> is due ',formatDateTime(items('Each_R1')?['DueDate'],'yyyy-MM-dd'),'. Stage: Reminder 30d.</p>')",
+                  "emailMessage/Importance": "Normal"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          }
+        },
+        "Get_R2": {
+          "runAfter": {
+            "Each_R1": [
+              "Succeeded"
+            ]
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+              "parameters/method": "GET",
+              "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_ActionPlans@@',decodeUriComponent('%27'),')/items?$top=500&$select=Id,Title,DueDate,ReminderStage,ActionStatus,FindingRating&$filter=',replace(concat('DueDate le ',concat('datetime',decodeUriComponent('%27'),outputs('Plus15'),'T00:00:00Z',decodeUriComponent('%27')),' and DueDate ge ',concat('datetime',decodeUriComponent('%27'),outputs('Today'),'T00:00:00Z',decodeUriComponent('%27')),' and ReminderStage eq ',decodeUriComponent('%27'),'Reminder 30d',decodeUriComponent('%27'),' and ActionStatus ne ',decodeUriComponent('%27'),'Closed',decodeUriComponent('%27')),' ','%20'))",
+              "parameters/headers": {
+                "Accept": "application/json;odata=nometadata"
+              }
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Each_R2": {
+          "runAfter": {
+            "Get_R2": [
+              "Succeeded"
+            ]
+          },
+          "type": "Foreach",
+          "foreach": "@body('Get_R2')?['value']",
+          "actions": {
+            "Set_R2": {
+              "runAfter": {},
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "parameters/method": "POST",
+                  "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_ActionPlans@@',decodeUriComponent('%27'),')/items(',items('Each_R2')?['Id'],')')",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata",
+                    "Content-Type": "application/json;odata=nometadata",
+                    "X-HTTP-Method": "MERGE",
+                    "IF-MATCH": "*"
+                  },
+                  "parameters/body": "{\"ReminderStage\":\"Reminder 15d\"}"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Mail_R2": {
+              "runAfter": {
+                "Set_R2": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_office365",
+                  "operationId": "SendEmailV2",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                },
+                "parameters": {
+                  "emailMessage/To": "user@example.com",
+                  "emailMessage/Subject": "@concat('Action due within 15 days: ',items('Each_R2')?['Title'])",
+                  "emailMessage/Body": "@concat('<p>Action <b>',items('Each_R2')?['Title'],'</b> is due ',formatDateTime(items('Each_R2')?['DueDate'],'yyyy-MM-dd'),'. Stage: Reminder 15d.</p>')",
+                  "emailMessage/Importance": "Normal"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          }
+        },
+        "Get_L1": {
+          "runAfter": {
+            "Each_R2": [
+              "Succeeded"
+            ]
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+              "parameters/method": "GET",
+              "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_ActionPlans@@',decodeUriComponent('%27'),')/items?$top=500&$select=Id,Title,DueDate,ReminderStage,ActionStatus,FindingRating&$filter=',replace(concat('DueDate lt ',concat('datetime',decodeUriComponent('%27'),outputs('Today'),'T00:00:00Z',decodeUriComponent('%27')),' and ReminderStage ne ',decodeUriComponent('%27'),'Escalated - Dept Head',decodeUriComponent('%27'),' and ReminderStage ne ',decodeUriComponent('%27'),'Escalated - CEO',decodeUriComponent('%27'),' and ActionStatus ne ',decodeUriComponent('%27'),'Closed',decodeUriComponent('%27')),' ','%20'))",
+              "parameters/headers": {
+                "Accept": "application/json;odata=nometadata"
+              }
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Each_L1": {
+          "runAfter": {
+            "Get_L1": [
+              "Succeeded"
+            ]
+          },
+          "type": "Foreach",
+          "foreach": "@body('Get_L1')?['value']",
+          "actions": {
+            "Set_L1": {
+              "runAfter": {},
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "parameters/method": "POST",
+                  "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_ActionPlans@@',decodeUriComponent('%27'),')/items(',items('Each_L1')?['Id'],')')",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata",
+                    "Content-Type": "application/json;odata=nometadata",
+                    "X-HTTP-Method": "MERGE",
+                    "IF-MATCH": "*"
+                  },
+                  "parameters/body": "{\"ReminderStage\":\"Escalated - Dept Head\",\"ActionStatus\":\"Overdue\"}"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Mail_L1": {
+              "runAfter": {
+                "Set_L1": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_office365",
+                  "operationId": "SendEmailV2",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                },
+                "parameters": {
+                  "emailMessage/To": "user@example.com",
+                  "emailMessage/Subject": "@concat('OVERDUE action (escalated to Dept Head): ',items('Each_L1')?['Title'])",
+                  "emailMessage/Body": "@concat('<p>Action <b>',items('Each_L1')?['Title'],'</b> is due ',formatDateTime(items('Each_L1')?['DueDate'],'yyyy-MM-dd'),'. Stage: Escalated - Dept Head.</p>')",
+                  "emailMessage/Importance": "Normal"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Audit_L1": {
+              "runAfter": {
+                "Mail_L1": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "PostItem",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "table": "@@LIST:IA_AuditLog@@",
+                  "item/Title": "@concat('OVERDUE action (escalated to Dept Head): ',items('Each_L1')?['Title'])",
+                  "item/SourceList": "Corrective Action Tracker",
+                  "item/SourceItemId": "@int(items('Each_L1')?['Id'])",
+                  "item/EventType/Value": "Escalation",
+                  "item/EventDetails": "Stage set to Escalated - Dept Head"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          }
+        },
+        "Get_L2": {
+          "runAfter": {
+            "Each_L1": [
+              "Succeeded"
+            ]
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+              "parameters/method": "GET",
+              "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_ActionPlans@@',decodeUriComponent('%27'),')/items?$top=500&$select=Id,Title,DueDate,ReminderStage,ActionStatus,FindingRating&$filter=',replace(concat('DueDate lt ',concat('datetime',decodeUriComponent('%27'),outputs('Minus30'),'T00:00:00Z',decodeUriComponent('%27')),' and ReminderStage ne ',decodeUriComponent('%27'),'Escalated - CEO',decodeUriComponent('%27'),' and ActionStatus ne ',decodeUriComponent('%27'),'Closed',decodeUriComponent('%27')),' ','%20'))",
+              "parameters/headers": {
+                "Accept": "application/json;odata=nometadata"
+              }
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Each_L2": {
+          "runAfter": {
+            "Get_L2": [
+              "Succeeded"
+            ]
+          },
+          "type": "Foreach",
+          "foreach": "@body('Get_L2')?['value']",
+          "actions": {
+            "Set_L2": {
+              "runAfter": {},
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "parameters/method": "POST",
+                  "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_ActionPlans@@',decodeUriComponent('%27'),')/items(',items('Each_L2')?['Id'],')')",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata",
+                    "Content-Type": "application/json;odata=nometadata",
+                    "X-HTTP-Method": "MERGE",
+                    "IF-MATCH": "*"
+                  },
+                  "parameters/body": "{\"ReminderStage\":\"Escalated - CEO\",\"ActionStatus\":\"Overdue\"}"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Mail_L2": {
+              "runAfter": {
+                "Set_L2": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_office365",
+                  "operationId": "SendEmailV2",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                },
+                "parameters": {
+                  "emailMessage/To": "user@example.com",
+                  "emailMessage/Subject": "@concat('OVERDUE 30+ days (escalated to CEO): ',items('Each_L2')?['Title'])",
+                  "emailMessage/Body": "@concat('<p>Action <b>',items('Each_L2')?['Title'],'</b> is due ',formatDateTime(items('Each_L2')?['DueDate'],'yyyy-MM-dd'),'. Stage: Escalated - CEO.</p>')",
+                  "emailMessage/Importance": "Normal"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Audit_L2": {
+              "runAfter": {
+                "Mail_L2": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "PostItem",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "table": "@@LIST:IA_AuditLog@@",
+                  "item/Title": "@concat('OVERDUE 30+ days (escalated to CEO): ',items('Each_L2')?['Title'])",
+                  "item/SourceList": "Corrective Action Tracker",
+                  "item/SourceItemId": "@int(items('Each_L2')?['Id'])",
+                  "item/EventType/Value": "Escalation",
+                  "item/EventDetails": "Stage set to Escalated - CEO"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          }
+        },
+        "If_any_escalation": {
+          "runAfter": {
+            "Each_L2": [
+              "Succeeded"
+            ]
+          },
+          "type": "If",
+          "expression": {
+            "greater": [
+              "@add(length(body('Get_L1')?['value']),length(body('Get_L2')?['value']))",
+              0
+            ]
+          },
+          "actions": {
+            "Mail_digest": {
+              "runAfter": {},
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_office365",
+                  "operationId": "SendEmailV2",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                },
+                "parameters": {
+                  "emailMessage/To": "user@example.com",
+                  "emailMessage/Subject": "@concat('IA daily escalation digest ',outputs('Today'))",
+                  "emailMessage/Body": "@concat('<p>Escalated to Dept Head: ',length(body('Get_L1')?['value']),'<br>Escalated to CEO: ',length(body('Get_L2')?['value']),'</p>')",
+                  "emailMessage/Importance": "Normal"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          }
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

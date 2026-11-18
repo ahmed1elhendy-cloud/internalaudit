@@ -1,0 +1,288 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "mhao_sharedsharepointonline_664e2"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "When_an_item_is_created_or_modified": {
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          },
+          "splitOn": "@triggerOutputs()?['body/value']",
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+              "table": "@@LIST:IA_AuditPlan@@"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "operationId": "GetOnUpdatedItems",
+              "connectionName": "shared_sharepointonline"
+            }
+          },
+          "conditions": [],
+          "runtimeConfiguration": {
+            "concurrency": {
+              "runs": 1
+            }
+          }
+        }
+      },
+      "actions": {
+        "Condition_2": {
+          "actions": {
+            "Get_items": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "table": "Audit Engagements",
+                  "$filter": "AuditPlanItemId eq @{triggerOutputs()?['body/ID']}"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "operationId": "GetItems",
+                  "connectionName": "shared_sharepointonline"
+                }
+              }
+            },
+            "Condition": {
+              "actions": {
+                "Create_item": {
+                  "runAfter": {
+                    "Select": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                      "table": "Audit Engagements",
+                      "item/Title": "@triggerOutputs()?['body/Title']",
+                      "item/AuditPlanItem/Id": "@triggerOutputs()?['body/ID']",
+                      "item/LeadAuditor/Claims": "@triggerOutputs()?['body/AssignedAuditor/Claims']",
+                      "item/Stage/Value": "Planning",
+                      "item/Engagement_x0020_Type/Value": "@triggerOutputs()?['body/AuditType']?['Value']"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                      "operationId": "PostItem",
+                      "connectionName": "shared_sharepointonline"
+                    }
+                  }
+                },
+                "Select": {
+                  "type": "Select",
+                  "inputs": {
+                    "from": "@coalesce(triggerOutputs()?['body/Entity'], json('[]'))",
+                    "select": {
+                      "Id": "@item()?['Id']"
+                    }
+                  }
+                },
+                "Send_an_HTTP_request_to_SharePoint": {
+                  "runAfter": {
+                    "Create_item": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                      "parameters/method": "POST",
+                      "parameters/uri": "_api/web/lists/getbytitle('Audit Engagements')/items(@{outputs('Create_item')?['body/ID']})",
+                      "parameters/headers": {
+                        "IF-MATCH": "*",
+                        "X-HTTP-Method": "MERGE",
+                        "Content-Type": "application/json;odata=nometadata"
+                      },
+                      "parameters/body": "{\"EntityId\": @{string(coalesce(triggerOutputs()?['body/Entity#Id'], json('[]')))},\"EngagementFolderUrl\":{\"Url\":\"https://YOURTENANT.sharepoint.com/sites/InternalAuditTest/IA_WorkingPapers/@{coalesce(triggerOutputs()?['body/AuditRef'],'ENG')}\",\"Description\":\"Engagement Folder\"}}"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "connectionName": "shared_sharepointonline"
+                    }
+                  }
+                },
+                "Apply_to_each": {
+                  "foreach": "@json('[{\"t\":\"Kick-off\",\"b\":\"s\",\"o\":0},{\"t\":\"Walkthroughs\",\"b\":\"s\",\"o\":14},{\"t\":\"Fieldwork Complete\",\"b\":\"f\",\"o\":-21},{\"t\":\"Draft Report\",\"b\":\"f\",\"o\":-14},{\"t\":\"Management Responses\",\"b\":\"f\",\"o\":-7},{\"t\":\"Final Report\",\"b\":\"f\",\"o\":0}]')",
+                  "actions": {
+                    "Create_item_1": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                          "table": "@@LIST:IA_Milestones@@",
+                          "item/Title": "@item()?['t']",
+                          "item/DueDate": "@addDays(if(equals(item()?['b'],'s'),coalesce(triggerOutputs()?['body/PlannedStart'],utcNow()),coalesce(triggerOutputs()?['body/PlannedFinish'],utcNow())),item()?['o'])",
+                          "item/Engagement/Id": "@outputs('Create_item')?['body/ID']",
+                          "item/MilestoneType/Value": "@item()?['t']",
+                          "item/MilestoneStatus/Value": "Not Started"
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                          "operationId": "PostItem",
+                          "connectionName": "shared_sharepointonline"
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Send_an_HTTP_request_to_SharePoint": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "Foreach"
+                },
+                "Apply_to_each_1": {
+                  "foreach": "@split(replace('IA_WorkingPapers/@|IA_WorkingPapers/@/Planning|IA_WorkingPapers/@/Walkthroughs|IA_WorkingPapers/@/Samples|IA_WorkingPapers/@/Testing|IA_WorkingPapers/@/Reports|IA_Evidence/@|IA_Evidence/@/Management Evidence','@',coalesce(triggerOutputs()?['body/AuditRef'],'ENG')),'|')",
+                  "actions": {
+                    "Send_an_HTTP_request_to_SharePoint_1": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                          "parameters/method": "POST",
+                          "parameters/uri": "@concat('_api/web/folders/add(''',item(),''')')"
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                          "operationId": "HttpRequest",
+                          "connectionName": "shared_sharepointonline"
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Apply_to_each": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "Foreach",
+                  "runtimeConfiguration": {
+                    "concurrency": {
+                      "repetitions": 1
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Get_items": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {}
+              },
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@length(outputs('Get_items')?['body/value'])",
+                      0
+                    ]
+                  }
+                ]
+              },
+              "type": "If"
+            },
+            "Update_item": {
+              "runAfter": {
+                "Condition": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "table": "Annual Audit Plan",
+                  "id": "@triggerOutputs()?['body/ID']",
+                  "item/Title": "@triggerOutputs()?['body/Title']",
+                  "item/PlannedStart": "@triggerOutputs()?['body/PlannedStart']",
+                  "item/PlannedFinish": "@triggerOutputs()?['body/PlannedFinish']",
+                  "item/AuditStatus/Value": "In Progress"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "operationId": "PatchItem",
+                  "connectionName": "shared_sharepointonline"
+                }
+              }
+            },
+            "Run_a_Child_Flow": {
+              "runAfter": {
+                "Update_item": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Workflow",
+              "inputs": {
+                "host": {
+                  "workflowReferenceName": "1ec4f089-93d3-f111-a05a-6045bd8bb468"
+                },
+                "body": {
+                  "text": "Annual Audit Plan",
+                  "number": "@triggerOutputs()?['body/ID']",
+                  "text_1": "Stage Change",
+                  "text_2": "Audit initiated: engagement created by WF1",
+                  "text_3": "user@example.com"
+                }
+              }
+            }
+          },
+          "runAfter": {},
+          "else": {
+            "actions": {}
+          },
+          "expression": {
+            "and": [
+              {
+                "equals": [
+                  "@triggerOutputs()?['body/ApprovalStatus/Value']",
+                  "Approved"
+                ]
+              },
+              {
+                "equals": [
+                  "@triggerOutputs()?['body/AuditStatus']?['Value']",
+                  "Planned"
+                ]
+              }
+            ]
+          },
+          "type": "If"
+        }
+      },
+      "outputs": {}
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

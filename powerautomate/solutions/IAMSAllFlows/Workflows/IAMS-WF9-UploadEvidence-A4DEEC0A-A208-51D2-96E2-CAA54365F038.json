@@ -1,0 +1,482 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedsharepointonline_iams"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "PowerApp",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "title": "EngagementID",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please enter EngagementID",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text_1": {
+                  "title": "EvidenceType",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please enter EvidenceType",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text_2": {
+                  "title": "FileName",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please enter FileName",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text_3": {
+                  "title": "ActionId",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please enter ActionId",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text_4": {
+                  "title": "UploaderEmail",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please enter UploaderEmail",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "file": {
+                  "title": "FileContent",
+                  "type": "object",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please select file or image",
+                  "x-ms-content-hint": "FILE",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "contentBytes": {
+                      "type": "string",
+                      "format": "byte"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "text",
+                "text_1",
+                "text_2",
+                "text_3",
+                "text_4",
+                "file"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Check_extension": {
+          "runAfter": {},
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@contains(createArray('pdf','docx','doc','xlsx','xls','pptx','jpg','jpeg','png','msg','csv','zip','txt'),toLower(last(split(triggerBody()?['text_2'],'.'))))",
+              true
+            ]
+          },
+          "actions": {
+            "SubFolder": {
+              "runAfter": {},
+              "type": "Compose",
+              "inputs": "@if(equals(triggerBody()?['text_1'],'Walkthrough'),'Walkthroughs',if(equals(triggerBody()?['text_1'],'Sample'),'Samples',if(equals(triggerBody()?['text_1'],'Validation'),'Management Evidence',if(equals(triggerBody()?['text_1'],'Planning'),'Planning',triggerBody()?['text_1']))))"
+            },
+            "SafeName": {
+              "runAfter": {
+                "SubFolder": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Compose",
+              "inputs": "@concat(formatDateTime(utcNow(),'yyyyMMdd-HHmmss'),'_',replace(replace(replace(replace(triggerBody()?['text_2'],'#','_'),'%','_'),'&','_'),' ','_'))"
+            },
+            "Create_file": {
+              "runAfter": {
+                "SafeName": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "CreateFile",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "folderPath": "@concat('/IA_Evidence/',triggerBody()?['text'],'/',outputs('SubFolder'))",
+                  "name": "@outputs('SafeName')",
+                  "body": "@base64ToBinary(triggerBody()?['file']?['contentBytes'])"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Get_file_item": {
+              "runAfter": {
+                "Create_file": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "parameters/method": "GET",
+                  "parameters/uri": "@concat('_api/web/GetFileByServerRelativeUrl(',decodeUriComponent('%27'),concat('/sites/InternalAuditTest/IA_Evidence/',triggerBody()?['text'],'/',outputs('SubFolder'),'/',outputs('SafeName')),decodeUriComponent('%27'),')/ListItemAllFields?$select=Id,EncodedAbsUrl')",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Get_engagement": {
+              "runAfter": {
+                "Get_file_item": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "parameters/method": "GET",
+                  "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_Engagements@@',decodeUriComponent('%27'),')/items?$filter=EngagementID eq ',decodeUriComponent('%27'),triggerBody()?['text'],decodeUriComponent('%27'),'&$top=1&$select=Id')",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Set_file_properties": {
+              "runAfter": {
+                "Get_engagement": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "parameters/method": "POST",
+                  "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_Evidence@@',decodeUriComponent('%27'),')/items(',body('Get_file_item')?['Id'],')')",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata",
+                    "Content-Type": "application/json;odata=nometadata",
+                    "X-HTTP-Method": "MERGE",
+                    "IF-MATCH": "*"
+                  },
+                  "parameters/body": "@concat('{\"Title\":\"',replace(triggerBody()?['text_2'],'\"',''),'\",\"EvidenceType\":\"',triggerBody()?['text_1'],'\"',if(empty(body('Get_engagement')?['value']),'',concat(',\"EngagementId\":',first(body('Get_engagement')?['value'])?['Id'])),'}')"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "If_has_email": {
+              "runAfter": {
+                "Set_file_properties": [
+                  "Succeeded"
+                ]
+              },
+              "type": "If",
+              "expression": {
+                "not": {
+                  "equals": [
+                    "@empty(triggerBody()?['text_4'])",
+                    true
+                  ]
+                }
+              },
+              "actions": {
+                "Ensure_user": {
+                  "runAfter": {},
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                      "parameters/method": "POST",
+                      "parameters/uri": "_api/web/ensureuser",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata",
+                        "Content-Type": "application/json;odata=nometadata"
+                      },
+                      "parameters/body": "@concat('{\"logonName\":\"i:0#.f|membership|',triggerBody()?['text_4'],'\"}')"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "Set_uploader": {
+                  "runAfter": {
+                    "Ensure_user": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                      "parameters/method": "POST",
+                      "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_Evidence@@',decodeUriComponent('%27'),')/items(',body('Get_file_item')?['Id'],')')",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata",
+                        "Content-Type": "application/json;odata=nometadata",
+                        "X-HTTP-Method": "MERGE",
+                        "IF-MATCH": "*"
+                      },
+                      "parameters/body": "@concat('{\"UploadedByUserId\":',body('Ensure_user')?['Id'],'}')"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                }
+              },
+              "else": {
+                "actions": {}
+              }
+            },
+            "If_action_linked": {
+              "runAfter": {
+                "If_has_email": [
+                  "Succeeded"
+                ]
+              },
+              "type": "If",
+              "expression": {
+                "greater": [
+                  "@int(coalesce(triggerBody()?['text_3'],'0'))",
+                  0
+                ]
+              },
+              "actions": {
+                "Get_action": {
+                  "runAfter": {},
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                      "parameters/method": "GET",
+                      "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_ActionPlans@@',decodeUriComponent('%27'),')/items(',triggerBody()?['text_3'],')?$select=Id,FindingId')",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata"
+                      }
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "Link_file_to_action": {
+                  "runAfter": {
+                    "Get_action": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                      "parameters/method": "POST",
+                      "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_Evidence@@',decodeUriComponent('%27'),')/items(',body('Get_file_item')?['Id'],')')",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata",
+                        "Content-Type": "application/json;odata=nometadata",
+                        "X-HTTP-Method": "MERGE",
+                        "IF-MATCH": "*"
+                      },
+                      "parameters/body": "@concat('{\"ActionId\":',triggerBody()?['text_3'],if(equals(coalesce(body('Get_action')?['FindingId'],0),0),'',concat(',\"FindingId\":',body('Get_action')?['FindingId'])),'}')"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "Flag_action_evidence": {
+                  "runAfter": {
+                    "Link_file_to_action": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                      "parameters/method": "POST",
+                      "parameters/uri": "@concat('_api/web/lists(guid',decodeUriComponent('%27'),'@@LIST:IA_ActionPlans@@',decodeUriComponent('%27'),')/items(',int(triggerBody()?['text_3']),')')",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata",
+                        "Content-Type": "application/json;odata=nometadata",
+                        "X-HTTP-Method": "MERGE",
+                        "IF-MATCH": "*"
+                      },
+                      "parameters/body": "{\"EvidenceUploaded\":true}"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                }
+              },
+              "else": {
+                "actions": {}
+              }
+            },
+            "Audit_upload": {
+              "runAfter": {
+                "If_action_linked": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "PostItem",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOURTENANT.sharepoint.com/sites/InternalAuditTest",
+                  "table": "@@LIST:IA_AuditLog@@",
+                  "item/Title": "@concat('Evidence uploaded: ',outputs('SafeName'))",
+                  "item/SourceList": "Evidence Repository",
+                  "item/SourceItemId": "@int(body('Get_file_item')?['Id'])",
+                  "item/EventType/Value": "Created",
+                  "item/EventDetails": "@concat('Engagement ',triggerBody()?['text'],' | ',triggerBody()?['text_1'],' | by ',coalesce(triggerBody()?['text_4'],'n/a'))"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Respond_ok": {
+              "runAfter": {
+                "Audit_upload": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Response",
+              "kind": "PowerApp",
+              "inputs": {
+                "statusCode": 200,
+                "body": {
+                  "result": "Uploaded",
+                  "url": "@{body('Get_file_item')?['EncodedAbsUrl']}"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "title": "result",
+                      "x-ms-dynamically-added": true,
+                      "type": "string"
+                    },
+                    "url": {
+                      "title": "url",
+                      "x-ms-dynamically-added": true,
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Respond_bad_type": {
+                "runAfter": {},
+                "type": "Response",
+                "kind": "PowerApp",
+                "inputs": {
+                  "statusCode": 200,
+                  "body": {
+                    "result": "Error: file type not allowed. Allowed: pdf, docx, xlsx, pptx, jpg, png, msg, csv, zip, txt.",
+                    "url": ""
+                  },
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "result": {
+                        "title": "result",
+                        "x-ms-dynamically-added": true,
+                        "type": "string"
+                      },
+                      "url": {
+                        "title": "url",
+                        "x-ms-dynamically-added": true,
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

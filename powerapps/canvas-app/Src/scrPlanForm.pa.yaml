@@ -1,0 +1,1117 @@
+# ************************************************************************************************
+# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
+# Use the maker portal to create and edit your Power Apps.
+# 
+# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
+# 
+# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
+# ************************************************************************************************
+Screens:
+  scrPlanForm:
+    Properties:
+      Fill: =RGBA(255, 255, 255, 1)
+      LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
+    Children:
+      - recBg_1:
+          Control: Rectangle@2.3.0
+          Properties:
+            Fill: =RGBA(247, 244, 236, 1)
+            Height: =Parent.Height
+            Width: =Parent.Width
+      - recHeader_14:
+          Control: Rectangle@2.3.0
+          Properties:
+            Fill: =RGBA(18, 35, 59, 1)
+            Height: =86
+            Width: =Parent.Width
+      - recGold_14:
+          Control: Rectangle@2.3.0
+          Properties:
+            Fill: =RGBA(184, 151, 90, 1)
+            Height: =2
+            Width: =Parent.Width
+            Y: =86
+      - lblBrand_14:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(247, 244, 236, 1)
+            Font: =Font.Georgia
+            Height: =28
+            Size: =20
+            Text: ="MHAO"
+            Width: =300
+            X: =24
+            Y: =6
+      - lblBrandSub_14:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(184, 151, 90, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =16
+            Size: =9
+            Text: ="INTERNAL AUDIT PORTAL"
+            Width: =300
+            X: =24
+            Y: =32
+      - lblUser_14:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Right
+            Color: =RGBA(217, 199, 158, 1)
+            Font: =Font.'Segoe UI'
+            Height: =24
+            Size: =11
+            Text: =User().FullName
+            Width: =400
+            X: =Parent.Width - 424
+            Y: =16
+      - galNav_14:
+          Control: Gallery@2.15.0
+          Variant: Horizontal
+          Properties:
+            Height: =34
+            Items: =Filter(Table({Value:"Dashboard",Show:true},{Value:"Plan",Show:varIsAuditor||varIsExec},{Value:"Engagements",Show:varIsAuditor||varIsExec},{Value:"Questionnaires",Show:varIsAuditor||varIsExec},{Value:"My Questionnaires",Show:varIsAuditee||varIsAuditor},{Value:"Fieldwork",Show:varIsAuditor},{Value:"Findings",Show:true},{Value:"Actions",Show:true},{Value:"Follow-Up",Show:varIsAuditor||varIsExec||varIsBUHead||varIsDeptHead},{Value:"Reports",Show:true},{Value:"Resource Centre",Show:varIsAuditor}),Show)
+            OnSelect: =Switch(ThisItem.Value, "Dashboard", Navigate(scrDashboard, ScreenTransition.None), "Plan", Navigate(scrPlan, ScreenTransition.None), "Engagements", Navigate(scrEngagements, ScreenTransition.None), "Findings", Navigate(scrFindings, ScreenTransition.None), "Actions", Navigate(scrActions, ScreenTransition.None), "Follow-Up", Navigate(scrFollowUp, ScreenTransition.None), "Fieldwork", Navigate(scrFieldwork, ScreenTransition.None), "Questionnaires", Navigate(scrQuestionnaires, ScreenTransition.None), "My Questionnaires", Navigate(scrMyQuestionnaires, ScreenTransition.None), "Reports", Navigate(scrReports, ScreenTransition.None), "Resource Centre", Navigate(scrResources, ScreenTransition.None))
+            ShowScrollbar: =false
+            TemplatePadding: =0
+            TemplateSize: =121
+            Width: =Parent.Width - 32
+            X: =16
+            Y: =52
+          Children:
+            - lblTab_14:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Center
+                  Color: =If(ThisItem.Value="Plan",RGBA(247, 244, 236, 1),RGBA(174, 184, 198, 1))
+                  Fill: =If(ThisItem.Value="Plan",RGBA(27, 50, 80, 1),RGBA(0, 0, 0, 0))
+                  Font: =Font.'Segoe UI'
+                  Height: =34
+                  OnSelect: =Select(Parent)
+                  Size: =11
+                  Text: =ThisItem.Value
+                  Width: =Parent.TemplateWidth
+            - recTabLine_14:
+                Control: Rectangle@2.3.0
+                Properties:
+                  Fill: =RGBA(247, 244, 236, 1)
+                  Height: =2
+                  Visible: =ThisItem.Value="Plan"
+                  Width: =Parent.TemplateWidth
+                  Y: =32
+      - lblTitle_14:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(29, 37, 48, 1)
+            Font: =Font.Georgia
+            Height: =34
+            Size: =24
+            Text: =If(frmPlan.Mode = FormMode.New, "New plan item", "Edit plan item")
+            Width: =Parent.Width - 200
+            X: =24
+            Y: =96
+      - lblSub_14:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(107, 114, 128, 1)
+            Font: =Font.'Segoe UI'
+            Height: =20
+            Size: =12
+            Text: ="Annual audit plan entry"
+            Width: =Parent.Width - 200
+            X: =24
+            Y: =130
+      - btnPlanFormSave:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =RGBA(184, 151, 90, 1)
+            BorderThickness: =1
+            Color: =RGBA(247, 244, 236, 1)
+            Fill: =RGBA(18, 35, 59, 1)
+            Font: =Font.'Segoe UI'
+            Height: =32
+            HoverColor: =RGBA(247, 244, 236, 1)
+            HoverFill: =RGBA(27, 50, 80, 1)
+            OnSelect: =SubmitForm(frmPlan)
+            PressedColor: =RGBA(247, 244, 236, 1)
+            PressedFill: =RGBA(27, 50, 80, 1)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =11
+            Text: =Upper("Save")
+            Width: =112
+            X: =Parent.Width - 264
+            Y: =100
+      - btnPlanFormCancel:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =RGBA(184, 151, 90, 1)
+            BorderThickness: =1
+            Color: =RGBA(18, 35, 59, 1)
+            Fill: =RGBA(0, 0, 0, 0)
+            Font: =Font.'Segoe UI'
+            Height: =32
+            HoverColor: =RGBA(18, 35, 59, 1)
+            HoverFill: =RGBA(251, 249, 243, 1)
+            OnSelect: =ResetForm(frmPlan); Navigate(scrPlan, ScreenTransition.None)
+            PressedColor: =RGBA(18, 35, 59, 1)
+            PressedFill: =RGBA(251, 249, 243, 1)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =11
+            Text: =Upper("Cancel")
+            Width: =112
+            X: =Parent.Width - 136
+            Y: =100
+      - frmPlan:
+          Control: Form@2.4.4
+          Layout: Vertical
+          Properties:
+            DataSource: ='Annual Audit Plan'
+            DefaultMode: =FormMode.New
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =Parent.Height - 156
+            Item: =varPlanItem
+            NumberOfColumns: =2
+            OnFailure: =Notify(frmPlan.Error, NotificationType.Error)
+            OnSuccess: =Notify("Plan item saved", NotificationType.Success); If(varSubmitPlan, Set(varSubmitPlan, false); 'IAMS-WF1a-PlanApproval'.Run(Text(frmPlan.LastSubmit.ID), User().Email); Notify("Submitted for approval. You will be notified by email.", NotificationType.Information)); Navigate(scrPlan, ScreenTransition.None)
+            Width: =Parent.Width
+            Y: =156
+          Children:
+            - Plan Year_DataCard1:
+                Control: TypedDataCard@1.0.7
+                Variant: NumberEdit
+                IsLocked: true
+                Properties:
+                  BorderColor: =RGBA(230, 224, 210, 1)
+                  DataField: ="PlanYear"
+                  Default: =ThisItem.'Plan Year'
+                  DisplayName: =DataSourceInfo([@'Annual Audit Plan'],DataSourceInfo.DisplayName,'Plan Year')
+                  Required: =false
+                  Update: =Value(DataCardValue13.Value)
+                  Width: =683
+                  X: =0
+                  Y: =0
+                Children:
+                  - DataCardKey13:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldName
+                      Properties:
+                        Height: =22
+                        Text: =Parent.DisplayName
+                        Weight: ='TextCanvas.Weight'.Semibold
+                        Width: =Parent.Width - 48
+                        Wrap: =false
+                        X: =24
+                        Y: =10
+                  - DataCardValue13:
+                      Control: NumberInput@2.9.12
+                      MetadataKey: FieldValue
+                      Properties:
+                        AccessibleLabel: =Parent.DisplayName
+                        DisplayMode: =Parent.DisplayMode
+                        Max: =Blank()
+                        Min: =Blank()
+                        ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                        Value: =Parent.Default
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardKey13.Y + DataCardKey13.Height + 4
+                  - ErrorMessage13:
+                      Control: Text@0.0.51
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        Height: =30
+                        Text: =Parent.Error
+                        Visible: =And(!IsBlank(Parent.Error), Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardValue13.Y + DataCardValue13.Height
+                  - StarVisible13:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: ='TextCanvas.Align'.Center
+                        Height: =30
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Y: =DataCardKey13.Y
+            - Name_DataCard1:
+                Control: TypedDataCard@1.0.7
+                Variant: TextualView
+                IsLocked: true
+                Properties:
+                  BorderColor: =RGBA(230, 224, 210, 1)
+                  DataField: ="{Name}"
+                  Default: =ThisItem.Name
+                  DisplayName: =DataSourceInfo([@'Annual Audit Plan'],DataSourceInfo.DisplayName,Name)
+                  Required: =false
+                  Width: =683
+                  X: =1
+                  Y: =0
+                Children:
+                  - DataCardKey14:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldName
+                      Properties:
+                        Height: =22
+                        Text: =Parent.DisplayName
+                        Weight: ='TextCanvas.Weight'.Semibold
+                        Width: =Parent.Width - 48
+                        Wrap: =false
+                        X: =24
+                        Y: =10
+                  - DataCardValue14:
+                      Control: TextInput@0.0.54
+                      MetadataKey: FieldValue
+                      Properties:
+                        AccessibleLabel: =Parent.DisplayName
+                        DisplayMode: =DisplayMode.View
+                        Mode: ="'TextInputCanvas.Mode'.TextInputModeSingleLine"
+                        Required: =Parent.Required
+                        ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                        Value: =Parent.Default
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardKey14.Y + DataCardKey14.Height + 4
+            - Planned Finish_DataCard1:
+                Control: TypedDataCard@1.0.7
+                Variant: DateEdit
+                IsLocked: true
+                Properties:
+                  BorderColor: =RGBA(230, 224, 210, 1)
+                  DataField: ="PlannedFinish"
+                  Default: =ThisItem.'Planned Finish'
+                  DisplayName: =DataSourceInfo([@'Annual Audit Plan'],DataSourceInfo.DisplayName,'Planned Finish')
+                  Required: =true
+                  Update: =DataCardValue15.SelectedDate
+                  Width: =683
+                  X: =0
+                  Y: =1
+                Children:
+                  - DataCardKey15:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldName
+                      Properties:
+                        Height: =22
+                        Text: =Parent.DisplayName
+                        Weight: ='TextCanvas.Weight'.Semibold
+                        Width: =Parent.Width - 48
+                        Wrap: =false
+                        X: =24
+                        Y: =10
+                  - DataCardValue15:
+                      Control: DatePicker@0.0.46
+                      MetadataKey: FieldValue
+                      Properties:
+                        AccessibleLabel: =Parent.DisplayName
+                        DisplayMode: =Parent.DisplayMode
+                        EndDate: =Date(Year(Today())+100, 12, 31)
+                        SelectedDate: =Parent.Default
+                        StartDate: =Date(1900, 1, 1)
+                        ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardKey15.Y + DataCardKey15.Height + 4
+                  - ErrorMessage14:
+                      Control: Text@0.0.51
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        Height: =30
+                        Text: =Parent.Error
+                        Visible: =And(!IsBlank(Parent.Error), Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardValue15.Y + DataCardValue15.Height
+                  - StarVisible14:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: ='TextCanvas.Align'.Center
+                        Height: =30
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Y: =DataCardKey15.Y
+            - Planned Start_DataCard1:
+                Control: TypedDataCard@1.0.7
+                Variant: DateEdit
+                IsLocked: true
+                Properties:
+                  BorderColor: =RGBA(230, 224, 210, 1)
+                  DataField: ="PlannedStart"
+                  Default: =ThisItem.'Planned Start'
+                  DisplayName: =DataSourceInfo([@'Annual Audit Plan'],DataSourceInfo.DisplayName,'Planned Start')
+                  Required: =true
+                  Update: =DataCardValue16.SelectedDate
+                  Width: =683
+                  X: =1
+                  Y: =1
+                Children:
+                  - DataCardKey16:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldName
+                      Properties:
+                        Height: =22
+                        Text: =Parent.DisplayName
+                        Weight: ='TextCanvas.Weight'.Semibold
+                        Width: =Parent.Width - 48
+                        Wrap: =false
+                        X: =24
+                        Y: =10
+                  - DataCardValue16:
+                      Control: DatePicker@0.0.46
+                      MetadataKey: FieldValue
+                      Properties:
+                        AccessibleLabel: =Parent.DisplayName
+                        DisplayMode: =Parent.DisplayMode
+                        EndDate: =Date(Year(Today())+100, 12, 31)
+                        SelectedDate: =Parent.Default
+                        StartDate: =Date(1900, 1, 1)
+                        ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardKey16.Y + DataCardKey16.Height + 4
+                  - ErrorMessage15:
+                      Control: Text@0.0.51
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        Height: =30
+                        Text: =Parent.Error
+                        Visible: =And(!IsBlank(Parent.Error), Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardValue16.Y + DataCardValue16.Height
+                  - StarVisible15:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: ='TextCanvas.Align'.Center
+                        Height: =30
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Y: =DataCardKey16.Y
+            - Actual Hours_DataCard1:
+                Control: TypedDataCard@1.0.7
+                Variant: NumberEdit
+                IsLocked: true
+                Properties:
+                  BorderColor: =RGBA(230, 224, 210, 1)
+                  DataField: ="ActualHours"
+                  Default: =ThisItem.'Actual Hours'
+                  DisplayName: =DataSourceInfo([@'Annual Audit Plan'],DataSourceInfo.DisplayName,'Actual Hours')
+                  Required: =false
+                  Update: =Value(DataCardValue17.Value)
+                  Width: =683
+                  X: =0
+                  Y: =2
+                Children:
+                  - DataCardKey17:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldName
+                      Properties:
+                        Height: =22
+                        Text: =Parent.DisplayName
+                        Weight: ='TextCanvas.Weight'.Semibold
+                        Width: =Parent.Width - 48
+                        Wrap: =false
+                        X: =24
+                        Y: =10
+                  - DataCardValue17:
+                      Control: NumberInput@2.9.12
+                      MetadataKey: FieldValue
+                      Properties:
+                        AccessibleLabel: =Parent.DisplayName
+                        DisplayMode: =Parent.DisplayMode
+                        Max: =Blank()
+                        Min: =Blank()
+                        ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                        Value: =Parent.Default
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardKey17.Y + DataCardKey17.Height + 4
+                  - ErrorMessage16:
+                      Control: Text@0.0.51
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        Height: =30
+                        Text: =Parent.Error
+                        Visible: =And(!IsBlank(Parent.Error), Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardValue17.Y + DataCardValue17.Height
+                  - StarVisible16:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: ='TextCanvas.Align'.Center
+                        Height: =30
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Y: =DataCardKey17.Y
+            - Assigned Auditor_DataCard1:
+                Control: TypedDataCard@1.0.7
+                Variant: ComboBoxEdit
+                IsLocked: true
+                Properties:
+                  BorderColor: =RGBA(230, 224, 210, 1)
+                  DataField: ="AssignedAuditor"
+                  Default: =ThisItem.'Assigned Auditor'
+                  DisplayName: =DataSourceInfo([@'Annual Audit Plan'],DataSourceInfo.DisplayName,'Assigned Auditor')
+                  Required: =false
+                  Update: =DataCardValue18.Selected
+                  Width: =683
+                  X: =1
+                  Y: =2
+                Children:
+                  - DataCardKey18:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldName
+                      Properties:
+                        Height: =22
+                        Text: =Parent.DisplayName
+                        Weight: ='TextCanvas.Weight'.Semibold
+                        Width: =Parent.Width - 48
+                        Wrap: =false
+                        X: =24
+                        Y: =10
+                  - DataCardValue18:
+                      Control: ComboBox@0.0.51
+                      MetadataKey: FieldValue
+                      Properties:
+                        AccessibleLabel: =Parent.DisplayName
+                        DefaultSelectedItems: =[Parent.Default]
+                        DisplayMode: =Parent.DisplayMode
+                        Items: =Choices([@'Annual Audit Plan'].'Assigned Auditor')
+                        Required: =Parent.Required
+                        ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardKey18.Y + DataCardKey18.Height + 4
+                      Children:
+                        - DisplayName4:
+                            Control: ComboBoxDataField@1.5.0
+                            Variant: textualColumn
+                            IsLocked: true
+                            Properties:
+                              FieldDisplayName: ="DisplayName"
+                              FieldName: ="DisplayName"
+                              FieldType: ="s"
+                              Order: =1
+                  - ErrorMessage17:
+                      Control: Text@0.0.51
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        Height: =30
+                        Text: =Parent.Error
+                        Visible: =And(!IsBlank(Parent.Error), Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardValue18.Y + DataCardValue18.Height
+                  - StarVisible17:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: ='TextCanvas.Align'.Center
+                        Height: =20
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Y: =DataCardKey18.Y
+            - Attachments_DataCard1:
+                Control: TypedDataCard@1.0.7
+                Variant: ClassicAttachmentsEdit
+                Properties:
+                  BorderColor: =RGBA(230, 224, 210, 1)
+                  DataField: ="{Attachments}"
+                  Default: =ThisItem.Attachments
+                  DisplayName: =DataSourceInfo([@'Annual Audit Plan'],DataSourceInfo.DisplayName,Attachments)
+                  Required: =false
+                  Update: =DataCardValue19.Attachments
+                  Width: =683
+                  X: =0
+                  Y: =3
+                Children:
+                  - DataCardKey19:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldName
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =2
+                        Color: =RGBA(29, 37, 48, 1)
+                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                        DisabledColor: =RGBA(161, 159, 157, 1)
+                        FocusedBorderThickness: =4
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =34
+                        PaddingLeft: =0
+                        Text: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        Wrap: =false
+                        X: =30
+                        Y: =10
+                  - DataCardValue19:
+                      Control: Attachments@2.3.0
+                      MetadataKey: FieldValue
+                      Properties:
+                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                        BorderStyle: =BorderStyle.None
+                        Color: =RGBA(29, 37, 48, 1)
+                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                        DisabledColor: =RGBA(161, 159, 157, 1)
+                        DisabledFill: =RGBA(242, 242, 241, 0)
+                        DisplayMode: =Parent.DisplayMode
+                        Fill: =RGBA(251, 249, 243, 1)
+                        Font: =Font.'Segoe UI'
+                        HoverColor: =RGBA(29, 37, 48, 1)
+                        HoverFill: =RGBA(251, 249, 243, 1)
+                        ItemColor: =RGBA(0, 0, 0, 1)
+                        ItemFill: =RGBA(18, 35, 59, 1)
+                        ItemHoverColor: =RGBA(29, 37, 48, 1)
+                        ItemHoverFill: =RGBA(251, 249, 243, 1)
+                        ItemSpacing: =12
+                        Items: =Parent.Default
+                        NoAttachmentsColor: =RGBA(161, 159, 157, 1)
+                        PaddingBottom: =5
+                        PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
+                        PaddingRight: =5
+                        PaddingTop: =5
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(18, 35, 59, 1)
+                        Tooltip: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =DataCardKey19.Y + DataCardKey19.Height + 5
+                  - ErrorMessage18:
+                      Control: Label@2.5.1
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =2
+                        Color: =RGBA(168, 0, 0, 1)
+                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                        DisabledColor: =RGBA(168, 0, 0, 1)
+                        FocusedBorderThickness: =4
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =10
+                        Live: =Live.Assertive
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Text: =Parent.Error
+                        Visible: =Parent.DisplayMode=DisplayMode.Edit
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =DataCardValue19.Y + DataCardValue19.Height
+                  - StarVisible18:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =2
+                        Color: =RGBA(29, 37, 48, 1)
+                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                        DisabledColor: =RGBA(161, 159, 157, 1)
+                        FocusedBorderThickness: =4
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =DataCardKey19.Height
+                        PaddingLeft: =0
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Wrap: =false
+                        Y: =DataCardKey19.Y
+            - Audit Area_DataCard1:
+                Control: TypedDataCard@1.0.7
+                Variant: ComboBoxEdit
+                IsLocked: true
+                Properties:
+                  BorderColor: =RGBA(230, 224, 210, 1)
+                  DataField: ="AuditArea"
+                  Default: =ThisItem.'Audit Area'
+                  DisplayName: =DataSourceInfo([@'Annual Audit Plan'],DataSourceInfo.DisplayName,'Audit Area')
+                  Required: =true
+                  Update: =DataCardValue20.Selected
+                  Width: =683
+                  X: =1
+                  Y: =3
+                Children:
+                  - DataCardKey20:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldName
+                      Properties:
+                        Height: =22
+                        Text: =Parent.DisplayName
+                        Weight: ='TextCanvas.Weight'.Semibold
+                        Width: =Parent.Width - 48
+                        Wrap: =false
+                        X: =24
+                        Y: =10
+                  - DataCardValue20:
+                      Control: ComboBox@0.0.51
+                      MetadataKey: FieldValue
+                      Properties:
+                        AccessibleLabel: =Parent.DisplayName
+                        DefaultSelectedItems: =[Parent.Default]
+                        DisplayMode: =Parent.DisplayMode
+                        Items: =Choices([@'Annual Audit Plan'].'Audit Area')
+                        Required: =Parent.Required
+                        ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardKey20.Y + DataCardKey20.Height + 4
+                  - ErrorMessage19:
+                      Control: Text@0.0.51
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        Height: =30
+                        Text: =Parent.Error
+                        Visible: =And(!IsBlank(Parent.Error), Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardValue20.Y + DataCardValue20.Height
+                  - StarVisible19:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: ='TextCanvas.Align'.Center
+                        Height: =20
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Y: =DataCardKey20.Y
+            - Audit Manager_DataCard1:
+                Control: TypedDataCard@1.0.7
+                Variant: ComboBoxEdit
+                IsLocked: true
+                Properties:
+                  BorderColor: =RGBA(230, 224, 210, 1)
+                  DataField: ="AuditManager"
+                  Default: =ThisItem.'Audit Manager'
+                  DisplayName: =DataSourceInfo([@'Annual Audit Plan'],DataSourceInfo.DisplayName,'Audit Manager')
+                  Required: =false
+                  Update: =DataCardValue21.Selected
+                  Width: =683
+                  X: =0
+                  Y: =4
+                Children:
+                  - DataCardKey21:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldName
+                      Properties:
+                        Height: =22
+                        Text: =Parent.DisplayName
+                        Weight: ='TextCanvas.Weight'.Semibold
+                        Width: =Parent.Width - 48
+                        Wrap: =false
+                        X: =24
+                        Y: =10
+                  - DataCardValue21:
+                      Control: ComboBox@0.0.51
+                      MetadataKey: FieldValue
+                      Properties:
+                        AccessibleLabel: =Parent.DisplayName
+                        DefaultSelectedItems: =[Parent.Default]
+                        DisplayMode: =Parent.DisplayMode
+                        Items: =Choices([@'Annual Audit Plan'].'Audit Manager')
+                        Required: =Parent.Required
+                        ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardKey21.Y + DataCardKey21.Height + 4
+                      Children:
+                        - DisplayName3:
+                            Control: ComboBoxDataField@1.5.0
+                            Variant: textualColumn
+                            IsLocked: true
+                            Properties:
+                              FieldDisplayName: ="DisplayName"
+                              FieldName: ="DisplayName"
+                              FieldType: ="s"
+                              Order: =1
+                  - ErrorMessage20:
+                      Control: Text@0.0.51
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        Height: =30
+                        Text: =Parent.Error
+                        Visible: =And(!IsBlank(Parent.Error), Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardValue21.Y + DataCardValue21.Height
+                  - StarVisible20:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: ='TextCanvas.Align'.Center
+                        Height: =20
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Y: =DataCardKey21.Y
+            - Audit Title_DataCard1:
+                Control: TypedDataCard@1.0.7
+                Variant: TextualEdit
+                IsLocked: true
+                Properties:
+                  BorderColor: =RGBA(230, 224, 210, 1)
+                  DataField: ="Title"
+                  Default: =ThisItem.'Audit Title'
+                  DisplayName: =DataSourceInfo([@'Annual Audit Plan'],DataSourceInfo.DisplayName,'Audit Title')
+                  MaxLength: =DataSourceInfo([@'Annual Audit Plan'], DataSourceInfo.MaxLength, 'Audit Title')
+                  Required: =true
+                  Update: =DataCardValue22.Value
+                  Width: =683
+                  X: =1
+                  Y: =4
+                Children:
+                  - DataCardKey22:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldName
+                      Properties:
+                        Height: =22
+                        Text: =Parent.DisplayName
+                        Weight: ='TextCanvas.Weight'.Semibold
+                        Width: =Parent.Width - 48
+                        Wrap: =false
+                        X: =24
+                        Y: =10
+                  - DataCardValue22:
+                      Control: TextInput@0.0.54
+                      MetadataKey: FieldValue
+                      Properties:
+                        AccessibleLabel: =Parent.DisplayName
+                        DisplayMode: =Parent.DisplayMode
+                        Mode: ="'TextInputCanvas.Mode'.TextInputModeSingleLine"
+                        Required: =Parent.Required
+                        ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                        Value: =Parent.Default
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardKey22.Y + DataCardKey22.Height + 4
+                  - ErrorMessage21:
+                      Control: Text@0.0.51
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        Height: =30
+                        Text: =Parent.Error
+                        Visible: =And(!IsBlank(Parent.Error), Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardValue22.Y + DataCardValue22.Height
+                  - StarVisible21:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: ='TextCanvas.Align'.Center
+                        Height: =30
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Y: =DataCardKey22.Y
+            - Audit Type_DataCard1:
+                Control: TypedDataCard@1.0.7
+                Variant: ComboBoxEdit
+                IsLocked: true
+                Properties:
+                  BorderColor: =RGBA(230, 224, 210, 1)
+                  DataField: ="AuditType"
+                  Default: =ThisItem.'Audit Type'
+                  DisplayName: =DataSourceInfo([@'Annual Audit Plan'],DataSourceInfo.DisplayName,'Audit Type')
+                  Required: =false
+                  Update: =DataCardValue23.Selected
+                  Width: =683
+                  X: =0
+                  Y: =5
+                Children:
+                  - DataCardKey23:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldName
+                      Properties:
+                        Height: =22
+                        Text: =Parent.DisplayName
+                        Weight: ='TextCanvas.Weight'.Semibold
+                        Width: =Parent.Width - 48
+                        Wrap: =false
+                        X: =24
+                        Y: =10
+                  - DataCardValue23:
+                      Control: ComboBox@0.0.51
+                      MetadataKey: FieldValue
+                      Properties:
+                        AccessibleLabel: =Parent.DisplayName
+                        DefaultSelectedItems: =[Parent.Default]
+                        DisplayMode: =Parent.DisplayMode
+                        Items: =Choices([@'Annual Audit Plan'].'Audit Type')
+                        Required: =Parent.Required
+                        ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardKey23.Y + DataCardKey23.Height + 4
+                  - ErrorMessage22:
+                      Control: Text@0.0.51
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        Height: =30
+                        Text: =Parent.Error
+                        Visible: =And(!IsBlank(Parent.Error), Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardValue23.Y + DataCardValue23.Height
+                  - StarVisible22:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: ='TextCanvas.Align'.Center
+                        Height: =20
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Y: =DataCardKey23.Y
+            - Entity_DataCard1:
+                Control: TypedDataCard@1.0.7
+                Variant: ComboBoxMultiSelectEdit
+                IsLocked: true
+                Properties:
+                  BorderColor: =RGBA(245, 245, 245, 1)
+                  DataField: ="Entity"
+                  Default: =ThisItem.Entity
+                  DisplayName: =DataSourceInfo([@'Annual Audit Plan'],DataSourceInfo.DisplayName,'Entity')
+                  Required: =false
+                  Update: =DataCardValue2.SelectedItems
+                  Width: =683
+                  X: =1
+                  Y: =5
+                Children:
+                  - DataCardKey2:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldName
+                      Properties:
+                        Height: =22
+                        Text: =Parent.DisplayName
+                        Weight: ='TextCanvas.Weight'.Semibold
+                        Width: =Parent.Width - 48
+                        Wrap: =false
+                        X: =24
+                        Y: =10
+                  - DataCardValue2:
+                      Control: ComboBox@0.0.51
+                      MetadataKey: FieldValue
+                      Properties:
+                        AccessibleLabel: =Parent.DisplayName
+                        DefaultSelectedItems: =Parent.Default
+                        DisplayMode: =Parent.DisplayMode
+                        Items: =Choices([@'Annual Audit Plan'].'Entity')
+                        Required: =Parent.Required
+                        SelectMultiple: =true
+                        ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardKey2.Y + DataCardKey2.Height + 4
+                  - ErrorMessage2:
+                      Control: Text@0.0.51
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        Height: =30
+                        Text: =Parent.Error
+                        Visible: =And(!IsBlank(Parent.Error), Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardValue2.Y + DataCardValue2.Height
+                  - StarVisible2:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: ='TextCanvas.Align'.Center
+                        Height: =20
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Y: =DataCardKey2.Y
+            - Approval Status_DataCard1:
+                Control: TypedDataCard@1.0.7
+                Variant: ComboBoxEdit
+                Properties:
+                  BorderColor: =RGBA(245, 245, 245, 1)
+                  DataField: ="ApprovalStatus"
+                  Default: =ThisItem.'Approval Status'
+                  DisplayMode: =DisplayMode.View
+                  DisplayName: =DataSourceInfo([@'Annual Audit Plan'],DataSourceInfo.DisplayName,'ApprovalStatus')
+                  Required: =false
+                  Update: =DataCardValue78.Selected
+                  Width: =683
+                  X: =0
+                  Y: =6
+                Children:
+                  - DataCardKey78:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldName
+                      Properties:
+                        Height: =22
+                        Text: =Parent.DisplayName
+                        Weight: ='TextCanvas.Weight'.Semibold
+                        Width: =Parent.Width - 48
+                        Wrap: =false
+                        X: =24
+                        Y: =10
+                  - DataCardValue78:
+                      Control: ComboBox@0.0.51
+                      MetadataKey: FieldValue
+                      Properties:
+                        AccessibleLabel: =Parent.DisplayName
+                        DefaultSelectedItems: =[Parent.Default]
+                        DisplayMode: =Parent.DisplayMode
+                        Items: =Choices([@'Annual Audit Plan'].'ApprovalStatus')
+                        Required: =Parent.Required
+                        ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardKey78.Y + DataCardKey78.Height + 4
+                  - ErrorMessage71:
+                      Control: Text@0.0.51
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        Height: =30
+                        Text: =Parent.Error
+                        Visible: =And(!IsBlank(Parent.Error), Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardValue78.Y + DataCardValue78.Height
+                  - StarVisible71:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: ='TextCanvas.Align'.Center
+                        Height: =20
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Y: =DataCardKey78.Y
+            - Budget Hours_DataCard1:
+                Control: TypedDataCard@1.0.7
+                Variant: NumberEdit
+                IsLocked: true
+                Properties:
+                  BorderColor: =RGBA(245, 245, 245, 1)
+                  DataField: ="BudgetHours"
+                  Default: =ThisItem.'Budget Hours'
+                  DisplayName: =DataSourceInfo([@'Annual Audit Plan'],DataSourceInfo.DisplayName,'BudgetHours')
+                  Required: =false
+                  Update: =Value(DataCardValue79.Value)
+                  Width: =683
+                  X: =1
+                  Y: =6
+                Children:
+                  - DataCardKey79:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldName
+                      Properties:
+                        Height: =22
+                        Text: =Parent.DisplayName
+                        Weight: ='TextCanvas.Weight'.Semibold
+                        Width: =Parent.Width - 48
+                        Wrap: =false
+                        X: =24
+                        Y: =10
+                  - DataCardValue79:
+                      Control: NumberInput@2.9.12
+                      MetadataKey: FieldValue
+                      Properties:
+                        AccessibleLabel: =Parent.DisplayName
+                        DisplayMode: =Parent.DisplayMode
+                        Max: =Blank()
+                        Min: =Blank()
+                        ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                        Value: =Parent.Default
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardKey79.Y + DataCardKey79.Height + 4
+                  - ErrorMessage72:
+                      Control: Text@0.0.51
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        Height: =30
+                        Text: =Parent.Error
+                        Visible: =And(!IsBlank(Parent.Error), Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =Parent.Width - 48
+                        X: =24
+                        Y: =DataCardValue79.Y + DataCardValue79.Height
+                  - StarVisible72:
+                      Control: Text@0.0.51
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: ='TextCanvas.Align'.Center
+                        Height: =30
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Y: =DataCardKey79.Y
+      - btnPlanSubmit:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(161, 159, 157, 1)
+            DisabledFill: =RGBA(242, 242, 241, 0)
+            Fill: '=RGBA(46, 125, 50, 1)    '
+            Font: =Font.'Segoe UI'
+            Height: =32
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: '=RGBA(36, 100, 40, 1)    '
+            OnSelect: =Set(varSubmitPlan, true); SubmitForm(frmPlan)
+            PressedBorderColor: =RGBA(0, 69, 120, 1)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(16, 110, 190, 1)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =11
+            Text: '="SUBMIT FOR APPROVAL"   '
+            Visible: =frmPlan.Mode = FormMode.New || IsBlank(varPlanItem.ApprovalStatus) || varPlanItem.ApprovalStatus.Value = "Draft" || varPlanItem.ApprovalStatus.Value = "Rejected"
+            Width: =190
+            X: =900
+            Y: =100
+      - Icon10:
+          Control: Classic/Icon@2.5.0
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(216, 180, 90, 1)
+            DisabledBorderColor: =RGBA(245, 245, 245, 1)
+            DisabledColor: =RGBA(225, 223, 221, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =24
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(16, 110, 190, 1)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.Reload
+            OnSelect: =Refresh('Annual Audit Plan'); Refresh('Audit Engagements'); Refresh('Audit Findings Register'); Refresh('Corrective Action Tracker'); Refresh('Follow-Up Reviews'); Refresh('Engagement Milestones'); Refresh('Audit Questionnaires'); Refresh('Questionnaire Sections'); Refresh('Questionnaire Items'); Refresh('Questionnaire Uploads'); Refresh('Audit Working Papers'); Refresh('Evidence Repository'); Refresh('Audit Trail'); Refresh('IA Configuration'); Notify("Data refreshed", NotificationType.Success)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =RGBA(16, 110, 190, 1)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Tooltip: ="Refresh data"
+            Width: =24
+            X: =1274
+            Y: =40

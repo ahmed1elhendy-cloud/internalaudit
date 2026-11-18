@@ -1,0 +1,94 @@
+# ************************************************************************************************
+# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
+# Use the maker portal to create and edit your Power Apps.
+# 
+# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
+# 
+# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
+# ************************************************************************************************
+Screens:
+  scrNoAccess:
+    Properties:
+      Fill: =RGBA(247, 244, 236, 1)
+    Children:
+      - recNaBand:
+          Control: Rectangle@2.3.0
+          Properties:
+            Fill: =RGBA(18, 35, 59, 1)
+            Height: =72
+            Width: =Parent.Width
+      - lblNaBrand:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(247, 244, 236, 1)
+            Font: =Font.Georgia
+            FontWeight: =FontWeight.Semibold
+            Size: =24
+            Text: ="MHAO"
+            Width: =200
+            X: =24
+            Y: =8
+      - lblNaSub:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(184, 151, 90, 1)
+            Font: =Font.'Segoe UI'
+            Height: =20
+            Size: =10
+            Text: ="INTERNAL AUDIT PORTAL"
+            Width: =300
+            X: =24
+            Y: =44
+      - recNaGold:
+          Control: Rectangle@2.3.0
+          Properties:
+            Fill: =RGBA(184, 151, 90, 1)
+            Height: =3
+            Width: =Parent.Width
+            Y: =72
+      - recNaCard:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(230, 224, 210, 1)
+            BorderThickness: =1
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =260
+            Width: =640
+            X: =(Parent.Width - 640) / 2
+            Y: =150
+      - lblNaTitle:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            Color: =RGBA(18, 35, 59, 1)
+            Font: =Font.Georgia
+            Height: =50
+            Size: =26
+            Text: ="Access required"
+            Width: =600
+            X: =(Parent.Width - 600) / 2
+            Y: =190
+      - lblNaBody:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            Color: =RGBA(29, 37, 48, 1)
+            Font: =Font.'Segoe UI'
+            Height: =80
+            Size: =14
+            Text: ="You do not have access to the MHAO Internal Audit Portal." & Char(10) & "Please contact the Internal Audit team to be added to a role."
+            Width: =560
+            X: =(Parent.Width - 560) / 2
+            Y: =250
+      - lblNaUser:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            Color: =RGBA(107, 114, 128, 1)
+            Font: =Font.'Segoe UI'
+            Height: =24
+            Size: =11
+            Text: ="Signed in as " & User().Email
+            Width: =560
+            X: =(Parent.Width - 560) / 2
+            Y: =340

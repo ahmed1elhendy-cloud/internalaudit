@@ -1,0 +1,654 @@
+# ************************************************************************************************
+# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
+# Use the maker portal to create and edit your Power Apps.
+# 
+# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
+# 
+# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
+# ************************************************************************************************
+Screens:
+  scrFollowUpForm:
+    Properties:
+      Fill: =RGBA(247, 244, 236, 1)
+      LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
+    Children:
+      - conFollowUpForm:
+          Control: GroupContainer@1.5.0
+          Variant: AutoLayout
+          Properties:
+            Height: =Parent.Height
+            LayoutDirection: =LayoutDirection.Vertical
+            Width: =Parent.Width
+          Children:
+            - conFollowUpFormHeader:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  Fill: =RGBA(18, 35, 59, 1)
+                  FillPortions: =0
+                  Height: =64
+                  LayoutAlignItems: =LayoutAlignItems.Center
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutGap: =12
+                  PaddingLeft: =20
+                  PaddingRight: =20
+                Children:
+                  - lblFollowUpFormTitle:
+                      Control: Label@2.5.1
+                      Properties:
+                        AutoHeight: =true
+                        Color: =RGBA(255, 255, 255, 1)
+                        FillPortions: =1
+                        Font: =Font.Georgia
+                        FontWeight: =FontWeight.Semibold
+                        Size: =20
+                        Text: =If(frmFollowUp.Mode = FormMode.New, "New follow-up review", "Edit follow-up review")
+                  - btnFollowUpFormSave:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =RGBA(184, 151, 90, 1)
+                        BorderThickness: =1
+                        Color: =RGBA(18, 35, 59, 1)
+                        Fill: =RGBA(184, 151, 90, 1)
+                        Font: =Font.'Segoe UI'
+                        HoverFill: =RGBA(217, 199, 158, 1)
+                        OnSelect: =SubmitForm(frmFollowUp)
+                        Text: ="SAVE"
+                        Width: =110
+                  - btnFollowUpFormCancel:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =RGBA(184, 151, 90, 1)
+                        BorderThickness: =1
+                        Color: =RGBA(247, 244, 236, 1)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        Font: =Font.'Segoe UI'
+                        HoverFill: =RGBA(27, 50, 80, 1)
+                        OnSelect: =ResetForm(frmFollowUp); Navigate(scrFollowUp, ScreenTransition.None)
+                        Text: ="CANCEL"
+                        Width: =110
+            - frmFollowUp:
+                Control: Form@2.4.4
+                Layout: Vertical
+                Properties:
+                  DataSource: ='Follow-Up Reviews'
+                  DefaultMode: =FormMode.New
+                  Fill: =RGBA(247, 244, 236, 1)
+                  Item: =varFollowUpItem
+                  NumberOfColumns: =2
+                  OnFailure: =Notify(frmFollowUp.Error, NotificationType.Error)
+                  OnSuccess: =Notify("Follow-up saved", NotificationType.Success); Navigate(scrFollowUp, ScreenTransition.None)
+                Children:
+                  - Action_DataCard1:
+                      Control: TypedDataCard@1.0.7
+                      Variant: ComboBoxEdit
+                      IsLocked: true
+                      Properties:
+                        BorderColor: =RGBA(230, 224, 210, 1)
+                        DataField: ="Action"
+                        Default: =ThisItem.Action
+                        DisplayName: =DataSourceInfo([@'Follow-Up Reviews'],DataSourceInfo.DisplayName,Action)
+                        Required: =false
+                        Update: =DataCardValue53.Selected
+                        Width: =683
+                        X: =0
+                        Y: =0
+                      Children:
+                        - DataCardKey53:
+                            Control: Text@0.0.51
+                            MetadataKey: FieldName
+                            Properties:
+                              Height: =22
+                              Text: =Parent.DisplayName
+                              Weight: ='TextCanvas.Weight'.Semibold
+                              Width: =Parent.Width - 48
+                              Wrap: =false
+                              X: =24
+                              Y: =10
+                        - DataCardValue53:
+                            Control: ComboBox@0.0.51
+                            MetadataKey: FieldValue
+                            Properties:
+                              AccessibleLabel: =Parent.DisplayName
+                              DefaultSelectedItems: =[Parent.Default]
+                              DisplayMode: =Parent.DisplayMode
+                              Items: =Choices([@'Follow-Up Reviews'].Action)
+                              Required: =Parent.Required
+                              ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                              Width: =Parent.Width - 48
+                              X: =24
+                              Y: =DataCardKey53.Y + DataCardKey53.Height + 4
+                        - ErrorMessage49:
+                            Control: Text@0.0.51
+                            MetadataKey: ErrorMessage
+                            Properties:
+                              Height: =30
+                              Text: =Parent.Error
+                              Visible: =And(!IsBlank(Parent.Error), Parent.DisplayMode=DisplayMode.Edit)
+                              Width: =Parent.Width - 48
+                              X: =24
+                              Y: =DataCardValue53.Y + DataCardValue53.Height
+                        - StarVisible49:
+                            Control: Text@0.0.51
+                            MetadataKey: FieldRequired
+                            Properties:
+                              Align: ='TextCanvas.Align'.Center
+                              Height: =20
+                              Text: ="*"
+                              Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                              Width: =30
+                              Y: =DataCardKey53.Y
+                  - Created_DataCard2:
+                      Control: TypedDataCard@1.0.7
+                      Variant: TextualView
+                      IsLocked: true
+                      Properties:
+                        BorderColor: =RGBA(230, 224, 210, 1)
+                        DataField: ="Created"
+                        Default: =ThisItem.Created
+                        DisplayName: =DataSourceInfo([@'Follow-Up Reviews'],DataSourceInfo.DisplayName,Created)
+                        Required: =false
+                        Width: =683
+                        X: =1
+                        Y: =0
+                      Children:
+                        - DataCardKey54:
+                            Control: Text@0.0.51
+                            MetadataKey: FieldName
+                            Properties:
+                              Height: =22
+                              Text: =Parent.DisplayName
+                              Weight: ='TextCanvas.Weight'.Semibold
+                              Width: =Parent.Width - 48
+                              Wrap: =false
+                              X: =24
+                              Y: =10
+                        - DataCardValue54:
+                            Control: TextInput@0.0.54
+                            MetadataKey: FieldValue
+                            Properties:
+                              AccessibleLabel: =Parent.DisplayName
+                              DisplayMode: =DisplayMode.View
+                              Mode: ="'TextInputCanvas.Mode'.TextInputModeSingleLine"
+                              Required: =Parent.Required
+                              ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                              Value: =Parent.Default
+                              Width: =Parent.Width - 48
+                              X: =24
+                              Y: =DataCardKey54.Y + DataCardKey54.Height + 4
+                  - Finding_DataCard2:
+                      Control: TypedDataCard@1.0.7
+                      Variant: ComboBoxEdit
+                      IsLocked: true
+                      Properties:
+                        BorderColor: =RGBA(230, 224, 210, 1)
+                        DataField: ="Finding"
+                        Default: =ThisItem.Finding
+                        DisplayName: =DataSourceInfo([@'Follow-Up Reviews'],DataSourceInfo.DisplayName,Finding)
+                        Required: =true
+                        Update: =DataCardValue55.Selected
+                        Width: =683
+                        X: =0
+                        Y: =1
+                      Children:
+                        - DataCardKey55:
+                            Control: Text@0.0.51
+                            MetadataKey: FieldName
+                            Properties:
+                              Height: =22
+                              Text: =Parent.DisplayName
+                              Weight: ='TextCanvas.Weight'.Semibold
+                              Width: =Parent.Width - 48
+                              Wrap: =false
+                              X: =24
+                              Y: =10
+                        - DataCardValue55:
+                            Control: ComboBox@0.0.51
+                            MetadataKey: FieldValue
+                            Properties:
+                              AccessibleLabel: =Parent.DisplayName
+                              DefaultSelectedItems: =[Parent.Default]
+                              DisplayMode: =Parent.DisplayMode
+                              Items: =Choices([@'Follow-Up Reviews'].Finding)
+                              Required: =Parent.Required
+                              ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                              Width: =Parent.Width - 48
+                              X: =24
+                              Y: =DataCardKey55.Y + DataCardKey55.Height + 4
+                        - ErrorMessage50:
+                            Control: Text@0.0.51
+                            MetadataKey: ErrorMessage
+                            Properties:
+                              Height: =30
+                              Text: =Parent.Error
+                              Visible: =And(!IsBlank(Parent.Error), Parent.DisplayMode=DisplayMode.Edit)
+                              Width: =Parent.Width - 48
+                              X: =24
+                              Y: =DataCardValue55.Y + DataCardValue55.Height
+                        - StarVisible50:
+                            Control: Text@0.0.51
+                            MetadataKey: FieldRequired
+                            Properties:
+                              Align: ='TextCanvas.Align'.Center
+                              Height: =20
+                              Text: ="*"
+                              Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                              Width: =30
+                              Y: =DataCardKey55.Y
+                  - Name_DataCard4:
+                      Control: TypedDataCard@1.0.7
+                      Variant: TextualView
+                      IsLocked: true
+                      Properties:
+                        BorderColor: =RGBA(230, 224, 210, 1)
+                        DataField: ="{Name}"
+                        Default: =ThisItem.Name
+                        DisplayName: =DataSourceInfo([@'Follow-Up Reviews'],DataSourceInfo.DisplayName,'{Name}')
+                        Required: =false
+                        Width: =683
+                        X: =1
+                        Y: =1
+                      Children:
+                        - DataCardKey56:
+                            Control: Text@0.0.51
+                            MetadataKey: FieldName
+                            Properties:
+                              Height: =22
+                              Text: =Parent.DisplayName
+                              Weight: ='TextCanvas.Weight'.Semibold
+                              Width: =Parent.Width - 48
+                              Wrap: =false
+                              X: =24
+                              Y: =10
+                        - DataCardValue56:
+                            Control: TextInput@0.0.54
+                            MetadataKey: FieldValue
+                            Properties:
+                              AccessibleLabel: =Parent.DisplayName
+                              DisplayMode: =DisplayMode.View
+                              Mode: ="'TextInputCanvas.Mode'.TextInputModeSingleLine"
+                              Required: =Parent.Required
+                              ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                              Value: =Parent.Default
+                              Width: =Parent.Width - 48
+                              X: =24
+                              Y: =DataCardKey56.Y + DataCardKey56.Height + 4
+                  - Reviewer_DataCard1:
+                      Control: TypedDataCard@1.0.7
+                      Variant: ComboBoxEdit
+                      IsLocked: true
+                      Properties:
+                        BorderColor: =RGBA(230, 224, 210, 1)
+                        DataField: ="Reviewer"
+                        Default: =ThisItem.Reviewer
+                        DisplayName: =DataSourceInfo([@'Follow-Up Reviews'],DataSourceInfo.DisplayName,Reviewer)
+                        Required: =true
+                        Update: =DataCardValue57.Selected
+                        Width: =683
+                        X: =0
+                        Y: =2
+                      Children:
+                        - DataCardKey57:
+                            Control: Text@0.0.51
+                            MetadataKey: FieldName
+                            Properties:
+                              Height: =22
+                              Text: =Parent.DisplayName
+                              Weight: ='TextCanvas.Weight'.Semibold
+                              Width: =Parent.Width - 48
+                              Wrap: =false
+                              X: =24
+                              Y: =10
+                        - DataCardValue57:
+                            Control: ComboBox@0.0.51
+                            MetadataKey: FieldValue
+                            Properties:
+                              AccessibleLabel: =Parent.DisplayName
+                              DefaultSelectedItems: =[Parent.Default]
+                              DisplayMode: =Parent.DisplayMode
+                              Items: =Choices([@'Follow-Up Reviews'].Reviewer)
+                              Required: =Parent.Required
+                              ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                              Width: =Parent.Width - 48
+                              X: =24
+                              Y: =DataCardKey57.Y + DataCardKey57.Height + 4
+                            Children:
+                              - DisplayName5:
+                                  Control: ComboBoxDataField@1.5.0
+                                  Variant: textualColumn
+                                  IsLocked: true
+                                  Properties:
+                                    FieldDisplayName: ="DisplayName"
+                                    FieldName: ="DisplayName"
+                                    FieldType: ="s"
+                                    Order: =1
+                        - ErrorMessage51:
+                            Control: Text@0.0.51
+                            MetadataKey: ErrorMessage
+                            Properties:
+                              Height: =30
+                              Text: =Parent.Error
+                              Visible: =And(!IsBlank(Parent.Error), Parent.DisplayMode=DisplayMode.Edit)
+                              Width: =Parent.Width - 48
+                              X: =24
+                              Y: =DataCardValue57.Y + DataCardValue57.Height
+                        - StarVisible51:
+                            Control: Text@0.0.51
+                            MetadataKey: FieldRequired
+                            Properties:
+                              Align: ='TextCanvas.Align'.Center
+                              Height: =20
+                              Text: ="*"
+                              Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                              Width: =30
+                              Y: =DataCardKey57.Y
+                  - Outcome_DataCard1:
+                      Control: TypedDataCard@1.0.7
+                      Variant: ComboBoxEdit
+                      IsLocked: true
+                      Properties:
+                        BorderColor: =RGBA(230, 224, 210, 1)
+                        DataField: ="Outcome"
+                        Default: =ThisItem.Outcome
+                        DisplayName: =DataSourceInfo([@'Follow-Up Reviews'],DataSourceInfo.DisplayName,Outcome)
+                        Required: =false
+                        Update: =DataCardValue58.Selected
+                        Width: =683
+                        X: =1
+                        Y: =2
+                      Children:
+                        - DataCardKey58:
+                            Control: Text@0.0.51
+                            MetadataKey: FieldName
+                            Properties:
+                              Height: =22
+                              Text: =Parent.DisplayName
+                              Weight: ='TextCanvas.Weight'.Semibold
+                              Width: =Parent.Width - 48
+                              Wrap: =false
+                              X: =24
+                              Y: =10
+                        - DataCardValue58:
+                            Control: ComboBox@0.0.51
+                            MetadataKey: FieldValue
+                            Properties:
+                              AccessibleLabel: =Parent.DisplayName
+                              DefaultSelectedItems: =[Parent.Default]
+                              DisplayMode: =Parent.DisplayMode
+                              Items: =Choices([@'Follow-Up Reviews'].Outcome)
+                              Required: =Parent.Required
+                              ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                              Width: =Parent.Width - 48
+                              X: =24
+                              Y: =DataCardKey58.Y + DataCardKey58.Height + 4
+                        - ErrorMessage52:
+                            Control: Text@0.0.51
+                            MetadataKey: ErrorMessage
+                            Properties:
+                              Height: =30
+                              Text: =Parent.Error
+                              Visible: =And(!IsBlank(Parent.Error), Parent.DisplayMode=DisplayMode.Edit)
+                              Width: =Parent.Width - 48
+                              X: =24
+                              Y: =DataCardValue58.Y + DataCardValue58.Height
+                        - StarVisible52:
+                            Control: Text@0.0.51
+                            MetadataKey: FieldRequired
+                            Properties:
+                              Align: ='TextCanvas.Align'.Center
+                              Height: =20
+                              Text: ="*"
+                              Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                              Width: =30
+                              Y: =DataCardKey58.Y
+                  - Attachments_DataCard3:
+                      Control: TypedDataCard@1.0.7
+                      Variant: ClassicAttachmentsEdit
+                      Properties:
+                        BorderColor: =RGBA(230, 224, 210, 1)
+                        DataField: ="{Attachments}"
+                        Default: =ThisItem.Attachments
+                        DisplayName: |-
+                          ="Attachments - file names must not contain: # % & * : < > ? / \ { | } ~ or quote marks"
+                        Required: =false
+                        Update: =DataCardValue59.Attachments
+                        Width: =683
+                        X: =0
+                        Y: =3
+                      Children:
+                        - DataCardKey59:
+                            Control: Label@2.5.1
+                            MetadataKey: FieldName
+                            Properties:
+                              AutoHeight: =true
+                              BorderColor: =RGBA(0, 0, 0, 0)
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =2
+                              Color: =RGBA(50, 49, 48, 1)
+                              DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                              DisabledColor: =RGBA(161, 159, 157, 1)
+                              FocusedBorderThickness: =4
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =34
+                              PaddingLeft: =0
+                              Text: =Parent.DisplayName
+                              Width: =Parent.Width - 60
+                              Wrap: =false
+                              X: =30
+                              Y: =10
+                        - DataCardValue59:
+                            Control: Attachments@2.3.0
+                            MetadataKey: FieldValue
+                            Properties:
+                              BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                              BorderStyle: =BorderStyle.None
+                              Color: =RGBA(50, 49, 48, 1)
+                              DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                              DisabledColor: =RGBA(161, 159, 157, 1)
+                              DisabledFill: =RGBA(242, 242, 241, 0)
+                              DisplayMode: =Parent.DisplayMode
+                              Fill: =RGBA(245, 245, 245, 1)
+                              Font: =Font.'Segoe UI'
+                              HoverColor: =RGBA(50, 49, 48, 1)
+                              HoverFill: =RGBA(245, 245, 245, 1)
+                              ItemColor: =RGBA(0, 0, 0, 1)
+                              ItemFill: =RGBA(0, 120, 212, 1)
+                              ItemHoverColor: =RGBA(50, 49, 48, 1)
+                              ItemHoverFill: =RGBA(245, 245, 245, 1)
+                              ItemSpacing: =12
+                              Items: =Parent.Default
+                              NoAttachmentsColor: =RGBA(161, 159, 157, 1)
+                              PaddingBottom: =5
+                              PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
+                              PaddingRight: =5
+                              PaddingTop: =5
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(0, 120, 212, 1)
+                              Tooltip: =Parent.DisplayName
+                              Width: =Parent.Width - 60
+                              X: =30
+                              Y: =DataCardKey59.Y + DataCardKey59.Height + 5
+                        - ErrorMessage53:
+                            Control: Label@2.5.1
+                            MetadataKey: ErrorMessage
+                            Properties:
+                              AutoHeight: =true
+                              BorderColor: =RGBA(0, 0, 0, 0)
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =2
+                              Color: =RGBA(168, 0, 0, 1)
+                              DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                              DisabledColor: =RGBA(168, 0, 0, 1)
+                              FocusedBorderThickness: =4
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =10
+                              Live: =Live.Assertive
+                              PaddingBottom: =0
+                              PaddingLeft: =0
+                              PaddingRight: =0
+                              PaddingTop: =0
+                              Text: =Parent.Error
+                              Visible: =Parent.DisplayMode=DisplayMode.Edit
+                              Width: =Parent.Width - 60
+                              X: =30
+                              Y: =DataCardValue59.Y + DataCardValue59.Height
+                        - StarVisible53:
+                            Control: Label@2.5.1
+                            MetadataKey: FieldRequired
+                            Properties:
+                              Align: =Align.Center
+                              BorderColor: =RGBA(0, 0, 0, 0)
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =2
+                              Color: =RGBA(50, 49, 48, 1)
+                              DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                              DisabledColor: =RGBA(161, 159, 157, 1)
+                              FocusedBorderThickness: =4
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =DataCardKey59.Height
+                              PaddingLeft: =0
+                              Text: ="*"
+                              Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                              Width: =30
+                              Wrap: =false
+                              Y: =DataCardKey59.Y
+                  - Content approval status_DataCard1:
+                      Control: TypedDataCard@1.0.7
+                      Variant: TextualView
+                      IsLocked: true
+                      Properties:
+                        BorderColor: =RGBA(230, 224, 210, 1)
+                        DataField: ="{ModerationStatus}"
+                        Default: =ThisItem.'Content approval status'
+                        DisplayName: =DataSourceInfo([@'Follow-Up Reviews'],DataSourceInfo.DisplayName,'{ModerationStatus}')
+                        Required: =false
+                        Width: =683
+                        X: =1
+                        Y: =3
+                      Children:
+                        - DataCardKey60:
+                            Control: Text@0.0.51
+                            MetadataKey: FieldName
+                            Properties:
+                              Height: =22
+                              Text: =Parent.DisplayName
+                              Weight: ='TextCanvas.Weight'.Semibold
+                              Width: =Parent.Width - 48
+                              Wrap: =false
+                              X: =24
+                              Y: =10
+                        - DataCardValue60:
+                            Control: TextInput@0.0.54
+                            MetadataKey: FieldValue
+                            Properties:
+                              AccessibleLabel: =Parent.DisplayName
+                              DisplayMode: =DisplayMode.View
+                              Mode: ="'TextInputCanvas.Mode'.TextInputModeSingleLine"
+                              Required: =Parent.Required
+                              ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                              Value: =Parent.Default
+                              Width: =Parent.Width - 48
+                              X: =24
+                              Y: =DataCardKey60.Y + DataCardKey60.Height + 4
+                  - Review Date_DataCard1:
+                      Control: TypedDataCard@1.0.7
+                      Variant: DateEdit
+                      IsLocked: true
+                      Properties:
+                        BorderColor: =RGBA(230, 224, 210, 1)
+                        DataField: ="ReviewDate"
+                        Default: =ThisItem.'Review Date'
+                        DisplayName: =DataSourceInfo([@'Follow-Up Reviews'],DataSourceInfo.DisplayName,ReviewDate)
+                        Required: =false
+                        Update: =DataCardValue61.SelectedDate
+                        Width: =683
+                        X: =0
+                        Y: =4
+                      Children:
+                        - DataCardKey61:
+                            Control: Text@0.0.51
+                            MetadataKey: FieldName
+                            Properties:
+                              Height: =22
+                              Text: =Parent.DisplayName
+                              Weight: ='TextCanvas.Weight'.Semibold
+                              Width: =Parent.Width - 48
+                              Wrap: =false
+                              X: =24
+                              Y: =10
+                        - DataCardValue61:
+                            Control: DatePicker@0.0.46
+                            MetadataKey: FieldValue
+                            Properties:
+                              AccessibleLabel: =Parent.DisplayName
+                              DisplayMode: =Parent.DisplayMode
+                              EndDate: =Date(Year(Today())+100, 12, 31)
+                              SelectedDate: =Parent.Default
+                              StartDate: =Date(1900, 1, 1)
+                              ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
+                              Width: =Parent.Width - 48
+                              X: =24
+                              Y: =DataCardKey61.Y + DataCardKey61.Height + 4
+                        - ErrorMessage54:
+                            Control: Text@0.0.51
+                            MetadataKey: ErrorMessage
+                            Properties:
+                              Height: =30
+                              Text: =Parent.Error
+                              Visible: =And(!IsBlank(Parent.Error), Parent.DisplayMode=DisplayMode.Edit)
+                              Width: =Parent.Width - 48
+                              X: =24
+                              Y: =DataCardValue61.Y + DataCardValue61.Height
+                        - StarVisible54:
+                            Control: Text@0.0.51
+                            MetadataKey: FieldRequired
+                            Properties:
+                              Align: ='TextCanvas.Align'.Center
+                              Height: =30
+                              Text: ="*"
+                              Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                              Width: =30
+                              Y: =DataCardKey61.Y
+      - Label10:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Right
+            AutoHeight: =24
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(217, 199, 158, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(161, 159, 157, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Size: =11
+            Text: =User().FullName
+            Width: =210
+            X: =Parent.Width - 520
+            Y: =16
+      - Icon18:
+          Control: Classic/Icon@2.5.0
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(216, 180, 90, 1)
+            DisabledBorderColor: =RGBA(245, 245, 245, 1)
+            DisabledColor: =RGBA(225, 223, 221, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =24
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(16, 110, 190, 1)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.Reload
+            OnSelect: =Refresh('Annual Audit Plan'); Refresh('Audit Engagements'); Refresh('Audit Findings Register'); Refresh('Corrective Action Tracker'); Refresh('Follow-Up Reviews'); Refresh('Engagement Milestones'); Refresh('Audit Questionnaires'); Refresh('Questionnaire Sections'); Refresh('Questionnaire Items'); Refresh('Questionnaire Uploads'); Refresh('Audit Working Papers'); Refresh('Evidence Repository'); Refresh('Audit Trail'); Refresh('IA Configuration'); Notify("Data refreshed", NotificationType.Success)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =RGBA(16, 110, 190, 1)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Tooltip: ="Refresh data"
+            Width: =24
+            X: =Parent.Width - 300
+            Y: =16

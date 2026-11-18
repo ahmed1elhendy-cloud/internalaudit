@@ -13,3 +13,9 @@ Studio changes saved, NOT yet published (publish from Studio to release).
 ## Not fixed
 2. Plan form Audit Area multi-select: kept SINGLE select per decision. SharePoint column is unchanged (single lookup).
 - Not re-tested in the published app.
+
+## Restore and redo (18 Nov 2026)
+- App restored to v87 (saved as v102) to bring back the original two-column New plan item layout, then fixes redone and saved (not published).
+- Redone: Plan Year "All" (text values; counts and gallery use Value()); Plan form Entity list from the Entities list; Audit Area list filtered by selected Entity (tested in preview: MHAO Group shows 9 areas; MHAO Mobility has none in Audit Universe).
+- Engagement form Entity and Engagement Type: Items changed (Entities list / fixed choice list) but the popup still renders blank in Studio preview. Open - needs another look.
+- Not published.

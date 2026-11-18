@@ -17,5 +17,5 @@ Studio changes saved, NOT yet published (publish from Studio to release).
 ## Restore and redo (18 Nov 2026)
 - App restored to v87 (saved as v102) to bring back the original two-column New plan item layout, then fixes redone and saved (not published).
 - Redone: Plan Year "All" (text values; counts and gallery use Value()); Plan form Entity list from the Entities list; Audit Area list filtered by selected Entity (tested in preview: MHAO Group shows 9 areas; MHAO Mobility has none in Audit Universe).
-- Engagement form Entity and Engagement Type: Items changed (Entities list / fixed choice list) but the popup still renders blank in Studio preview. Open - needs another look.
+- Engagement form Entity and Engagement Type: the old combo boxes rendered blank popups whatever Items they had. Deleted and re-inserted as new combo boxes (same names DataCardValue4 / DataCardValue24, Items from Entities list / fixed choice list); both lists now show in preview. Engagement Type is single-select, Entity stays multi-select. Overall Opinion and Team Members also checked: populated.
 - Not published.

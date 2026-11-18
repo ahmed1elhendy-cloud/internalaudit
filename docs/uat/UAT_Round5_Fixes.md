@@ -8,7 +8,8 @@ Studio changes saved, NOT yet published (publish from Studio to release).
 4. Add new engagement, Engagement Type dropdown: same fix.
 - Plan data source "Annual Audit Plan" re-added in Studio (it had been dropped while testing a multi-select) and lblPlanMain / Audit Area card Update restored to single-select formulas.
 
+2b. Duplicate area names in Plan form Audit Area dropdown: Audit Universe has one row per area per entity (52 rows; not true duplicates, no data deleted). Dropdown now lists "Area · Entity" and only areas of the selected Entity.
+
 ## Not fixed
 2. Plan form Audit Area multi-select: kept SINGLE select per decision. SharePoint column is unchanged (single lookup).
-2b. Duplicate area names in the Audit Area dropdown (e.g. Finance x6, one per entity in the Audit Universe list): not changed. Proposed fix: show "Area - Entity" labels filtered by the selected Entity.
 - Not re-tested in the published app.

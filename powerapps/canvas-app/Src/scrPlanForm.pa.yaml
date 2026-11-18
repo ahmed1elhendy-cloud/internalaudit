@@ -672,7 +672,7 @@ Screens:
                         AccessibleLabel: =Parent.DisplayName
                         DefaultSelectedItems: =[Parent.Default]
                         DisplayMode: =Parent.DisplayMode
-                        Items: =Choices([@'Annual Audit Plan'].'Audit Area')
+                        Items: =SortByColumns(ForAll(Filter('Audit Universe', IsEmpty(DataCardValue2.SelectedItems) || Entity.Id in DataCardValue2.SelectedItems.Id), {Id: ID, Value: Title & " · " & Entity.Value}), "Value")
                         Required: =Parent.Required
                         ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
                         Width: =Parent.Width - 48

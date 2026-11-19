@@ -311,7 +311,7 @@ Screens:
             Default: =varSec.Assignee.Email
             Font: =Font.'Segoe UI'
             Height: =38
-            HintText: ="name@example.com"
+            HintText: ="user@example.com"
             RadiusBottomLeft: =0
             RadiusBottomRight: =0
             RadiusTopLeft: =0

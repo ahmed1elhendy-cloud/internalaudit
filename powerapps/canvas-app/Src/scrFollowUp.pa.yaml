@@ -164,314 +164,6 @@ Screens:
             Width: =112
             X: =Parent.Width - 136
             Y: =100
-      - recFUK1:
-          Control: Rectangle@2.3.0
-          Properties:
-            BorderColor: =RGBA(230, 224, 210, 1)
-            BorderThickness: =1
-            Fill: =RGBA(255, 255, 255, 1)
-            Height: =76
-            Width: =(Parent.Width - 80) / 3
-            X: =24 + 0 * ((Parent.Width - 80) / 3 + 16)
-            Y: =162
-      - recFUK1Gold:
-          Control: Rectangle@2.3.0
-          Properties:
-            Fill: =RGBA(184, 151, 90, 1)
-            Height: =2
-            Width: =(Parent.Width - 80) / 3
-            X: =24 + 0 * ((Parent.Width - 80) / 3 + 16)
-            Y: =162
-      - lblFUK1L:
-          Control: Label@2.5.1
-          Properties:
-            Color: =RGBA(107, 114, 128, 1)
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =18
-            Size: =10
-            Text: ="REVIEWS DONE"
-            Width: =(Parent.Width - 80) / 3 - 32
-            X: =24 + 0 * ((Parent.Width - 80) / 3 + 16) + 16
-            Y: =172
-      - lblFUK1V:
-          Control: Label@2.5.1
-          Properties:
-            Color: =RGBA(18, 35, 59, 1)
-            Font: =Font.Georgia
-            Size: =28
-            Text: =CountRows('Follow-Up Reviews')
-            Width: =(Parent.Width - 80) / 3 - 32
-            X: =24 + 0 * ((Parent.Width - 80) / 3 + 16) + 16
-            Y: =190
-      - recFUK2:
-          Control: Rectangle@2.3.0
-          Properties:
-            BorderColor: =RGBA(230, 224, 210, 1)
-            BorderThickness: =1
-            Fill: =RGBA(255, 255, 255, 1)
-            Height: =76
-            Width: =(Parent.Width - 80) / 3
-            X: =24 + 1 * ((Parent.Width - 80) / 3 + 16)
-            Y: =162
-      - recFUK2Gold:
-          Control: Rectangle@2.3.0
-          Properties:
-            Fill: =RGBA(184, 151, 90, 1)
-            Height: =2
-            Width: =(Parent.Width - 80) / 3
-            X: =24 + 1 * ((Parent.Width - 80) / 3 + 16)
-            Y: =162
-      - lblFUK2L:
-          Control: Label@2.5.1
-          Properties:
-            Color: =RGBA(107, 114, 128, 1)
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =18
-            Size: =10
-            Text: ="NOT IMPLEMENTED"
-            Width: =(Parent.Width - 80) / 3 - 32
-            X: =24 + 1 * ((Parent.Width - 80) / 3 + 16) + 16
-            Y: =172
-      - lblFUK2V:
-          Control: Label@2.5.1
-          Properties:
-            Color: =RGBA(142, 43, 43, 1)
-            Font: =Font.Georgia
-            Size: =28
-            Text: =CountRows(Filter('Follow-Up Reviews', Outcome.Value = "Not Implemented"))
-            Width: =(Parent.Width - 80) / 3 - 32
-            X: =24 + 1 * ((Parent.Width - 80) / 3 + 16) + 16
-            Y: =190
-      - recFUK3:
-          Control: Rectangle@2.3.0
-          Properties:
-            BorderColor: =RGBA(230, 224, 210, 1)
-            BorderThickness: =1
-            Fill: =RGBA(255, 255, 255, 1)
-            Height: =76
-            Width: =(Parent.Width - 80) / 3
-            X: =24 + 2 * ((Parent.Width - 80) / 3 + 16)
-            Y: =162
-      - recFUK3Gold:
-          Control: Rectangle@2.3.0
-          Properties:
-            Fill: =RGBA(184, 151, 90, 1)
-            Height: =2
-            Width: =(Parent.Width - 80) / 3
-            X: =24 + 2 * ((Parent.Width - 80) / 3 + 16)
-            Y: =162
-      - lblFUK3L:
-          Control: Label@2.5.1
-          Properties:
-            Color: =RGBA(107, 114, 128, 1)
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =18
-            Size: =10
-            Text: ="ACTIONS AWAITING VALIDATION"
-            Width: =(Parent.Width - 80) / 3 - 32
-            X: =24 + 2 * ((Parent.Width - 80) / 3 + 16) + 16
-            Y: =172
-      - lblFUK3V:
-          Control: Label@2.5.1
-          Properties:
-            Color: =RGBA(154, 107, 18, 1)
-            Font: =Font.Georgia
-            Size: =28
-            Text: |+
-              =CountRows(Filter('Follow-Up Reviews', IsBlank(Outcome.Value)))
-            Width: =(Parent.Width - 80) / 3 - 32
-            X: =24 + 2 * ((Parent.Width - 80) / 3 + 16) + 16
-            Y: =190
-      - ddFUOutcome:
-          Control: Classic/DropDown@2.3.1
-          Properties:
-            BorderColor: =RGBA(230, 224, 210, 1)
-            Font: =Font.'Segoe UI'
-            Height: =38
-            Items: =["All","Implemented","Partially Implemented","Not Implemented","Re-opened","Closed"]
-            Items.Value: =Value
-            Size: =12
-            Width: =(Parent.Width - 64) * 0.38
-            X: =24
-            Y: =252
-      - galFU:
-          Control: Gallery@2.15.0
-          Variant: Vertical
-          Properties:
-            BorderColor: =RGBA(230, 224, 210, 1)
-            BorderThickness: =1
-            Fill: =RGBA(255, 255, 255, 1)
-            Height: =Parent.Height - 320
-            Items: =Filter('Follow-Up Reviews', ddFUOutcome.Selected.Value = "All" || Outcome.Value = ddFUOutcome.Selected.Value)
-            TemplateFill: =If(ThisItem.IsSelected,RGBA(251, 249, 243, 1),RGBA(255, 255, 255, 1))
-            TemplatePadding: =0
-            TemplateSize: =72
-            Width: =(Parent.Width - 64) * 0.38
-            X: =24
-            Y: =306
-          Children:
-            - recEdge_10:
-                Control: Rectangle@2.3.0
-                Properties:
-                  Fill: =Switch(ThisItem.Outcome.Value,"Implemented",RGBA(47, 107, 79, 1),"Closed",RGBA(47, 107, 79, 1),"Partially Implemented",RGBA(154, 107, 18, 1),"Not Implemented",RGBA(142, 43, 43, 1),"Re-opened",RGBA(142, 43, 43, 1),RGBA(107, 114, 128, 1))
-                  Height: =Parent.TemplateHeight
-                  Width: =3
-            - recLine_8:
-                Control: Rectangle@2.3.0
-                Properties:
-                  Fill: =RGBA(230, 224, 210, 1)
-                  Height: =1
-                  Width: =Parent.TemplateWidth
-                  Y: =Parent.TemplateHeight - 1
-            - lblFUMain:
-                Control: Label@2.5.1
-                Properties:
-                  Color: =RGBA(29, 37, 48, 1)
-                  Font: =Font.Georgia
-                  Height: =28
-                  Size: =14
-                  Text: =ThisItem.Title
-                  Width: =Parent.TemplateWidth - 160
-                  X: =16
-                  Y: =8
-            - lblFUMeta:
-                Control: Label@2.5.1
-                Properties:
-                  Color: =RGBA(107, 114, 128, 1)
-                  Font: =Font.'Segoe UI'
-                  Height: =22
-                  Size: =11
-                  Text: =ThisItem.Reviewer.DisplayName & "  |  " & Text(ThisItem.'Review Date', "dd mmm yyyy")
-                  Width: =Parent.TemplateWidth - 160
-                  X: =16
-                  Y: =38
-            - chOChip:
-                Control: Rectangle@2.3.0
-                Properties:
-                  BorderColor: |+
-                    =Switch(Coalesce(ThisItem.Outcome.Value,"Open"), "Implemented", RGBA(47,107,79,1), "Closed", RGBA(47,107,79,1), "Partially Implemented", RGBA(154,107,18,1), "Open", RGBA(154,107,18,1), "Not Implemented", RGBA(142,43,43,1), "Re-opened", RGBA(142,43,43,1), RGBA(107,114,128,1))
-                  BorderThickness: =1
-                  Fill: =RGBA(0, 0, 0, 0)
-                  Height: =24
-                  Width: =124
-                  X: =Parent.TemplateWidth - 136
-                  Y: =24
-            - chOChipText:
-                Control: Label@2.5.1
-                Properties:
-                  Align: =Align.Center
-                  Color: |+
-                    =Switch(Coalesce(ThisItem.Outcome.Value,"Open"), "Implemented", RGBA(47,107,79,1), "Closed", RGBA(47,107,79,1), "Partially Implemented", RGBA(154,107,18,1), "Open", RGBA(154,107,18,1), "Not Implemented", RGBA(142,43,43,1), "Re-opened", RGBA(142,43,43,1), RGBA(107,114,128,1))
-                  Font: =Font.'Segoe UI'
-                  FontWeight: =FontWeight.Semibold
-                  Height: =24
-                  Size: =9
-                  Text: |+
-                    =If(IsBlank(ThisItem.Outcome.Value), "Open", ThisItem.Outcome.Value)
-                  Width: =124
-                  X: =Parent.TemplateWidth - 136
-                  Y: =24
-      - recDet_1:
-          Control: Rectangle@2.3.0
-          Properties:
-            BorderColor: =RGBA(230, 224, 210, 1)
-            BorderThickness: =1
-            Fill: =RGBA(255, 255, 255, 1)
-            Height: =Parent.Height - 272
-            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.38 - 16
-            X: =24 + (Parent.Width - 64) * 0.38 + 16
-            Y: =252
-      - recDetGold_1:
-          Control: Rectangle@2.3.0
-          Properties:
-            Fill: =RGBA(184, 151, 90, 1)
-            Height: =2
-            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.38 - 16
-            X: =24 + (Parent.Width - 64) * 0.38 + 16
-            Y: =252
-      - lblFUDTitle:
-          Control: Label@2.5.1
-          Properties:
-            Color: =RGBA(29, 37, 48, 1)
-            Font: =Font.Georgia
-            Height: =36
-            Size: =20
-            Text: =galFU.Selected.Title
-            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.38 - 16 - 40
-            X: =24 + (Parent.Width - 64) * 0.38 + 16 + 20
-            Y: =266
-      - lblFUDOutcome:
-          Control: Label@2.5.1
-          Properties:
-            Color: =RGBA(29, 37, 48, 1)
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =24
-            Text: |+
-              ="Outcome - " & Coalesce(galFU.Selected.Outcome.Value, "Open (awaiting auditor testing)")
-            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.38 - 16 - 40
-            X: =24 + (Parent.Width - 64) * 0.38 + 16 + 20
-            Y: =306
-      - lblFUDFinding:
-          Control: Label@2.5.1
-          Properties:
-            Color: =RGBA(29, 37, 48, 1)
-            Font: =Font.'Segoe UI'
-            Height: =22
-            Size: =12
-            Text: ="Finding - " & galFU.Selected.Finding.Value
-            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.38 - 16 - 40
-            X: =24 + (Parent.Width - 64) * 0.38 + 16 + 20
-            Y: =334
-      - lblFUDAction:
-          Control: Label@2.5.1
-          Properties:
-            Color: =RGBA(29, 37, 48, 1)
-            Font: =Font.'Segoe UI'
-            Height: =22
-            Size: =12
-            Text: ="Action - " & galFU.Selected.Action.Value
-            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.38 - 16 - 40
-            X: =24 + (Parent.Width - 64) * 0.38 + 16 + 20
-            Y: =358
-      - lblFUDReviewer:
-          Control: Label@2.5.1
-          Properties:
-            Color: =RGBA(29, 37, 48, 1)
-            Font: =Font.'Segoe UI'
-            Height: =22
-            Size: =12
-            Text: ="Reviewer - " & galFU.Selected.Reviewer.DisplayName & "   |   Date - " & Text(galFU.Selected.'Review Date', "dd mmm yyyy")
-            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.38 - 16 - 40
-            X: =24 + (Parent.Width - 64) * 0.38 + 16 + 20
-            Y: =382
-      - lblFUDNotesLabel:
-          Control: Label@2.5.1
-          Properties:
-            Color: =RGBA(184, 151, 90, 1)
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =20
-            Size: =10
-            Text: ="TESTING NOTES"
-            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.38 - 16 - 40
-            X: =24 + (Parent.Width - 64) * 0.38 + 16 + 20
-            Y: =418
-      - lblFUDNotes:
-          Control: Label@2.5.1
-          Properties:
-            Color: =RGBA(29, 37, 48, 1)
-            Font: =Font.'Segoe UI'
-            Height: =Parent.Height - 480
-            Size: =12
-            Text: =galFU.Selected.'Testing Notes'
-            VerticalAlign: =VerticalAlign.Top
-            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.38 - 16 - 40
-            X: =24 + (Parent.Width - 64) * 0.38 + 16 + 20
-            Y: =440
       - Icon6:
           Control: Classic/Icon@2.5.0
           Properties:
@@ -494,3 +186,434 @@ Screens:
             Width: =24
             X: =1274
             Y: =40
+      - recFUK1:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(230, 224, 210, 1)
+            BorderThickness: =1
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =42
+            Width: =168
+            X: =Parent.Width - 24 - 3 * 176 + 8
+            Y: =162
+      - recFUK1Gold:
+          Control: Rectangle@2.3.0
+          Properties:
+            Fill: =RGBA(184, 151, 90, 1)
+            Height: =2
+            Width: =168
+            X: =Parent.Width - 24 - 3 * 176 + 8
+            Y: =162
+      - lblFUK1L:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(107, 114, 128, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =16
+            Size: =9
+            Text: ="REVIEWS DONE"
+            Width: =152
+            X: =Parent.Width - 24 - 3 * 176 + 8 + 8
+            Y: =166
+      - lblFUK1V:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(18, 35, 59, 1)
+            Font: =Font.Georgia
+            Height: =24
+            Size: =16
+            Text: =CountRows('Follow-Up Reviews')
+            Width: =152
+            X: =Parent.Width - 24 - 3 * 176 + 8 + 8
+            Y: =180
+      - recFUK2:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(230, 224, 210, 1)
+            BorderThickness: =1
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =42
+            Width: =168
+            X: =Parent.Width - 24 - 2 * 176 + 8
+            Y: =162
+      - recFUK2Gold:
+          Control: Rectangle@2.3.0
+          Properties:
+            Fill: =RGBA(184, 151, 90, 1)
+            Height: =2
+            Width: =168
+            X: =Parent.Width - 24 - 2 * 176 + 8
+            Y: =162
+      - lblFUK2L:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(107, 114, 128, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =16
+            Size: =9
+            Text: ="NOT IMPLEMENTED"
+            Width: =152
+            X: =Parent.Width - 24 - 2 * 176 + 8 + 8
+            Y: =166
+      - lblFUK2V:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(142, 43, 43, 1)
+            Font: =Font.Georgia
+            Height: =24
+            Size: =16
+            Text: =CountRows(Filter('Follow-Up Reviews', Outcome.Value = "Not Implemented"))
+            Width: =152
+            X: =Parent.Width - 24 - 2 * 176 + 8 + 8
+            Y: =180
+      - recFUK3:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(230, 224, 210, 1)
+            BorderThickness: =1
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =42
+            Width: =168
+            X: =Parent.Width - 24 - 1 * 176 + 8
+            Y: =162
+      - recFUK3Gold:
+          Control: Rectangle@2.3.0
+          Properties:
+            Fill: =RGBA(184, 151, 90, 1)
+            Height: =2
+            Width: =168
+            X: =Parent.Width - 24 - 1 * 176 + 8
+            Y: =162
+      - lblFUK3L:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(107, 114, 128, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =16
+            Size: =9
+            Text: ="AWAITING VALIDATION"
+            Width: =152
+            X: =Parent.Width - 24 - 1 * 176 + 8 + 8
+            Y: =166
+      - lblFUK3V:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(154, 107, 18, 1)
+            Font: =Font.Georgia
+            Height: =24
+            Size: =16
+            Text: =CountRows(Filter('Follow-Up Reviews', IsBlank(Outcome.Value)))
+            Width: =152
+            X: =Parent.Width - 24 - 1 * 176 + 8 + 8
+            Y: =180
+      - recFUHead:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(230, 224, 210, 1)
+            BorderThickness: =1
+            Fill: =RGBA(247, 244, 236, 1)
+            Height: =28
+            Width: =(Parent.Width - 64) * 0.75
+            X: =24
+            Y: =212
+      - lblFUColReview:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(107, 114, 128, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            Size: =10
+            Text: ="REVIEW"
+            Width: =230
+            X: =40
+            Y: =212
+      - lblFUColFinding:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(107, 114, 128, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            Size: =10
+            Text: ="FINDING"
+            Width: =130
+            X: =278
+            Y: =212
+      - lblFUColAction:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(107, 114, 128, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            Size: =10
+            Text: ="ACTION"
+            Width: =190
+            X: =416
+            Y: =212
+      - lblFUColReviewer:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(107, 114, 128, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            Size: =10
+            Text: ="REVIEWER"
+            Width: =120
+            X: =614
+            Y: =212
+      - lblFUColDate:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(107, 114, 128, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            Size: =10
+            Text: ="DATE"
+            Width: =100
+            X: =742
+            Y: =212
+      - lblFUColOutcome:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(107, 114, 128, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            Size: =10
+            Text: ="OUTCOME"
+            Width: =124
+            X: =24 + (Parent.Width - 64) * 0.75 - 136 + 0
+            Y: =212
+      - ddFUOutcome:
+          Control: Classic/DropDown@2.3.1
+          Properties:
+            BorderColor: =RGBA(230, 224, 210, 1)
+            Font: =Font.'Segoe UI'
+            Height: =38
+            Items: =["All","Implemented","Partially Implemented","Not Implemented","Re-opened","Closed"]
+            Items.Value: =Value
+            Size: =12
+            Width: =220
+            X: =24
+            Y: =162
+      - ddFUEng:
+          Control: Classic/DropDown@2.3.1
+          Properties:
+            BorderColor: =RGBA(230, 224, 210, 1)
+            Font: =Font.'Segoe UI'
+            Height: =38
+            Items: =Split("All engagements|" & Concat('Audit Engagements', Title, "|"), "|")
+            Items.Value: =Value
+            Size: =12
+            Width: =320
+            X: =256
+            Y: =162
+      - galFU:
+          Control: Gallery@2.15.0
+          Variant: Vertical
+          Properties:
+            BorderColor: =RGBA(230, 224, 210, 1)
+            BorderThickness: =1
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =Parent.Height - 290
+            Items: =Filter('Follow-Up Reviews' As fu, (ddFUOutcome.Selected.Value = "All" || fu.Outcome.Value = ddFUOutcome.Selected.Value), (ddFUEng.Selected.Value = "All engagements" || LookUp('Audit Findings Register', ID = fu.Finding.Id).Engagement.Value = ddFUEng.Selected.Value))
+            TemplateFill: =If(ThisItem.IsSelected,RGBA(251, 249, 243, 1),RGBA(255, 255, 255, 1))
+            TemplatePadding: =0
+            TemplateSize: =56
+            Width: =(Parent.Width - 64) * 0.75
+            X: =24
+            Y: =240
+          Children:
+            - recEdge_10:
+                Control: Rectangle@2.3.0
+                Properties:
+                  Fill: =Switch(ThisItem.Outcome.Value,"Implemented",RGBA(47, 107, 79, 1),"Closed",RGBA(47, 107, 79, 1),"Partially Implemented",RGBA(154, 107, 18, 1),"Not Implemented",RGBA(142, 43, 43, 1),"Re-opened",RGBA(142, 43, 43, 1),RGBA(154, 107, 18, 1))
+                  Height: =Parent.TemplateHeight
+                  Width: =3
+            - recLine_8:
+                Control: Rectangle@2.3.0
+                Properties:
+                  Fill: =RGBA(230, 224, 210, 1)
+                  Height: =1
+                  Width: =Parent.TemplateWidth
+                  Y: =Parent.TemplateHeight - 1
+            - lblFUMain:
+                Control: Label@2.5.1
+                Properties:
+                  Color: =RGBA(29, 37, 48, 1)
+                  Font: =Font.Georgia
+                  Height: =Parent.TemplateHeight
+                  Text: =ThisItem.Title
+                  Width: =230
+                  X: =16
+            - lblFUFind:
+                Control: Label@2.5.1
+                Properties:
+                  Color: =RGBA(29, 37, 48, 1)
+                  Font: =Font.'Segoe UI'
+                  Height: =Parent.TemplateHeight
+                  Size: =11
+                  Text: =ThisItem.Finding.Value
+                  Width: =130
+                  X: =254
+            - lblFUAct:
+                Control: Label@2.5.1
+                Properties:
+                  Color: =RGBA(29, 37, 48, 1)
+                  Font: =Font.'Segoe UI'
+                  Height: =Parent.TemplateHeight
+                  Size: =11
+                  Text: =ThisItem.Action.Value
+                  Width: =190
+                  X: =392
+            - lblFURev:
+                Control: Label@2.5.1
+                Properties:
+                  Color: =RGBA(29, 37, 48, 1)
+                  Font: =Font.'Segoe UI'
+                  Height: =Parent.TemplateHeight
+                  Size: =11
+                  Text: =ThisItem.Reviewer.DisplayName
+                  Width: =120
+                  X: =590
+            - lblFUDt:
+                Control: Label@2.5.1
+                Properties:
+                  Color: =RGBA(107, 114, 128, 1)
+                  Font: =Font.'Segoe UI'
+                  Height: =Parent.TemplateHeight
+                  Size: =11
+                  Text: =Text(ThisItem.'Review Date', "dd mmm yyyy")
+                  Width: =100
+                  X: =718
+            - chOChip:
+                Control: Rectangle@2.3.0
+                Properties:
+                  BorderColor: =Switch(Coalesce(ThisItem.Outcome.Value,"Open"), "Implemented", RGBA(47,107,79,1), "Closed", RGBA(47,107,79,1), "Partially Implemented", RGBA(154,107,18,1), "Open", RGBA(154,107,18,1), "Not Implemented", RGBA(142,43,43,1), "Re-opened", RGBA(142,43,43,1), RGBA(107,114,128,1))
+                  BorderThickness: =1
+                  Fill: =RGBA(0, 0, 0, 0)
+                  Height: =24
+                  Width: =124
+                  X: =Parent.TemplateWidth - 136
+                  Y: =(Parent.TemplateHeight - 24) / 2
+            - chOChipText:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Center
+                  Color: =Switch(Coalesce(ThisItem.Outcome.Value,"Open"), "Implemented", RGBA(47,107,79,1), "Closed", RGBA(47,107,79,1), "Partially Implemented", RGBA(154,107,18,1), "Open", RGBA(154,107,18,1), "Not Implemented", RGBA(142,43,43,1), "Re-opened", RGBA(142,43,43,1), RGBA(107,114,128,1))
+                  Font: =Font.'Segoe UI'
+                  FontWeight: =FontWeight.Semibold
+                  Height: =24
+                  Size: =9
+                  Text: =If(IsBlank(ThisItem.Outcome.Value), "Open", ThisItem.Outcome.Value)
+                  Width: =124
+                  X: =Parent.TemplateWidth - 136
+                  Y: =(Parent.TemplateHeight - 24) / 2
+      - recDet_1:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(230, 224, 210, 1)
+            BorderThickness: =1
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =Parent.Height - 262
+            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.75 - 16
+            X: =24 + (Parent.Width - 64) * 0.75 + 16
+            Y: =212
+      - recDetGold_1:
+          Control: Rectangle@2.3.0
+          Properties:
+            Fill: =RGBA(184, 151, 90, 1)
+            Height: =2
+            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.75 - 16
+            X: =24 + (Parent.Width - 64) * 0.75 + 16
+            Y: =212
+      - lblFUDTitle:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(29, 37, 48, 1)
+            Font: =Font.Georgia
+            Height: =52
+            Size: =16
+            Text: =galFU.Selected.Title
+            VerticalAlign: =VerticalAlign.Top
+            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.75 - 16 - 32
+            X: =24 + (Parent.Width - 64) * 0.75 + 16 + 16
+            Y: =224
+      - lblFUDOutcome:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(29, 37, 48, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =24
+            Size: =12
+            Text: ="Outcome - " & Coalesce(galFU.Selected.Outcome.Value, "Open (awaiting auditor testing)")
+            VerticalAlign: =VerticalAlign.Top
+            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.75 - 16 - 32
+            X: =24 + (Parent.Width - 64) * 0.75 + 16 + 16
+            Y: =278
+      - lblFUDFinding:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(29, 37, 48, 1)
+            Font: =Font.'Segoe UI'
+            Size: =12
+            Text: ="Finding - " & galFU.Selected.Finding.Value
+            VerticalAlign: =VerticalAlign.Top
+            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.75 - 16 - 32
+            X: =24 + (Parent.Width - 64) * 0.75 + 16 + 16
+            Y: =306
+      - lblFUDAction:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(29, 37, 48, 1)
+            Font: =Font.'Segoe UI'
+            Size: =12
+            Text: ="Action - " & galFU.Selected.Action.Value
+            VerticalAlign: =VerticalAlign.Top
+            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.75 - 16 - 32
+            X: =24 + (Parent.Width - 64) * 0.75 + 16 + 16
+            Y: =348
+      - lblFUDReviewer:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(29, 37, 48, 1)
+            Font: =Font.'Segoe UI'
+            Size: =12
+            Text: ="Reviewer - " & galFU.Selected.Reviewer.DisplayName & " | " & Text(galFU.Selected.'Review Date', "dd mmm yyyy")
+            VerticalAlign: =VerticalAlign.Top
+            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.75 - 16 - 32
+            X: =24 + (Parent.Width - 64) * 0.75 + 16 + 16
+            Y: =390
+      - lblFUDNotesLabel:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(184, 151, 90, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =20
+            Size: =10
+            Text: ="TESTING NOTES"
+            VerticalAlign: =VerticalAlign.Top
+            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.75 - 16 - 32
+            X: =24 + (Parent.Width - 64) * 0.75 + 16 + 16
+            Y: =436
+      - lblFUDNotes:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(29, 37, 48, 1)
+            Font: =Font.'Segoe UI'
+            Height: =Parent.Height - 520
+            Size: =12
+            Text: =galFU.Selected.'Testing Notes'
+            VerticalAlign: =VerticalAlign.Top
+            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.75 - 16 - 32
+            X: =24 + (Parent.Width - 64) * 0.75 + 16 + 16
+            Y: =458

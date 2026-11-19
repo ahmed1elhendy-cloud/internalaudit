@@ -258,6 +258,64 @@ Screens:
             Width: =200
             X: =Parent.Width - 244
             Y: =215
+      - icoRefresh_Actions:
+          Control: Classic/Icon@2.5.0
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(216, 180, 90, 1)
+            DisabledBorderColor: =RGBA(245, 245, 245, 1)
+            DisabledColor: =RGBA(225, 223, 221, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =24
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(16, 110, 190, 1)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.Reload
+            OnSelect: =Refresh('Annual Audit Plan'); Refresh('Audit Engagements'); Refresh('Audit Findings Register'); Refresh('Corrective Action Tracker'); Refresh('Follow-Up Reviews'); Refresh('Engagement Milestones'); Refresh('Audit Questionnaires'); Refresh('Questionnaire Sections'); Refresh('Questionnaire Items'); Refresh('Questionnaire Uploads'); Refresh('Audit Working Papers'); Refresh('Evidence Repository'); Refresh('Audit Trail'); Refresh('IA Configuration'); Notify("Data refreshed", NotificationType.Success)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =RGBA(16, 110, 190, 1)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Tooltip: ="Refresh data"
+            Width: =24
+            X: =1274
+            Y: =40
+      - ddActEng:
+          Control: Classic/DropDown@2.3.1
+          Properties:
+            BorderColor: =RGBA(230, 224, 210, 1)
+            Font: =Font.'Segoe UI'
+            Height: =38
+            Items: =Split("All engagements|" & Concat('Audit Engagements', Title, "|"), "|")
+            Items.Value: =Value
+            Size: =12
+            Width: =320
+            X: =508
+            Y: =162
+      - lblColEng:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(107, 114, 128, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =20
+            Size: =10
+            Text: ="ENGAGEMENT"
+            Width: =190
+            X: =412
+            Y: =215
+      - lblColFind:
+          Control: Label@2.5.1
+          Properties:
+            Color: =RGBA(107, 114, 128, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =20
+            Size: =10
+            Text: ="FINDING"
+            Width: =175
+            X: =610
+            Y: =215
       - galActions:
           Control: Gallery@2.15.0
           Variant: Vertical
@@ -265,14 +323,14 @@ Screens:
             BorderColor: =RGBA(230, 224, 210, 1)
             BorderThickness: =1
             Fill: =RGBA(255, 255, 255, 1)
-            Height: =Parent.Height - 262
-            Items: =Filter('Corrective Action Tracker', (ddActStatus.Selected.Value = "All" || Status.Value = ddActStatus.Selected.Value), (ddActRating.Selected.Value = "All" || 'Finding Rating'.Value = ddActRating.Selected.Value))
+            Height: =Parent.Height - 290
+            Items: =Filter('Corrective Action Tracker' As cp, (ddActStatus.Selected.Value = "All" || cp.Status.Value = ddActStatus.Selected.Value), (ddActRating.Selected.Value = "All" || cp.'Finding Rating'.Value = ddActRating.Selected.Value), (ddActEng.Selected.Value = "All engagements" || LookUp('Audit Findings Register', ID = cp.Finding.Id).Engagement.Value = ddActEng.Selected.Value))
             TemplateFill: =If(ThisItem.IsSelected,RGBA(251, 249, 243, 1),RGBA(255, 255, 255, 1))
             TemplatePadding: =0
             TemplateSize: =76
             Width: =Parent.Width - 48
             X: =24
-            Y: =215
+            Y: =243
           Children:
             - recEdge_7:
                 Control: Rectangle@2.3.0
@@ -305,10 +363,29 @@ Screens:
                   Font: =Font.Georgia
                   Height: =Parent.TemplateHeight
                   Size: =14
-                  Text: |+
-                    =If(IsBlank(ThisItem.'Action Description'), ThisItem.'Action Title', ThisItem.'Action Description')
-                  Width: =Parent.TemplateWidth - 570
+                  Text: =If(IsBlank(ThisItem.'Action Description'), ThisItem.'Action Title', ThisItem.'Action Description')
+                  Width: =230
                   X: =150
+            - lblActEng:
+                Control: Label@2.5.1
+                Properties:
+                  Color: =RGBA(29, 37, 48, 1)
+                  Font: =Font.'Segoe UI'
+                  Height: =Parent.TemplateHeight
+                  Size: =12
+                  Text: =With({r:LookUp('Audit Findings Register', ID = ThisItem.Finding.Id)}, With({n:Coalesce(r.Engagement.Value, "-")}, If(Len(n) > 30, Left(n, 28) & "...", n)) & Char(10) & Coalesce(LookUp('Audit Engagements', ID = r.Engagement.Id).'Engagement ID', ""))
+                  Width: =190
+                  X: =388
+            - lblActFind:
+                Control: Label@2.5.1
+                Properties:
+                  Color: =RGBA(29, 37, 48, 1)
+                  Font: =Font.'Segoe UI'
+                  Height: =Parent.TemplateHeight
+                  Size: =12
+                  Text: =With({r:LookUp('Audit Findings Register', ID = ThisItem.Finding.Id)}, With({n:Coalesce(r.Title, "-")}, If(Len(n) > 26, Left(n, 24) & "...", n)) & Char(10) & Coalesce(r.'Finding ID', ""))
+                  Width: =175
+                  X: =586
             - lblActOwner:
                 Control: Label@2.5.1
                 Properties:
@@ -351,25 +428,3 @@ Screens:
                   Width: =200
                   X: =Parent.TemplateWidth - 220
                   Y: =24
-      - icoRefresh_Actions:
-          Control: Classic/Icon@2.5.0
-          Properties:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            Color: =RGBA(216, 180, 90, 1)
-            DisabledBorderColor: =RGBA(245, 245, 245, 1)
-            DisabledColor: =RGBA(225, 223, 221, 1)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            FocusedBorderThickness: =4
-            Height: =24
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(16, 110, 190, 1)
-            HoverFill: =RGBA(0, 0, 0, 0)
-            Icon: =Icon.Reload
-            OnSelect: =Refresh('Annual Audit Plan'); Refresh('Audit Engagements'); Refresh('Audit Findings Register'); Refresh('Corrective Action Tracker'); Refresh('Follow-Up Reviews'); Refresh('Engagement Milestones'); Refresh('Audit Questionnaires'); Refresh('Questionnaire Sections'); Refresh('Questionnaire Items'); Refresh('Questionnaire Uploads'); Refresh('Audit Working Papers'); Refresh('Evidence Repository'); Refresh('Audit Trail'); Refresh('IA Configuration'); Notify("Data refreshed", NotificationType.Success)
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedColor: =RGBA(16, 110, 190, 1)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            Tooltip: ="Refresh data"
-            Width: =24
-            X: =1274
-            Y: =40

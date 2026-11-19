@@ -229,7 +229,7 @@
                         "from": "@body('Question_rows')",
                         "select": {
                           "no": "@int(first(split(string(item()?['Section No']),'.')))",
-                          "title": "@item()?['Section Title']"
+                          "title": "@concat('S',first(split(string(item()?['Section No']),'.')))"
                         }
                       }
                     },
@@ -268,7 +268,7 @@
                                 "Accept": "application/json;odata=nometadata",
                                 "Content-Type": "application/json;odata=nometadata"
                               },
-                              "parameters/body": "@json(concat('{\"Title\":\"',replace(coalesce(items('Each_section')?['title'],'Section'),'\"',''),'\",\"QuestionnaireId\":',body('Create_questionnaire')?['Id'],',\"SectionNo\":',items('Each_section')?['no'],',\"SectionStatus\":\"Not started\",\"QuestionCount\":',length(body('Section_rows')),'}'))"
+                              "parameters/body": "@json(concat('{\"Title\":\"',trim(replace(replace(replace(replace(replace(string(coalesce(first(body('Section_rows'))?['Section Title'],'Section')),decodeUriComponent('%5C'),concat(decodeUriComponent('%5C'),decodeUriComponent('%5C'))),decodeUriComponent('%22'),concat(decodeUriComponent('%5C'),decodeUriComponent('%22'))),decodeUriComponent('%09'),' '),decodeUriComponent('%0D'),' '),decodeUriComponent('%0A'),' ')),'\",\"QuestionnaireId\":',body('Create_questionnaire')?['Id'],',\"SectionNo\":',items('Each_section')?['no'],',\"SectionStatus\":\"Not started\",\"QuestionCount\":',length(body('Section_rows')),'}'))"
                             },
                             "host": {
                               "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
@@ -315,7 +315,7 @@
                                     "Accept": "application/json;odata=nometadata",
                                     "Content-Type": "application/json;odata=nometadata"
                                   },
-                                  "parameters/body": "@json(concat('{\"Title\":\"',replace(string(coalesce(items('Each_question')?['Ref'],concat(items('Each_section')?['no'],'.',variables('seq')))),'\"',''),'\",\"QuestionnaireId\":',body('Create_questionnaire')?['Id'],',\"SectionId\":',body('Create_section')?['Id'],',\"SortOrder\":',variables('seq'),',\"Question\":\"',replace(replace(string(items('Each_question')?['Audit Question']),'\"',''),decodeUriComponent('%0A'),' '),'\",\"AttachmentRequirement\":\"',replace(replace(coalesce(string(items('Each_question')?['Attachment Requirement']),''),'\"',''),decodeUriComponent('%0A'),' '),'\",\"EvidenceRule\":\"',if(contains(createArray('If Yes','If No','Always','Never'),string(items('Each_question')?['Evidence Rule'])),string(items('Each_question')?['Evidence Rule']),'Never'),'\",\"ExplanationRequiredIfNo\":',if(equals(toLower(string(coalesce(items('Each_question')?['Explanation Required if No'],'no'))),'yes'),'true','false'),',\"IsException\":',if(equals(toLower(string(coalesce(items('Each_question')?['Exception Question'],'no'))),'yes'),'true','false'),',\"ReviewStatus\":\"Pending\"}'))"
+                                  "parameters/body": "@json(concat('{\"Title\":\"',trim(replace(replace(replace(replace(replace(string(coalesce(items('Each_question')?['Ref'],concat(items('Each_section')?['no'],'.',variables('seq')))),decodeUriComponent('%5C'),concat(decodeUriComponent('%5C'),decodeUriComponent('%5C'))),decodeUriComponent('%22'),concat(decodeUriComponent('%5C'),decodeUriComponent('%22'))),decodeUriComponent('%09'),' '),decodeUriComponent('%0D'),' '),decodeUriComponent('%0A'),' ')),'\",\"QuestionnaireId\":',body('Create_questionnaire')?['Id'],',\"SectionId\":',body('Create_section')?['Id'],',\"SortOrder\":',variables('seq'),',\"Question\":\"',trim(replace(replace(replace(replace(replace(string(items('Each_question')?['Audit Question']),decodeUriComponent('%5C'),concat(decodeUriComponent('%5C'),decodeUriComponent('%5C'))),decodeUriComponent('%22'),concat(decodeUriComponent('%5C'),decodeUriComponent('%22'))),decodeUriComponent('%09'),' '),decodeUriComponent('%0D'),' '),decodeUriComponent('%0A'),' ')),'\",\"AttachmentRequirement\":\"',trim(replace(replace(replace(replace(replace(coalesce(string(items('Each_question')?['Attachment Requirement']),''),decodeUriComponent('%5C'),concat(decodeUriComponent('%5C'),decodeUriComponent('%5C'))),decodeUriComponent('%22'),concat(decodeUriComponent('%5C'),decodeUriComponent('%22'))),decodeUriComponent('%09'),' '),decodeUriComponent('%0D'),' '),decodeUriComponent('%0A'),' ')),'\",\"EvidenceRule\":\"',if(contains(createArray('If Yes','If No','Always','Never'),string(items('Each_question')?['Evidence Rule'])),string(items('Each_question')?['Evidence Rule']),'Never'),'\",\"ExplanationRequiredIfNo\":',if(equals(toLower(string(coalesce(items('Each_question')?['Explanation Required if No'],'no'))),'yes'),'true','false'),',\"IsException\":',if(equals(toLower(string(coalesce(items('Each_question')?['Exception Question'],'no'))),'yes'),'true','false'),',\"ReviewStatus\":\"Pending\"}'))"
                                 },
                                 "host": {
                                   "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",

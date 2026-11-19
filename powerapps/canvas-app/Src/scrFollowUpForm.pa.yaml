@@ -312,16 +312,6 @@ Screens:
                               Width: =Parent.Width - 48
                               X: =24
                               Y: =DataCardKey57.Y + DataCardKey57.Height + 4
-                            Children:
-                              - DisplayName5:
-                                  Control: ComboBoxDataField@1.5.0
-                                  Variant: textualColumn
-                                  IsLocked: true
-                                  Properties:
-                                    FieldDisplayName: ="DisplayName"
-                                    FieldName: ="DisplayName"
-                                    FieldType: ="s"
-                                    Order: =1
                         - ErrorMessage51:
                             Control: Text@0.0.51
                             MetadataKey: ErrorMessage

@@ -60,6 +60,40 @@ Screens:
             Width: =400
             X: =Parent.Width - 424
             Y: =16
+      - galNav_5:
+          Control: Gallery@2.15.0
+          Variant: Horizontal
+          Properties:
+            Height: =34
+            Items: =Filter(Table({Value:"Dashboard",Show:true},{Value:"Plan",Show:varIsAuditor||varIsExec},{Value:"Engagements",Show:varIsAuditor||varIsExec},{Value:"Questionnaires",Show:varIsAuditor||varIsExec},{Value:"My Questionnaires",Show:varIsAuditee||varIsAuditor},{Value:"Fieldwork",Show:varIsAuditor},{Value:"Findings",Show:true},{Value:"Actions",Show:true},{Value:"Follow-Up",Show:varIsAuditor||varIsExec||varIsBUHead||varIsDeptHead},{Value:"Reports",Show:true},{Value:"Resource Centre",Show:varIsAuditor}),Show)
+            OnSelect: =Switch(ThisItem.Value, "Dashboard", Navigate(scrDashboard, ScreenTransition.None), "Plan", Navigate(scrPlan, ScreenTransition.None), "Engagements", Navigate(scrEngagements, ScreenTransition.None), "Findings", Navigate(scrFindings, ScreenTransition.None), "Actions", Navigate(scrActions, ScreenTransition.None), "Follow-Up", Navigate(scrFollowUp, ScreenTransition.None), "Fieldwork", Navigate(scrFieldwork, ScreenTransition.None), "Questionnaires", Navigate(scrQuestionnaires, ScreenTransition.None), "My Questionnaires", Navigate(scrMyQuestionnaires, ScreenTransition.None), "Reports", Navigate(scrReports, ScreenTransition.None), "Resource Centre", Navigate(scrResources, ScreenTransition.None))
+            ShowScrollbar: =false
+            TemplatePadding: =0
+            TemplateSize: =121
+            Width: =Parent.Width - 32
+            X: =16
+            Y: =52
+          Children:
+            - lblTab_5:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Center
+                  Color: =If(ThisItem.Value="Dashboard",RGBA(247, 244, 236, 1),RGBA(174, 184, 198, 1))
+                  Fill: =If(ThisItem.Value="Dashboard",RGBA(27, 50, 80, 1),RGBA(0, 0, 0, 0))
+                  Font: =Font.'Segoe UI'
+                  Height: =34
+                  OnSelect: =Select(Parent)
+                  Size: =11
+                  Text: =ThisItem.Value
+                  Width: =Parent.TemplateWidth
+            - recTabLine_5:
+                Control: Rectangle@2.3.0
+                Properties:
+                  Fill: =RGBA(247, 244, 236, 1)
+                  Height: =2
+                  Visible: =ThisItem.Value="Dashboard"
+                  Width: =Parent.TemplateWidth
+                  Y: =32
       - lblTitle_6:
           Control: Label@2.5.1
           Properties:
@@ -476,39 +510,5 @@ Screens:
             PressedFill: =RGBA(0, 0, 0, 0)
             Tooltip: ="Refresh data"
             Width: =24
-            X: =1210
-            Y: =22
-      - galNav_5:
-          Control: Gallery@2.15.0
-          Variant: Horizontal
-          Properties:
-            Height: =34
-            Items: =Filter(Table({Value:"Dashboard",Show:true},{Value:"Plan",Show:varIsAuditor||varIsExec},{Value:"Engagements",Show:varIsAuditor||varIsExec},{Value:"Questionnaires",Show:varIsAuditor||varIsExec},{Value:"My Questionnaires",Show:varIsAuditee||varIsAuditor},{Value:"Fieldwork",Show:varIsAuditor},{Value:"Findings",Show:true},{Value:"Actions",Show:true},{Value:"Follow-Up",Show:varIsAuditor||varIsExec||varIsBUHead||varIsDeptHead},{Value:"Reports",Show:true},{Value:"Resource Centre",Show:varIsAuditor}),Show)
-            OnSelect: =Switch(ThisItem.Value, "Dashboard", Navigate(scrDashboard, ScreenTransition.None), "Plan", Navigate(scrPlan, ScreenTransition.None), "Engagements", Navigate(scrEngagements, ScreenTransition.None), "Findings", Navigate(scrFindings, ScreenTransition.None), "Actions", Navigate(scrActions, ScreenTransition.None), "Follow-Up", Navigate(scrFollowUp, ScreenTransition.None), "Fieldwork", Navigate(scrFieldwork, ScreenTransition.None), "Questionnaires", Navigate(scrQuestionnaires, ScreenTransition.None), "My Questionnaires", Navigate(scrMyQuestionnaires, ScreenTransition.None), "Reports", Navigate(scrReports, ScreenTransition.None), "Resource Centre", Navigate(scrResources, ScreenTransition.None))
-            ShowScrollbar: =false
-            TemplatePadding: =0
-            TemplateSize: =121
-            Width: =Parent.Width - 32
-            X: =16
-            Y: =52
-          Children:
-            - lblTab_5:
-                Control: Label@2.5.1
-                Properties:
-                  Align: =Align.Center
-                  Color: =If(ThisItem.Value="Dashboard",RGBA(247, 244, 236, 1),RGBA(174, 184, 198, 1))
-                  Fill: =If(ThisItem.Value="Dashboard",RGBA(27, 50, 80, 1),RGBA(0, 0, 0, 0))
-                  Font: =Font.'Segoe UI'
-                  Height: =34
-                  OnSelect: =Select(Parent)
-                  Size: =11
-                  Text: =ThisItem.Value
-                  Width: =Parent.TemplateWidth
-            - recTabLine_5:
-                Control: Rectangle@2.3.0
-                Properties:
-                  Fill: =RGBA(247, 244, 236, 1)
-                  Height: =2
-                  Visible: =ThisItem.Value="Dashboard"
-                  Width: =Parent.TemplateWidth
-                  Y: =32
+            X: =1288
+            Y: =40

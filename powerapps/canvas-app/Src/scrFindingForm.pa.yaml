@@ -260,7 +260,6 @@ Screens:
                   - Responsible Manager_DataCard1:
                       Control: TypedDataCard@1.0.7
                       Variant: ComboBoxEdit
-                      IsLocked: true
                       Properties:
                         BorderColor: =RGBA(230, 224, 210, 1)
                         DataField: ="ResponsibleManager"
@@ -297,7 +296,7 @@ Screens:
                               X: =24
                               Y: =DataCardKey28.Y + DataCardKey28.Height + 4
                             Children:
-                              - DisplayName6:
+                              - DisplayName5:
                                   Control: ComboBoxDataField@1.5.0
                                   Variant: textualColumn
                                   IsLocked: true
@@ -564,44 +563,6 @@ Screens:
                               Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
                               Width: =30
                               Y: =DataCardKey32.Y
-                  - Name_DataCard2:
-                      Control: TypedDataCard@1.0.7
-                      Variant: TextualView
-                      IsLocked: true
-                      Properties:
-                        BorderColor: =RGBA(230, 224, 210, 1)
-                        DataField: ="{Name}"
-                        Default: =ThisItem.Name
-                        DisplayName: =DataSourceInfo([@'Audit Findings Register'],DataSourceInfo.DisplayName,Name)
-                        Required: =false
-                        Width: =400
-                        X: =0
-                        Y: =4
-                      Children:
-                        - DataCardKey33:
-                            Control: Text@0.0.51
-                            MetadataKey: FieldName
-                            Properties:
-                              Height: =22
-                              Text: =Parent.DisplayName
-                              Weight: ='TextCanvas.Weight'.Semibold
-                              Width: =Parent.Width - 48
-                              Wrap: =false
-                              X: =24
-                              Y: =10
-                        - DataCardValue33:
-                            Control: TextInput@0.0.54
-                            MetadataKey: FieldValue
-                            Properties:
-                              AccessibleLabel: =Parent.DisplayName
-                              DisplayMode: =DisplayMode.View
-                              Mode: ="'TextInputCanvas.Mode'.TextInputModeSingleLine"
-                              Required: =Parent.Required
-                              ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
-                              Value: =Parent.Default
-                              Width: =Parent.Width - 48
-                              X: =24
-                              Y: =DataCardKey33.Y + DataCardKey33.Height + 4
                   - Workflow Stage_DataCard1:
                       Control: TypedDataCard@1.0.7
                       Variant: ComboBoxEdit
@@ -614,7 +575,7 @@ Screens:
                         Required: =false
                         Update: =DataCardValue34.Selected
                         Width: =400
-                        X: =1
+                        X: =0
                         Y: =4
                       Children:
                         - DataCardKey34:
@@ -674,8 +635,8 @@ Screens:
                         Required: =true
                         Update: =DataCardValue35.Value
                         Width: =400
-                        X: =0
-                        Y: =5
+                        X: =1
+                        Y: =4
                       Children:
                         - DataCardKey35:
                             Control: Text@0.0.51
@@ -733,7 +694,7 @@ Screens:
                         Required: =false
                         Update: =DataCardValue36.SelectedDate
                         Width: =400
-                        X: =1
+                        X: =0
                         Y: =5
                       Children:
                         - DataCardKey36:
@@ -780,44 +741,6 @@ Screens:
                               Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
                               Width: =30
                               Y: =DataCardKey36.Y
-                  - Created_DataCard1:
-                      Control: TypedDataCard@1.0.7
-                      Variant: TextualView
-                      IsLocked: true
-                      Properties:
-                        BorderColor: =RGBA(230, 224, 210, 1)
-                        DataField: ="Created"
-                        Default: =ThisItem.Created
-                        DisplayName: =DataSourceInfo([@'Audit Findings Register'],DataSourceInfo.DisplayName,Created)
-                        Required: =false
-                        Width: =400
-                        X: =0
-                        Y: =6
-                      Children:
-                        - DataCardKey37:
-                            Control: Text@0.0.51
-                            MetadataKey: FieldName
-                            Properties:
-                              Height: =22
-                              Text: =Parent.DisplayName
-                              Weight: ='TextCanvas.Weight'.Semibold
-                              Width: =Parent.Width - 48
-                              Wrap: =false
-                              X: =24
-                              Y: =10
-                        - DataCardValue37:
-                            Control: TextInput@0.0.54
-                            MetadataKey: FieldValue
-                            Properties:
-                              AccessibleLabel: =Parent.DisplayName
-                              DisplayMode: =DisplayMode.View
-                              Mode: ="'TextInputCanvas.Mode'.TextInputModeSingleLine"
-                              Required: =Parent.Required
-                              ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
-                              Value: =Parent.Default
-                              Width: =Parent.Width - 48
-                              X: =24
-                              Y: =DataCardKey37.Y + DataCardKey37.Height + 4
                   - Engagement_DataCard1:
                       Control: TypedDataCard@1.0.7
                       Variant: ComboBoxEdit
@@ -831,7 +754,7 @@ Screens:
                         Update: =DataCardValue38.Selected
                         Width: =400
                         X: =1
-                        Y: =6
+                        Y: =5
                       Children:
                         - DataCardKey38:
                             Control: Text@0.0.51
@@ -889,7 +812,7 @@ Screens:
                         Update: =DataCardValue39.Selected
                         Width: =400
                         X: =0
-                        Y: =7
+                        Y: =6
                       Children:
                         - DataCardKey39:
                             Control: Text@0.0.51
@@ -948,7 +871,7 @@ Screens:
                         Update: =DataCardValue62.Selected
                         Width: =683
                         X: =1
-                        Y: =7
+                        Y: =6
                       Children:
                         - DataCardKey62:
                             Control: Text@0.0.51
@@ -1007,7 +930,7 @@ Screens:
                         Update: =DataCardValue72.Selected
                         Width: =683
                         X: =0
-                        Y: =8
+                        Y: =7
                       Children:
                         - DataCardKey72:
                             Control: Text@0.0.51
@@ -1067,7 +990,7 @@ Screens:
                         Update: =DataCardValue73.Value
                         Width: =683
                         X: =1
-                        Y: =8
+                        Y: =7
                       Children:
                         - DataCardKey73:
                             Control: Text@0.0.51
@@ -1126,7 +1049,7 @@ Screens:
                         Update: =DataCardValue74.Selected
                         Width: =683
                         X: =0
-                        Y: =9
+                        Y: =8
                       Children:
                         - DataCardKey74:
                             Control: Text@0.0.51
@@ -1186,7 +1109,7 @@ Screens:
                         Update: =DataCardValue75.Value
                         Width: =683
                         X: =1
-                        Y: =9
+                        Y: =8
                       Children:
                         - DataCardKey75:
                             Control: Text@0.0.51
@@ -1245,7 +1168,7 @@ Screens:
                         Update: =DataCardValue76.SelectedDate
                         Width: =683
                         X: =0
-                        Y: =10
+                        Y: =9
                       Children:
                         - DataCardKey76:
                             Control: Text@0.0.51

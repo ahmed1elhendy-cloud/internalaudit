@@ -1363,41 +1363,6 @@ Screens:
                         Wrap: =false
                         X: =30
                         Y: =10
-                  - DataCardValue4:
-                      Control: Classic/ComboBox@2.4.0
-                      MetadataKey: FieldValue
-                      Properties:
-                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
-                        ChevronBackground: =RGBA(245, 245, 245, 1)
-                        ChevronDisabledBackground: =RGBA(242, 242, 241, 0)
-                        ChevronDisabledFill: =RGBA(161, 159, 157, 1)
-                        ChevronFill: =RGBA(50, 49, 48, 1)
-                        ChevronHoverBackground: =RGBA(245, 245, 245, 1)
-                        ChevronHoverFill: =RGBA(50, 49, 48, 1)
-                        Color: =RGBA(50, 49, 48, 1)
-                        DefaultSelectedItems: =Parent.Default
-                        DisplayFields: =["Value"]
-                        SearchFields: =["Value"]
-                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                        DisabledColor: =RGBA(161, 159, 157, 1)
-                        DisabledFill: =RGBA(242, 242, 241, 0)
-                        DisplayMode: =Parent.DisplayMode
-                        Fill: =RGBA(245, 245, 245, 1)
-                        Font: =Font.'Segoe UI'
-                        HoverBorderColor: =RGBA(16, 110, 190, 1)
-                        HoverColor: =RGBA(50, 49, 48, 1)
-                        HoverFill: =RGBA(245, 245, 245, 1)
-                        Items: =SortByColumns(ForAll(Entities, {Id: ID, Value: Title}), "Value")
-                        PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
-                        PressedBorderColor: =RGBA(16, 110, 190, 1)
-                        PressedColor: =RGBA(255, 255, 255, 1)
-                        PressedFill: =RGBA(0, 120, 212, 1)
-                        SelectionColor: =RGBA(255, 255, 255, 1)
-                        SelectionFill: =RGBA(0, 120, 212, 1)
-                        Tooltip: =Parent.DisplayName
-                        Width: =Parent.Width - 60
-                        X: =30
-                        Y: =DataCardKey4.Y + DataCardKey4.Height + 5
                   - ErrorMessage4:
                       Control: Label@2.5.1
                       MetadataKey: ErrorMessage
@@ -1444,10 +1409,40 @@ Screens:
                         Width: =30
                         Wrap: =false
                         Y: =DataCardKey4.Y
+                  - DataCardValue4:
+                      Control: Classic/ComboBox@2.4.0
+                      Properties:
+                        BorderColor: =RGBA(245, 245, 245, 1)
+                        ChevronBackground: =RGBA(245, 245, 245, 1)
+                        ChevronDisabledBackground: =RGBA(242, 242, 241, 0)
+                        ChevronDisabledFill: =RGBA(161, 159, 157, 1)
+                        ChevronFill: =RGBA(50, 49, 48, 1)
+                        ChevronHoverBackground: =RGBA(245, 245, 245, 1)
+                        ChevronHoverFill: =RGBA(50, 49, 48, 1)
+                        Color: =RGBA(50, 49, 48, 1)
+                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                        DisabledColor: =RGBA(161, 159, 157, 1)
+                        DisabledFill: =RGBA(242, 242, 241, 0)
+                        DisplayFields: =["Value"]
+                        Fill: =RGBA(245, 245, 245, 1)
+                        Font: =Font.'Segoe UI'
+                        HoverBorderColor: =RGBA(16, 110, 190, 1)
+                        HoverColor: =RGBA(50, 49, 48, 1)
+                        HoverFill: =RGBA(245, 245, 245, 1)
+                        Items: |-
+                          =SortByColumns(ForAll(Entities, {Id: ID, Value: Title}), "Value")
+                        PressedBorderColor: =RGBA(16, 110, 190, 1)
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 120, 212, 1)
+                        SearchFields: =["Value"]
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(0, 120, 212, 1)
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =48
             - Engagement Type_DataCard1:
                 Control: TypedDataCard@1.0.7
                 Variant: ClassicComboBoxEdit
-                IsLocked: true
                 Properties:
                   BorderColor: =RGBA(245, 245, 245, 1)
                   DataField: ="Engagement_x0020_Type"
@@ -1480,42 +1475,6 @@ Screens:
                         Wrap: =false
                         X: =30
                         Y: =10
-                  - DataCardValue24:
-                      Control: Classic/ComboBox@2.4.0
-                      MetadataKey: FieldValue
-                      Properties:
-                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
-                        ChevronBackground: =RGBA(245, 245, 245, 1)
-                        ChevronDisabledBackground: =RGBA(242, 242, 241, 0)
-                        ChevronDisabledFill: =RGBA(161, 159, 157, 1)
-                        ChevronFill: =RGBA(50, 49, 48, 1)
-                        ChevronHoverBackground: =RGBA(245, 245, 245, 1)
-                        ChevronHoverFill: =RGBA(50, 49, 48, 1)
-                        Color: =RGBA(50, 49, 48, 1)
-                        DefaultSelectedItems: =Parent.Default
-                        DisplayFields: =["Value"]
-                        SearchFields: =["Value"]
-                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                        DisabledColor: =RGBA(161, 159, 157, 1)
-                        DisabledFill: =RGBA(242, 242, 241, 0)
-                        DisplayMode: =Parent.DisplayMode
-                        Fill: =RGBA(245, 245, 245, 1)
-                        Font: =Font.'Segoe UI'
-                        HoverBorderColor: =RGBA(16, 110, 190, 1)
-                        HoverColor: =RGBA(50, 49, 48, 1)
-                        HoverFill: =RGBA(245, 245, 245, 1)
-                        Items: =Table({Value: "Financial"}, {Value: "Operational"}, {Value: "Compliance"}, {Value: "IT"}, {Value: "Special Investigation"}, {Value: "Follow-up"}, {Value: "Advisory"})
-                        PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
-                        PressedBorderColor: =RGBA(16, 110, 190, 1)
-                        PressedColor: =RGBA(255, 255, 255, 1)
-                        PressedFill: =RGBA(0, 120, 212, 1)
-                        SelectMultiple: =false
-                        SelectionColor: =RGBA(255, 255, 255, 1)
-                        SelectionFill: =RGBA(0, 120, 212, 1)
-                        Tooltip: =Parent.DisplayName
-                        Width: =Parent.Width - 60
-                        X: =30
-                        Y: =DataCardKey24.Y + DataCardKey24.Height + 5
                   - ErrorMessage23:
                       Control: Label@2.5.1
                       MetadataKey: ErrorMessage
@@ -1562,6 +1521,38 @@ Screens:
                         Width: =30
                         Wrap: =false
                         Y: =DataCardKey24.Y
+                  - DataCardValue24:
+                      Control: Classic/ComboBox@2.4.0
+                      Properties:
+                        BorderColor: =RGBA(245, 245, 245, 1)
+                        ChevronBackground: =RGBA(245, 245, 245, 1)
+                        ChevronDisabledBackground: =RGBA(242, 242, 241, 0)
+                        ChevronDisabledFill: =RGBA(161, 159, 157, 1)
+                        ChevronFill: =RGBA(50, 49, 48, 1)
+                        ChevronHoverBackground: =RGBA(245, 245, 245, 1)
+                        ChevronHoverFill: =RGBA(50, 49, 48, 1)
+                        Color: =RGBA(50, 49, 48, 1)
+                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                        DisabledColor: =RGBA(161, 159, 157, 1)
+                        DisabledFill: =RGBA(242, 242, 241, 0)
+                        DisplayFields: =["Value"]
+                        Fill: =RGBA(245, 245, 245, 1)
+                        Font: =Font.'Segoe UI'
+                        HoverBorderColor: =RGBA(16, 110, 190, 1)
+                        HoverColor: =RGBA(50, 49, 48, 1)
+                        HoverFill: =RGBA(245, 245, 245, 1)
+                        Items: |-
+                          =Table({Value: "Financial"}, {Value: "Operational"}, {Value: "Compliance"}, {Value: "IT"}, {Value: "Special Investigation"}, {Value: "Follow-up"}, {Value: "Advisory"})
+                        PressedBorderColor: =RGBA(16, 110, 190, 1)
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 120, 212, 1)
+                        SearchFields: =["Value"]
+                        SelectMultiple: =false
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(0, 120, 212, 1)
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =48
             - Actual Hours_DataCard2:
                 Control: TypedDataCard@1.0.7
                 Variant: ClassicNumberEdit

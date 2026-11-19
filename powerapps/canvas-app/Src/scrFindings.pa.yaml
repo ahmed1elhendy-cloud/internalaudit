@@ -384,8 +384,8 @@ Screens:
             PressedFill: =RGBA(0, 0, 0, 0)
             Tooltip: ="Refresh data"
             Width: =24
-            X: =1210
-            Y: =22
+            X: =1274
+            Y: =40
       - ddEngagement:
           Control: Classic/DropDown@2.3.1
           Properties:

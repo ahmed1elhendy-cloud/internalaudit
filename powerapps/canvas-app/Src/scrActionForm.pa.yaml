@@ -1031,17 +1031,13 @@ Screens:
             DisabledColor: =RGBA(161, 159, 157, 1)
             FocusedBorderThickness: =4
             Font: =Font.'Segoe UI'
-            Height: |+
-              =20
             Size: '=10	'
             Text: |-
               =If(IsBlank(DataCardValue47.Selected), "", With({e: LookUp('Audit Engagements', ID = LookUp('Audit Findings Register', ID = DataCardValue47.Selected.Id).Engagement.Id)}, "Audit Type: " & Coalesce(e.'Engagement Type'.Value, "-") & "   |   Audit Manager: " & Coalesce(e.'Audit Manager'.DisplayName, "-") & "   |   Lead Auditor: " & Coalesce(e.'Lead Auditor'.DisplayName, "-")))
-            Width: |+
-              =800
+            Width: '=400	'
             X: |+
-              =20
-            Y: |+
-              =46
+              =700
+            Y: =6
       - Label9:
           Control: Label@2.5.1
           Properties:

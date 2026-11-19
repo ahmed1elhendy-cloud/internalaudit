@@ -190,8 +190,7 @@ Screens:
             Items: =["High","Critical","Medium","Low"]
             Items.Value: =Value
             Size: =12
-            Width: |+
-              =300
+            Width: =((Parent.Width - 64) * 0.58 - 56) / 2
             X: =24 + 20 + ((Parent.Width - 64) * 0.58 - 56) / 2 + 16
             Y: =234
       - lblFWTitleLabel:

@@ -221,11 +221,10 @@ Screens:
           Properties:
             BorderThickness: =0
             Color: =RGBA(255, 255, 255, 1)
-            Fill: =If(IsBlank(LookUp('Knowledge Index', Title = "Questionnaire Templates").DocLink), RGBA(110, 120, 145, 1), RGBA(31, 42, 68, 1))
+            Fill: =RGBA(31, 42, 68, 1)
             Height: =92
             HoverFill: =RGBA(52, 68, 108, 1)
-            OnSelect: |-
-              =With({r: LookUp('Knowledge Index', Title = "Questionnaire Templates")}, If(IsBlank(r.DocLink), Notify("Coming soon - document not uploaded yet", NotificationType.Information), Launch(r.DocLink)))
+            OnSelect: =Navigate(scrQuestionnaires, ScreenTransition.None)
             Size: =12
             Text: |-
               =With({r: LookUp('Knowledge Index', Title = "Questionnaire Templates")}, r.Title & Char(10) & r.Description)
@@ -241,7 +240,7 @@ Screens:
             Text: ="REFERENCE"
             Width: =600
             X: =16
-            Y: =512
+            Y: =618
       - btnRC11:
           Control: Classic/Button@2.2.0
           Properties:
@@ -257,7 +256,7 @@ Screens:
               =With({r: LookUp('Knowledge Index', Title = "IIA Global Internal Audit Standards")}, r.Title & Char(10) & r.Description)
             Width: =257
             X: =16
-            Y: =542
+            Y: =648
       - btnRC12:
           Control: Classic/Button@2.2.0
           Properties:
@@ -273,7 +272,7 @@ Screens:
               =With({r: LookUp('Knowledge Index', Title = "Glossary")}, r.Title & Char(10) & r.Description)
             Width: =257
             X: =285
-            Y: =542
+            Y: =648
       - btnRC13:
           Control: Classic/Button@2.2.0
           Properties:
@@ -289,7 +288,8 @@ Screens:
               =With({r: LookUp('Knowledge Index', Title = "Contacts")}, r.Title & Char(10) & r.Description)
             Width: =257
             X: =554
-            Y: =542
+            Y: |+
+              =648
       - btnRC14:
           Control: Classic/Button@2.2.0
           Properties:
@@ -305,4 +305,61 @@ Screens:
               =With({r: LookUp('Knowledge Index', Title = "What's New")}, r.Title & Char(10) & r.Description)
             Width: =257
             X: =823
-            Y: =542
+            Y: |+
+              =648
+      - btnRC15:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =0
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(161, 159, 157, 1)
+            DisabledFill: =RGBA(242, 242, 241, 0)
+            Fill: =If(IsBlank(LookUp('Knowledge Index', Title = "Internal Audit Report Template").DocLink), RGBA(110, 120, 145, 1), RGBA(31, 42, 68, 1))
+            Font: =Font.'Segoe UI'
+            Height: |+
+              =92
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =RGBA(52, 68, 108, 1)
+            OnSelect: |-
+              =With({r: LookUp('Knowledge Index', Title = "Internal Audit Report Template")}, If(IsBlank(r.DocLink), Notify("Coming soon - document not uploaded yet", NotificationType.Information), Launch(r.DocLink)))
+            PressedBorderColor: =RGBA(0, 69, 120, 1)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(16, 110, 190, 1)
+            Size: =12
+            Text: |-
+              =With({r: LookUp('Knowledge Index', Title = "Internal Audit Report Template")}, r.Title & Char(10) & r.Description)
+            Width: |+
+              =257
+            X: =16
+            Y: =512
+      - btnRC16:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =0
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(161, 159, 157, 1)
+            DisabledFill: =RGBA(242, 242, 241, 0)
+            Fill: =If(IsBlank(LookUp('Knowledge Index', Title = "Internal Audit Presentation Template").DocLink), RGBA(110, 120, 145, 1), RGBA(31, 42, 68, 1))
+            Font: =Font.'Segoe UI'
+            Height: =92
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =RGBA(52, 68, 108, 1)
+            OnSelect: |-
+              =With({r: LookUp('Knowledge Index', Title = "Internal Audit Presentation Template")}, If(IsBlank(r.DocLink), Notify("Coming soon - document not uploaded yet", NotificationType.Information), Launch(r.DocLink)))
+            PressedBorderColor: =RGBA(0, 69, 120, 1)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(16, 110, 190, 1)
+            Size: =12
+            Text: |-
+              =With({r: LookUp('Knowledge Index', Title = "Internal Audit Presentation Template")}, r.Title & Char(10) & r.Description)
+            Width: =257
+            X: =285
+            Y: =512

@@ -9,7 +9,8 @@
 Screens:
   scrPlanForm:
     Properties:
-      Fill: =RGBA(255, 255, 255, 1)
+      Fill: |-
+        =SortByColumns(ForAll(Filter('Audit Universe', !IsBlank(Title)), {Id: ID, Value: Title & " - " & Entity.Value}), "Value")
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
     Children:
       - recBg_1:
@@ -642,7 +643,6 @@ Screens:
             - Audit Area_DataCard1:
                 Control: TypedDataCard@1.0.7
                 Variant: ComboBoxEdit
-                IsLocked: true
                 Properties:
                   BorderColor: =RGBA(230, 224, 210, 1)
                   DataField: ="AuditArea"
@@ -672,7 +672,8 @@ Screens:
                         AccessibleLabel: =Parent.DisplayName
                         DefaultSelectedItems: =[Parent.Default]
                         DisplayMode: =Parent.DisplayMode
-                        Items: =SortByColumns(ForAll(If(CountRows(Filter(DataCardValue2.SelectedItems, !IsBlank(Id))) = 0, 'Audit Universe', Filter('Audit Universe', Entity.Id in DataCardValue2.SelectedItems.Id)), {Id: ID, Value: Title & " - " & Entity.Value}), "Value")
+                        Items: |-
+                          =SortByColumns(ForAll(If(CountRows(Filter(DataCardValue2.SelectedItems, !IsBlank(Id))) = 0, 'Audit Universe', Filter('Audit Universe', Entity.Id in DataCardValue2.SelectedItems.Id)), {Id: ID, Value: Title & " - " & Entity.Value}), "Value")
                         Required: =Parent.Required
                         ValidationState: =If(IsBlank(Parent.Error), "None", "Error")
                         Width: =Parent.Width - 48
@@ -889,7 +890,6 @@ Screens:
             - Entity_DataCard1:
                 Control: TypedDataCard@1.0.7
                 Variant: ComboBoxMultiSelectEdit
-                IsLocked: true
                 Properties:
                   BorderColor: =RGBA(245, 245, 245, 1)
                   DataField: ="Entity"
@@ -919,7 +919,8 @@ Screens:
                         AccessibleLabel: =Parent.DisplayName
                         DefaultSelectedItems: =Parent.Default
                         DisplayMode: =Parent.DisplayMode
-                        Items: =Choices([@'Annual Audit Plan'].'Entity')
+                        Items: |-
+                          =SortByColumns(ForAll(Entities, {Id: ID, Value: Title}), "Value")
                         Required: =Parent.Required
                         SelectMultiple: =true
                         ValidationState: =If(IsBlank(Parent.Error), "None", "Error")

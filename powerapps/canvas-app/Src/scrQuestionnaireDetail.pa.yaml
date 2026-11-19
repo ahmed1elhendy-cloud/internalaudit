@@ -603,8 +603,10 @@ Screens:
                   Size: =11
                   Text: =Upper("Assign")
                   Visible: =ThisItem.Kind="S"
-                  Width: =80
-                  X: =Parent.TemplateWidth - 96
+                  Width: |+
+                    =62
+                  X: |+
+                    =Parent.TemplateWidth - 78
                   Y: =14
             - btnRowOpen:
                 Control: Classic/Button@2.2.0

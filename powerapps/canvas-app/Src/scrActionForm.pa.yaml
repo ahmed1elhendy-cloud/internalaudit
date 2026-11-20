@@ -1018,26 +1018,6 @@ Screens:
             Width: =270
             X: =345
             Y: =8
-      - Label7:
-          Control: Label@2.5.1
-          Properties:
-            AutoHeight: '=24	'
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: |+
-              =RGBA(255, 255, 255, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(161, 159, 157, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Size: '=10	'
-            Text: |-
-              =If(IsBlank(DataCardValue47.Selected), "", With({e: LookUp('Audit Engagements', ID = LookUp('Audit Findings Register', ID = DataCardValue47.Selected.Id).Engagement.Id)}, "Audit Type: " & Coalesce(e.'Engagement Type'.Value, "-") & "   |   Audit Manager: " & Coalesce(e.'Audit Manager'.DisplayName, "-") & "   |   Lead Auditor: " & Coalesce(e.'Lead Auditor'.DisplayName, "-")))
-            Width: '=400	'
-            X: |+
-              =700
-            Y: =6
       - Label9:
           Control: Label@2.5.1
           Properties:

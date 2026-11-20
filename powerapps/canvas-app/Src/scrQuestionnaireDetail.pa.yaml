@@ -482,7 +482,8 @@ Screens:
                   Font: =Font.Georgia
                   Height: =30
                   Size: =14
-                  Text: =ThisItem.Title
+                  Text: |+
+                    =If(Len(ThisItem.Title) > 34, Left(ThisItem.Title, 32) & "...", ThisItem.Title )
                   Visible: =ThisItem.Kind="S"
                   Width: =330
                   X: =16
@@ -532,7 +533,8 @@ Screens:
                   Size: =12
                   Text: =ThisItem.Title
                   Visible: =ThisItem.Kind="Q"
-                  Width: =Parent.TemplateWidth - 326
+                  Width: |+
+                    =Parent.TemplateWidth - 352
                   X: =62
                   Y: =4
             - lblQSub:
@@ -544,7 +546,8 @@ Screens:
                   Size: =10
                   Text: =ThisItem.Sub
                   Visible: =ThisItem.Kind="Q"
-                  Width: =Parent.TemplateWidth - 326
+                  Width: |+
+                    =Parent.TemplateWidth - 352
                   X: =62
                   Y: =42
             - lblQTag:
@@ -558,7 +561,8 @@ Screens:
                   Text: =ThisItem.Tag
                   Visible: =ThisItem.Kind="Q"
                   Width: =90
-                  X: =Parent.TemplateWidth - 256
+                  X: |+
+                    =Parent.TemplateWidth - 282
                   Y: =10
             - chSChip_1:
                 Control: Rectangle@2.3.0
@@ -567,8 +571,10 @@ Screens:
                   BorderThickness: =1
                   Fill: =RGBA(0, 0, 0, 0)
                   Height: =24
-                  Width: =76
-                  X: =Parent.TemplateWidth - 160
+                  Width: |+
+                    =96
+                  X: |+
+                    =Parent.TemplateWidth - 186
                   Y: =20
             - chSChipText_1:
                 Control: Label@2.5.1
@@ -580,8 +586,10 @@ Screens:
                   Height: =24
                   Size: =10
                   Text: =ThisItem.Stat
-                  Width: =76
-                  X: =Parent.TemplateWidth - 160
+                  Width: |+
+                    =96
+                  X: |+
+                    =Parent.TemplateWidth - 186
                   Y: =22
             - btnRowAssign:
                 Control: Classic/Button@2.2.0

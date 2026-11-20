@@ -1214,24 +1214,6 @@ Screens:
                               Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
                               Width: =30
                               Y: =DataCardKey76.Y
-      - Label3:
-          Control: Label@2.5.1
-          Properties:
-            AutoHeight: '=33	'
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: '=RGBA(255, 255, 255, 1)	'
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(161, 159, 157, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Size: '=10	'
-            Text: |-
-              =If(IsBlank(DataCardValue38.Selected), "", With({e: LookUp('Audit Engagements', ID = DataCardValue38.Selected.Id)}, "Audit Type: " & Coalesce(e.'Engagement Type'.Value, "-") & "   |   Audit Manager: " & Coalesce(e.'Audit Manager'.DisplayName, "-") & "   |   Lead Auditor: " & Coalesce(e.'Lead Auditor'.DisplayName, "-")))
-            Width: '=500	'
-            X: '=170	'
-            Y: '=0	'
       - Label8:
           Control: Label@2.5.1
           Properties:

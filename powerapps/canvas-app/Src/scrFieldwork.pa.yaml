@@ -406,24 +406,6 @@ Screens:
             Width: =200
             X: =264
             Y: =566
-      - Label6:
-          Control: Label@2.5.1
-          Properties:
-            AutoHeight: '=33	'
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: '=RGBA(255, 255, 255, 1)	'
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(161, 159, 157, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Size: '=10	'
-            Text: |-
-              =If(IsBlank(ddFWEng.Selected), "", With({e: LookUp('Audit Engagements', 'Engagement Title' = ddFWEng.Selected.Value)}, "Audit Type: " & Coalesce(e.'Engagement Type'.Value, "-") & "   |   Audit Manager: " & Coalesce(e.'Audit Manager'.DisplayName, "-") & "   |   Lead Auditor: " & Coalesce(e.'Lead Auditor'.DisplayName, "-")))
-            Width: '=500	'
-            X: '=170	'
-            Y: '=0	'
       - Icon7:
           Control: Classic/Icon@2.5.0
           Properties:

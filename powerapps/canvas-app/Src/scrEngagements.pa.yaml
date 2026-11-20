@@ -364,18 +364,6 @@ Screens:
             Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.38 - 16 - 40
             X: =24 + (Parent.Width - 64) * 0.38 + 16 + 20
             Y: =416
-      - lblDetFindings:
-          Control: Label@2.5.1
-          Properties:
-            Color: =RGBA(142, 43, 43, 1)
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =26
-            Size: =14
-            Text: |-
-              ="Findings: " & CountRows(Filter('Audit Findings Register', Engagement.Id = galEng.Selected.ID)) & "  |  Hours: " & Text(Coalesce(galEng.Selected.'Actual Hours', 0)) & " / " & Text(Coalesce(galEng.Selected.'Budgeted Hours', 0)) & If(Coalesce(galEng.Selected.'Budgeted Hours', 0) > 0 && Coalesce(galEng.Selected.'Actual Hours', 0) > galEng.Selected.'Budgeted Hours', " (OVER BUDGET)", "")
-            Width: =Parent.Width - 48 - (Parent.Width - 64) * 0.38 - 16 - 40
-            X: =24 + (Parent.Width - 64) * 0.38 + 16 + 20
       - Icon4:
           Control: Classic/Icon@2.5.0
           Properties:

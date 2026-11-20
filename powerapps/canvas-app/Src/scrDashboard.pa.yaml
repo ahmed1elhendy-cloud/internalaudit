@@ -477,8 +477,8 @@ Screens:
             HoverBorderColor: =RGBA(0, 0, 0, 0)
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: =RGBA(16, 110, 190, 1)
-            OnSelect: |-
-              =With({reportUrl: ""}, If(IsBlank(reportUrl), Notify("The Power BI report link will be available once the report is published to the MHAO workspace.", NotificationType.Information), Launch(reportUrl)))
+            OnSelect: |+
+              =Launch("https://app.powerbi.com/groups/me/reports/YOUR-REPORT-ID")
             PressedBorderColor: =RGBA(0, 69, 120, 1)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: =RGBA(16, 110, 190, 1)
